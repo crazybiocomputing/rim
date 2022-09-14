@@ -1,4 +1,4 @@
-/** This class consists of pub fields that describe an image file. */
+/** This class consists of public fields that describe an image file. */
 pub struct FileInfo {
     /* File format (TIFF, GIF_OR_JPG, BMP, etc.). Used by the File/Revert command */
     pub file_format: u32,
@@ -79,35 +79,35 @@ impl FileInfo {
     /** 8-bit unsigned eger with color lookup table. */
     pub const COLOR8: u32 = 5;
 
-    /** 24-bit erleaved RGB. Import/export only. */
+    /** 24-bit interleaved RGB. Import/export only. */
     pub const RGB: u32 = 6;
 
-    /** 24-bit planer RGB. Import only. */
+    /** 24-bit planar RGB. Import only. */
     pub const RGB_PLANAR: u32 = 7;
 
     /** 1-bit black and white. Import only. */
     pub const BITMAP: u32 = 8;
 
-    /** 32-bit erleaved ARGB. Import only. */
+    /** 32-bit interleaved ARGB. Import only. */
     pub const ARGB: u32 = 9;
 
-    /** 24-bit erleaved BGR. Import only. */
+    /** 24-bit interleaved BGR. Import only. */
     pub const BGR: u32 = 10;
 
-    /** 32-bit unsigned eger. Imported 32-bit eger images are
+    /** 32-bit unsigned integer. Imported 32-bit integer images are
     converted to floating-po. */
     pub const GRAY32_UNSIGNED: u32 = 11;
 
-    /** 48-bit erleaved RGB. */
+    /** 48-bit interleaved RGB. */
     pub const RGB48: u32 = 12;
 
-    /** 12-bit unsigned eger (0-4095). Import only. */
+    /** 12-bit unsigned integer (0-4095). Import only. */
     pub const GRAY12_UNSIGNED: u32 = 13;
 
-    /** 24-bit unsigned eger. Import only. */
+    /** 24-bit unsigned integer. Import only. */
     pub const GRAY24_UNSIGNED: u32 = 14;
 
-    /** 32-bit erleaved BARG (MCID). Import only. */
+    /** 32-bit interleaved BARG (MCID). Import only. */
     pub const BARG: u32 = 15;
 
     /** 64-bit floating-po. Import only.*/
@@ -116,10 +116,10 @@ impl FileInfo {
     /** 48-bit planar RGB. Import only. */
     pub const RGB48_PLANAR: u32 = 17;
 
-    /** 32-bit erleaved ABGR. Import only. */
+    /** 32-bit interleaved ABGR. Import only. */
     pub const ABGR: u32 = 18;
 
-    /** 32-bit erleaved CMYK. Import only. */
+    /** 32-bit interleaved CMYK. Import only. */
     pub const CMYK: u32 = 19;
 
     // File formats
@@ -151,7 +151,7 @@ impl FileInfo {
         FileInfo {
             file_format: FileInfo::UNKNOWN,
             file_type: FileInfo::GRAY8,
-            file_name: "Untitled".to_string(),
+            file_name: String::from("Untitled"),
             directory: "".to_string(),
             url: "".to_string(),
             width: 0,
@@ -162,12 +162,12 @@ impl FileInfo {
             white_is_zero: false,
             compression: FileInfo::COMPRESSION_NONE,
             intel_byte_order: true,
-            info: "No info".to_string(),
+            info: String::from("No info"),
             pixel_width: 1.0,
             pixel_height: 1.0,
             pixel_depth: 1.0,
-            unit: "px".to_string(),
-            description: "None".to_string(),
+            unit: String::from("px"),
+            description: String::from("None"),
             samples_per_pixel: 1,
             image_saved: false,
         }
@@ -176,7 +176,7 @@ impl FileInfo {
     /** Returns the file path. */
     pub fn get_file_path(&self) -> String {
         let dir: String = if self.directory.is_empty() {
-            "".to_string()
+            String::from("")
         } else {
             self.directory.clone()
         };

@@ -1,5 +1,8 @@
 
+// Alias 
+type FloatProcessor = ImageProcessor<f32,Gray<f32>>;
 
+// ... or hard-coded class from trait...
 struct FloatProcessor {
     /// Field Summary
     /// Fields Modifier and Type Field Description
