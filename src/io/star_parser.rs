@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+#[allow(dead_code)]
+
 // Constants for state
 enum STAR {
     NONE,
@@ -46,7 +48,7 @@ impl ToString for Token {
 fn tokenize(txt: String) -> Vec<Token> {
     // Split into words. Separators one or more spaces, eols, tabs, etc.
     // TODO
-    let v: Vec<&str> = txt
+    let _v: Vec<&str> = txt
         .split(|c: char| !(c.is_alphanumeric()))
         .filter(|s| !s.is_empty())
         .collect();
@@ -69,6 +71,8 @@ fn parse_tokens(_toks: Vec<Token>) -> HashMap<String, Value> {
     params
 }
 
+/// Parse Star files
+///
 pub fn parse_star(txt: String) {
     println!("Parsing... (TODO)\n{}", txt);
 

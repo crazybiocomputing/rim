@@ -4,9 +4,9 @@ use std::fs;
 pub struct StarIO {}
 
 impl StarIO {
-    /**
-     * Load distant file from RCSB web site
-     */
+    ///
+    /// Load distant mmCIF file from RCSB web site
+    ///
     pub fn load_mmcif(pdb_id: &str) {
         let path = "https://files.rcsb.org/view";
         let url = format!("${}/${}.cif", path, pdb_id.to_uppercase());
@@ -18,11 +18,15 @@ impl StarIO {
         // Parse text and return
         // parse_star(txt)
     }
-
+    ///
+    /// Load local mmCIF file from disk
+    ///
     pub fn load_file_mmcif(filename: &str) {
         Self::load_file_star(filename)
     }
-
+    ///
+    /// Load local STAR file from disk
+    ///
     pub fn load_file_star(filename: &str) {
         // Get data
         let txt = fs::read_to_string(filename).expect("Unable to read file");
