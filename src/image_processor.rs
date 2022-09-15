@@ -1,15 +1,38 @@
+//
+//  RIM - Rust Image
+//  Copyright (C) 2022  Jean-Christophe Taveau.
+//
+//  This file is part of RIM
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
+ 
+ 
+ 
 pub struct ImageProcessor<T,C> {
   pub width: u32,
   pub height: u32,
-  pub pixels: Vec<T>
+  pub depth: u32,
+  pub data: Vec<T>,
+  pub colormodel: C
 }
 
 impl<T,C> ImageProcessor<T,C> {
-  pub fn new() {
-  
+  pub fn new() -> Self {
+  // TODO
   }
   
-  pub fn with_pixels(w: u32, h: u32, px; Vec<T>) {};
+  pub fn with_pixels(w: u32, h: u32, px: Vec<T>, cm: C) -> Self {};
   
       /// See Also:
     /// Byte_Processor, Short_Processor, Float_Processor, Color_Processor, Image_Plus, Image_Stack
@@ -18,9 +41,9 @@ impl<T,C> ImageProcessor<T,C> {
     fn apply_table​(i32[] lut) {}
     /// Transforms the image or ROI using a lookup table.
 
-
-    java.lang.Object clone() {}
     /// Returns a shallow copy of this Image_Processor, where this image and the copy share pixel data.
+    java.lang.Object clone() {}
+    
     /// Image_Processor convert_To_Byte​(bool do_Scaling) {}
     /// Returns an 8-bit version of this image as a Byte_Processor.
     /// Byte_Processor convert_To_Byte_Processor() {}
@@ -92,7 +115,10 @@ impl<T,C> ImageProcessor<T,C> {
 
 
     /// Returns the height of this image in pixels.
-    fn get_height() -> i32 {}
+    pub fn get_height(&self) -> u32 {
+        self.height
+    }
+
 
     /// Returns a copy of the pixel data as a 2D i32 array with dimensions [x=0..width-1][y=0..height-1].
     i32[][] get_i32_array() {}
@@ -144,10 +170,12 @@ impl<T,C> ImageProcessor<T,C> {
 
     /// Returns the value of the pixel at (x,y), a calibrated value from 8-bit and 16-bit images, 
     /// an intensity value from RGB images and a f64 value from 32-bit images.
-    f64 get_value​(i32 x, i32 y) {}
+    pub fn get_value​(i32 x, i32 y) -> f64 {}
 
     /// Returns the width of this image in pixels.
-    i32 get_width() {}
+    pub fn get_width(&self) -> u32 {
+        self.width
+    }
 
     /// Inserts the image contained in 'ip' at (xloc, yloc).
     fn insert​(Image_Processor ip, i32 xloc, i32 yloc) {}
@@ -266,16 +294,22 @@ impl<T,C> ImageProcessor<T,C> {
     /// Swaps the pixel and snapshot (undo) buffers.
     fn swap_pixel_arrays() {}
 
-
-    abstract Float_Processor to_float​(i32 channel_Number, Float_Processor fp) {}
     /// Returns a Float_Processor with the image or one color channel thereof.
+    fn  to_float​(i32 channel_Number, Float_Processor fp) -> FloatProcessor {}
 
-    java.lang.String to_string() {}
-    /// Returns a string containing information about this Image_Processor.
-
+ 
     /// This method is used by Composite_Image.update_Image() to create RGB images (for display) of a multi-channel composite images.
     fn update_composite​(i32[] rgb_Pixels, i32 mode) {}
 
 
 }
+
+impl ToString for ImageProcessor {
+  fn to_string(&self) -> String { {
+    format!("ImageProcessor")
+  }
 }
+   java.lang.String to_string() {}
+    /// Returns a string containing information about this Image_Processor.
+
+

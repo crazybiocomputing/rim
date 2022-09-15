@@ -1,22 +1,43 @@
-
-/**
- * Opens or reverts an image specified by a FileInfo object. Images can
- * be loaded from either a file (directory+fileName) or a URL (url+fileName).
- * Here is an example:    
- * <pre>
- *   pub class FileInfo_Test implements PlugIn {
- *     pub fn run(String arg) {
- *       FileInfo fi = new FileInfo();
- *       fi.width = 256;
- *       fi.height = 254;
- *       fi.offset = 768;
- *       fi.fileName = "blobs.tif";
- *       fi.directory = "/Users/wayne/Desktop/";
- *       new FileOpener(fi).open();
- *     }  
- *   }    
- * </pre> 
- */
+//
+//  RIM - Rust Image
+//  Copyright (C) 2022  Jean-Christophe Taveau.
+//
+//  This file is part of RIM
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
+ 
+ 
+ 
+//!
+//! Opens or reverts an image specified by a FileInfo object. Images can
+//! be loaded from either a file (directory+fileName) or a URL (url+fileName).
+//! # Example
+//! 
+//! ```rust
+//!   pub class FileInfo_Test implements PlugIn {
+//!     pub fn run(String arg) {
+//!       FileInfo fi = new FileInfo();
+//!       fi.width = 256;
+//!       fi.height = 254;
+//!       fi.offset = 768;
+//!       fi.fileName = "blobs.tif";
+//!       fi.directory = "/Users/wayne/Desktop/";
+//!       new FileOpener(fi).open();
+//!     }  
+//!   }    
+//! ```
+//!
 struct FileOpener {
 
     pub fi: FileInfo;
@@ -29,7 +50,7 @@ struct FileOpener {
 }
 
 impl FileOpener {
-    pub new( &fi: FileInfo) -> FileOpener {
+    pub new( &fi: FileInfo) -> Self {
         FileOpener {
             fi: &fi;
             width: fi.width,
@@ -46,7 +67,7 @@ impl FileOpener {
 }
 
     
-    /** Opens the image and returns it has an ImagePlus object. */
+    /// Opens the image and returns it has an ImagePlus object. 
     pub fn open() {
         ImagePlus imp=null;
         Object pixels;
@@ -158,7 +179,7 @@ impl FileOpener {
         return imp;
     }
     
-    pub  openProcessor() -> ImageProcessor {
+    pub fn openProcessor() -> ImageProcessor {
         Object pixels;
         ProgressBar pb=null;
         ImageProcessor ip = null;        
