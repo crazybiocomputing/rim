@@ -31,11 +31,15 @@ pub struct Matrix4 {
 }
 
 
-impl Matrix4 {
+impl Clone for Matrix4 {
 
 pub fn clone() {
     return new Matrix4(this);
 };
+
+}
+
+impl Matrix4 {
 
 pub fn set(otherMat) {
     return this.copy(otherMat);
@@ -82,7 +86,7 @@ pub fn fromArray(&mut self,a) -> &mut Self {
     out[13] = a[13];
     out[14] = a[14];
     out[15] = a[15];
-    return this;
+    self
 };
 
 pub fn identity(&mut self) -> &mut Self {
@@ -103,7 +107,7 @@ pub fn identity(&mut self) -> &mut Self {
     out[13] = 0;
     out[14] = 0;
     out[15] = 1;
-    return this;
+    self
 };
 
 pub fn transpose(&mut self) -> &mut Self {
@@ -124,7 +128,7 @@ pub fn transpose(&mut self) -> &mut Self {
     a[12] = a03;
     a[13] = a13;
     a[14] = a23;
-    return this;
+    self
 };
 
 pub fn invert(&mut self) -> &mut Self{
@@ -176,8 +180,8 @@ pub fn invert(&mut self) -> &mut Self{
 };
 
 pub fn adjoint(&mut self) -> &mut Self {
-    var a = this.val,
-        a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3],
+    let a = self.val;
+    let a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3],
         a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7],
         a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11],
         a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
@@ -198,10 +202,10 @@ pub fn adjoint(&mut self) -> &mut Self {
     a[13] =  (a00 * (a21 * a32 - a22 * a31) - a20 * (a01 * a32 - a02 * a31) + a30 * (a01 * a22 - a02 * a21));
     a[14] = -(a00 * (a11 * a32 - a12 * a31) - a10 * (a01 * a32 - a02 * a31) + a30 * (a01 * a12 - a02 * a11));
     a[15] =  (a00 * (a11 * a22 - a12 * a21) - a10 * (a01 * a22 - a02 * a21) + a20 * (a01 * a12 - a02 * a11));
-    return this;
+    self
 };
 
-pub fn determinant = function () {
+pub fn determinant(&mut self) -> f64 {
     var a = this.val,
         a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3],
         a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7],
@@ -225,7 +229,7 @@ pub fn determinant = function () {
     return b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 };
 
-pub fn multiply = function(otherMat) {
+pub fn multiply(&mut self,other_mat: Matrix4) -> &mut Self  {
     var a = this.val,
         b = otherMat.val,
         a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3],
@@ -257,20 +261,20 @@ pub fn multiply = function(otherMat) {
     a[13] = b0*a01 + b1*a11 + b2*a21 + b3*a31;
     a[14] = b0*a02 + b1*a12 + b2*a22 + b3*a32;
     a[15] = b0*a03 + b1*a13 + b2*a23 + b3*a33;
-    return this;
+    self
 };
 
-pub fn translate = function(v) {
+pub fn translate(&mut self, v: Vector3) -> &mut Self  {
     var x = v.x, y = v.y, z = v.z,
         a = this.val;
     a[12] = a[0] * x + a[4] * y + a[8] * z + a[12];
     a[13] = a[1] * x + a[5] * y + a[9] * z + a[13];
     a[14] = a[2] * x + a[6] * y + a[10] * z + a[14];
     a[15] = a[3] * x + a[7] * y + a[11] * z + a[15];
-    return this;
+    self
 };
 
-pub fn scale = function(v) {
+pub fn scale(&mut self, v: Vector3) -> &mut Self  {
     var x = v.x, y = v.y, z = v.z, a = this.val;
 
     a[0] = a[0] * x;
@@ -289,10 +293,10 @@ pub fn scale = function(v) {
     a[13] = a[13];
     a[14] = a[14];
     a[15] = a[15];
-    return this;
+    self
 };
 
-pub fn rotate = function (rad, axis) {
+pub fn rotate (&mut self, rad: f64, axis: Vector3) -> &mut Self  {
     var a = this.val,
         x = axis.x, y = axis.y, z = axis.z,
         len = Math.sqrt(x * x + y * y + z * z),
@@ -337,10 +341,10 @@ pub fn rotate = function (rad, axis) {
     a[9] = a01 * b20 + a11 * b21 + a21 * b22;
     a[10] = a02 * b20 + a12 * b21 + a22 * b22;
     a[11] = a03 * b20 + a13 * b21 + a23 * b22;
-    return this;
+    self
 };
 
-pub fn rotateX = function(rad) {
+pub fn rotateX(rad: f64) {
     var a = this.val,
         s = Math.sin(rad),
         c = Math.cos(rad),
@@ -362,7 +366,7 @@ pub fn rotateX = function(rad) {
     a[9] = a21 * c - a11 * s;
     a[10] = a22 * c - a12 * s;
     a[11] = a23 * c - a13 * s;
-    return this;
+    self
 };
 
 pub fn rotateY = function(rad) {
@@ -387,7 +391,7 @@ pub fn rotateY = function(rad) {
     a[9] = a01 * s + a21 * c;
     a[10] = a02 * s + a22 * c;
     a[11] = a03 * s + a23 * c;
-    return this;
+    self
 };
 
 pub fn rotateZ = function (rad) {
@@ -412,7 +416,7 @@ pub fn rotateZ = function (rad) {
     a[5] = a11 * c - a01 * s;
     a[6] = a12 * c - a02 * s;
     a[7] = a13 * c - a03 * s;
-    return this;
+    self
 };
 
 pub fn fromRotationTranslation = function (q, v) {
@@ -449,10 +453,10 @@ pub fn fromRotationTranslation = function (q, v) {
     out[13] = v.y;
     out[14] = v.z;
     out[15] = 1;
-    return this;
+    self
 };
 
-pub fn fromQuat = function (q) {
+pub fn fromQuat(q: Quaternion) {
     var out = this.val,
         x = q.x, y = q.y, z = q.z, w = q.w,
         x2 = x + x,
@@ -489,21 +493,21 @@ pub fn fromQuat = function (q) {
     out[14] = 0;
     out[15] = 1;
 
-    return this;
+    self
 };
 
 
-/**
- * Generates a frustum matrix with the given bounds
- *
- * @param {Number} left Left bound of the frustum
- * @param {Number} right Right bound of the frustum
- * @param {Number} bottom Bottom bound of the frustum
- * @param {Number} top Top bound of the frustum
- * @param {Number} near Near bound of the frustum
- * @param {Number} far Far bound of the frustum
- * @returns {Matrix4} this for chaining
- */
+///
+/// Generates a frustum matrix with the given bounds
+///
+/// @param {Number} left Left bound of the frustum
+/// @param {Number} right Right bound of the frustum
+/// @param {Number} bottom Bottom bound of the frustum
+/// @param {Number} top Top bound of the frustum
+/// @param {Number} near Near bound of the frustum
+/// @param {Number} far Far bound of the frustum
+/// @returns {Matrix4} this for chaining
+////
 pub fn frustum = function (left, right, bottom, top, near, far) {
     var out = this.val,
         rl = 1 / (right - left),
@@ -525,19 +529,19 @@ pub fn frustum = function (left, right, bottom, top, near, far) {
     out[13] = 0;
     out[14] = (far * near * 2) * nf;
     out[15] = 0;
-    return this;
+    self
 };
 
 
-/**
- * Generates a perspective projection matrix with the given bounds
- *
- * @param {number} fovy Vertical field of view in radians
- * @param {number} aspect Aspect ratio. typically viewport width/height
- * @param {number} near Near bound of the frustum
- * @param {number} far Far bound of the frustum
- * @returns {Matrix4} this for chaining
- */
+///
+/// Generates a perspective projection matrix with the given bounds
+///
+/// @param {number} fovy Vertical field of view in radians
+/// @param {number} aspect Aspect ratio. typically viewport width/height
+/// @param {number} near Near bound of the frustum
+/// @param {number} far Far bound of the frustum
+/// @returns {Matrix4} this for chaining
+////
 pub fn perspective = function (fovy, aspect, near, far) {
     var out = this.val,
         f = 1.0 / Math.tan(fovy / 2),
@@ -558,20 +562,20 @@ pub fn perspective = function (fovy, aspect, near, far) {
     out[13] = 0;
     out[14] = (2 * far * near) * nf;
     out[15] = 0;
-    return this;
+    self
 };
 
-/**
- * Generates a orthogonal projection matrix with the given bounds
- *
- * @param {number} left Left bound of the frustum
- * @param {number} right Right bound of the frustum
- * @param {number} bottom Bottom bound of the frustum
- * @param {number} top Top bound of the frustum
- * @param {number} near Near bound of the frustum
- * @param {number} far Far bound of the frustum
- * @returns {Matrix4} this for chaining
- */
+///
+/// Generates a orthogonal projection matrix with the given bounds
+///
+/// @param {number} left Left bound of the frustum
+/// @param {number} right Right bound of the frustum
+/// @param {number} bottom Bottom bound of the frustum
+/// @param {number} top Top bound of the frustum
+/// @param {number} near Near bound of the frustum
+/// @param {number} far Far bound of the frustum
+/// @returns {Matrix4} this for chaining
+////
 pub fn ortho = function (left, right, bottom, top, near, far) {
     var out = this.val,
         lr = left-right,
@@ -599,17 +603,17 @@ pub fn ortho = function (left, right, bottom, top, near, far) {
     out[13] = (top + bottom) * bt;
     out[14] = (far + near) * nf;
     out[15] = 1;
-    return this;
+    self
 };
 
-/**
- * Generates a look-at matrix with the given eye position, focal point, and up axis
- *
- * @param {Vector3} eye Position of the viewer
- * @param {Vector3} center Point the viewer is looking at
- * @param {Vector3} up vec3 pointing up
- * @returns {Matrix4} this for chaining
- */
+///
+/// Generates a look-at matrix with the given eye position, focal point, and up axis
+///
+/// @param {Vector3} eye Position of the viewer
+/// @param {Vector3} center Point the viewer is looking at
+/// @param {Vector3} up vec3 pointing up
+/// @returns {Matrix4} this for chaining
+////
 pub fn lookAt = function (eye, center, up) {
     var out = this.val,
 
@@ -687,7 +691,7 @@ pub fn lookAt = function (eye, center, up) {
     out[14] = -(z0 * eyex + z1 * eyey + z2 * eyez);
     out[15] = 1;
 
-    return this;
+    self
 };
 
 
