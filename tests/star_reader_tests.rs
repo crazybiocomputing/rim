@@ -19,7 +19,7 @@ _header.id       Test
 
 const file03: String = "data_1ZNI
 #
-_header.id       Test
+_header.id       Test # Comment in end of line
 ";
 
 const file04: String = "data_1ZNI
@@ -92,6 +92,18 @@ _data.year
 ";
 
 const file11: String = "data_MUSIC
+#
+_header.id       Music
+_header.number   1.2345678
+_header.text
+;This is a multiline String
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+Pellentesque imperdiet vestibulum justo, a porttitor diam 
+scelerisque sit amet. Aliquam ligula sapien, viverra vel 
+finibus ut, semper non neque.
+;
+#
 #
 loop_
 _data.id

@@ -1,5 +1,5 @@
 //
-//  RIM - Rust Image
+//  RIM - Rust IMage
 //  Copyright (&self,C) 2022  Jean-Christophe Taveau.
 //
 //  This file is part of RIM
@@ -28,8 +28,8 @@ struct ImageProcessor<T,C> {
     width: u32,
     height: u32,
     data: Vec<T>,
+    // meta: MetaData, // Contains all the file info + lut : [u8; 256 * 3], etc.
     cs: C
-    // lut : [u8; 256 * 3]
 }
 
 impl<T,C> ImageProcessor<T,C> {
