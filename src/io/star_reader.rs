@@ -18,7 +18,7 @@
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
  
  
- 
+ /*
 use crate::io::star_parser::parse_star;
 use std::fs;
 
@@ -56,3 +56,4 @@ impl StarIO {
         parse_star(txt)
     }
 }
+*/

@@ -17,7 +17,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
  
- 
+/*
 use std::collections::HashMap;
 
 #[allow(dead_code)]
@@ -133,7 +133,7 @@ pub fn parse_star(txt: String) {
     println!("End");
     // return structure;
 }
-
+*/
 /*
 
 JS code for parsing STAR files
