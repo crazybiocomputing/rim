@@ -27,6 +27,7 @@ enum Space {
 
 pub struct ColorSpace {
     nb_channels : u8,
+    bits_per_color : u8,
     space : Space
 }
 
@@ -35,25 +36,31 @@ impl ColorSpace {
     pub fn Gray8() -> Self {
         return ColorSpace{
             nb_channels : 1,
+            bits_per_color : 8,
             space : Space::Gray
         }
     }
     pub fn Grayf32() -> Self {
         return ColorSpace{
             nb_channels : 1,
+            bits_per_color : 32,
             space : Space::Gray
         }
     }
     pub fn Rgb24() -> Self {
         return ColorSpace{
             nb_channels : 3,
+            bits_per_color : 8,
             space : Space::Rgb
         }
     }
 
-    //// Getter ////
+    //// Getters ////
     pub fn get_nb_channels(&self) -> u8 {
         return self.nb_channels
+    }
+    pub fn get_bit_depth(&self) -> u8 {
+        return self.bits_per_color * self.get_nb_channels()
     }
 }
 
