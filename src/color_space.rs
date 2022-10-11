@@ -21,6 +21,45 @@
 #![allow(unused)]
 
 enum Space {
+    Gray,
+    Rgb
+}
+
+pub struct ColorSpace {
+    nb_channels : u8,
+    space : Space
+}
+
+impl ColorSpace {
+    //// Constructeurs ////
+    pub fn Gray8() -> Self {
+        return ColorSpace{
+            nb_channels : 1,
+            space : Space::Gray
+        }
+    }
+    pub fn Grayf32() -> Self {
+        return ColorSpace{
+            nb_channels : 1,
+            space : Space::Gray
+        }
+    }
+    pub fn Rgb24() -> Self {
+        return ColorSpace{
+            nb_channels : 3,
+            space : Space::Rgb
+        }
+    }
+
+    //// Getter ////
+    pub fn get_nb_channels(&self) -> u8 {
+        return self.nb_channels
+    }
+}
+
+/*
+Old Code
+enum Space {
     Gray, // Grayscale
     Prgb, // Planar r,r,r,g,g,g,b,b,b
     Prgba, // Planar
@@ -129,4 +168,4 @@ impl ColorSpace for Rgb24 {
     }
 }
 
-
+*/

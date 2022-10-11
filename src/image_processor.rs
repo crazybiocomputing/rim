@@ -18,32 +18,65 @@
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
  
  
-use crate::color_space::Gray8;
+use crate::color_space::ColorSpace;
 
 /// ImageProcessor
 /// Generic Struct for dedicated Processors:
 /// Byte_Processor, Short_Processor, Float_Processor, Color_Processor, Image_Plus, Image_Stack
 
-struct ImageProcessor<T,C> {
-    width: u32,
-    height: u32,
+pub struct ImageProcessor<T> {
+    width: i32,
+    height: i32,
     data: Vec<T>,
     // meta: MetaData, // Contains all the file info + lut : [u8; 256 * 3], etc.
-    cs: C
+    cs : ColorSpace
 }
 
-impl<T,C> ImageProcessor<T,C> {
-    // Constructors -TODO
-    /// Returns a new, blank processor with the specified width and height.
-    // fn create_processor​(&self, width: i32, height: i32) -> Self {}
-  pub fn create_processor(width: u32, height: u32) -> ImageProcessor<u8,Gray8> { //Byte Processor
-    return ImageProcessor{
-        width : width,
-        height : height,
-        data : Vec::new(),
-        cs : Gray8{},
+impl<T> ImageProcessor<T> {
+    /// Constructeur générique ////
+    pub fn create_processor(width: i32, height: i32, datatype: T, cs : ColorSpace) -> ImageProcessor<T> {
+        return ImageProcessor{
+            width : width,
+            height : height,
+            data : Vec::new(),
+            cs : cs,
+        }
     }
-  }/* 
+
+    //// Constructeurs spécialisés ////
+    pub fn create_byte_processor(width: i32, height: i32) -> ImageProcessor<u8> {
+        let cs : ColorSpace = ColorSpace::Gray8();
+        return ImageProcessor{
+            width : width,
+            height : height,
+            data : vec![0 as u8; (width*height*(cs.get_nb_channels() as i32)) as usize],
+            cs : cs,
+        }
+    }
+    pub fn create_float_processor(width: i32, height: i32) -> ImageProcessor<f32> {
+        let cs : ColorSpace = ColorSpace::Grayf32();
+        return ImageProcessor{
+            width : width,
+            height : height,
+            data : vec![0 as f32; (width*height*(cs.get_nb_channels() as i32)) as usize],
+            cs : cs,
+        }
+    }
+    pub fn create_color_processor(width: i32, height: i32) -> ImageProcessor<u8> {
+        let cs : ColorSpace = ColorSpace::Rgb24();
+        return ImageProcessor{
+            width : width,
+            height : height,
+            data : vec![0 as u8; (width*height*(cs.get_nb_channels() as i32)) as usize],
+            cs : cs,
+        }
+    }
+
+    //// Affichage ////
+    pub fn debug(&self){
+        println!("ImageProcessor : Dimensions : {}x{} px, Color space : ??, Data type : ??", self.width, self.height);
+    }
+    /* 
    // Accessors
     fn get_width(&self) -> u32 {
       self.width
