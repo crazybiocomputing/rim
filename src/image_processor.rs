@@ -18,7 +18,7 @@
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
  
  
-
+use crate::color_space::Gray8;
 
 /// ImageProcessor
 /// Generic Struct for dedicated Processors:
@@ -36,7 +36,14 @@ impl<T,C> ImageProcessor<T,C> {
     // Constructors -TODO
     /// Returns a new, blank processor with the specified width and height.
     // fn create_processor​(&self, width: i32, height: i32) -> Self {}
-
+  pub fn create_processor(width: u32, height: u32) -> ImageProcessor<u8,Gray8> { //Byte Processor
+    return ImageProcessor{
+        width : width,
+        height : height,
+        data : Vec::new(),
+        cs : Gray8{},
+    }
+  }/* 
    // Accessors
     fn get_width(&self) -> u32 {
       self.width
@@ -55,7 +62,7 @@ impl<T,C> ImageProcessor<T,C> {
     /// Returns the number of color channels in the image.
     /// Returns 1 for a grayscale image.
     fn get_nchannels(&self) -> i32 {
-      cs.channels();
+      cs.channels();*/
 }
 
 
@@ -268,7 +275,7 @@ impl<T,C> ImageProcessor<T,C> {
 
 
 }
-*/
+
 
 
 impl fmt::Display for ImageProcessor {
@@ -281,4 +288,4 @@ impl fmt::Display for ImageProcessor {
         write!(f, "ImageProcessor {}x{}x{}", self.width, self.height, self.depth)
     }
 }
-
+*/
