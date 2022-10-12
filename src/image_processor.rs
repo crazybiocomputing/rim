@@ -20,6 +20,8 @@
  
 use crate::color_space::ColorSpace;
 use crate::image_traits::Access;
+use std::cell::RefCell;
+use std::cell::RefMut;
 
 // ImageProcessor
 // Generic Struct for dedicated Processors:
@@ -28,7 +30,7 @@ pub struct ImageProcessor<T>{
     width: u32,
     height: u32,
     size: u32,
-    data: Vec<T>,
+    data: RefCell<Vec<T>>,
     // meta: MetaData, // Contains all the file info + lut : [u8; 256 * 3], etc.
     cs : ColorSpace
 }
@@ -37,7 +39,7 @@ pub struct ImageProcessor<T>{
 
 impl<T> ImageProcessor<T>{
     //// Constructeur générique ////
-    pub fn create_processor(width: u32, height: u32, size: u32, data : Vec<T>, cs : ColorSpace) -> ImageProcessor<T> {
+    pub fn create_processor(width: u32, height: u32, size: u32, data : RefCell<Vec<T>>, cs : ColorSpace) -> ImageProcessor<T> {
         return ImageProcessor{
             width : width,
             height : height,
@@ -50,17 +52,17 @@ impl<T> ImageProcessor<T>{
     //// Constructeurs spécialisés ////
     pub fn create_byte_processor(width: u32, height: u32) -> ImageProcessor<u8> {
         let cs : ColorSpace = ColorSpace::Gray8();
-        let data = vec![0 as u8; (width*height*(cs.get_nb_channels() as u32)) as usize];
+        let data = RefCell::new(vec![0 as u8; (width*height*(cs.get_nb_channels() as u32)) as usize]);
         return ImageProcessor::<u8>::create_processor(width, height, 1, data, cs )
     }
     pub fn create_float_processor(width: u32, height: u32) -> ImageProcessor<f32> {
         let cs : ColorSpace = ColorSpace::Gray8();
-        let data = vec![0 as f32; (width*height*(cs.get_nb_channels() as u32)) as usize];
+        let data = RefCell::new(vec![0 as f32; (width*height*(cs.get_nb_channels() as u32)) as usize]);
         return ImageProcessor::<f32>::create_processor(width, height, 1, data, cs )
     }
     pub fn create_color_processor(width: u32, height: u32) -> ImageProcessor<(u8,u8,u8)> {
         let cs : ColorSpace = ColorSpace::Gray8();
-        let data = vec![(0 as u8,0 as u8,0 as u8); (width*height*(cs.get_nb_channels() as u32)) as usize];
+        let data = RefCell::new(vec![(0 as u8,0 as u8,0 as u8); (width*height*(cs.get_nb_channels() as u32)) as usize]);
         return ImageProcessor::<(u8,u8,u8)>::create_processor(width, height, 1, data, cs )
     }
 
@@ -79,8 +81,8 @@ impl<T> ImageProcessor<T>{
     pub fn get_size(&self) -> u32 {
         return self.size
     }
-    pub fn data(&self) -> &Vec<T> {
-        return &self.data
+    pub fn data(&self) -> RefMut<Vec<T>> {
+        return self.data.borrow_mut()
     }  
     
     /// Returns the bit depth, 8, 16, 24 (RGB) or 32.
