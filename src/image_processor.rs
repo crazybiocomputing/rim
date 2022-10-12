@@ -19,12 +19,12 @@
  
  
 use crate::color_space::ColorSpace;
+use crate::image_traits::Access;
 
-/// ImageProcessor
-/// Generic Struct for dedicated Processors:
-/// Byte_Processor, Short_Processor, Float_Processor, Color_Processor, Image_Plus, Image_Stack
-
-pub struct ImageProcessor<T> {
+// ImageProcessor
+// Generic Struct for dedicated Processors:
+// Byte_Processor, Short_Processor, Float_Processor, Color_Processor, Image_Plus, Image_Stack
+pub struct ImageProcessor<T>{
     width: u32,
     height: u32,
     data: Vec<T>,
@@ -32,16 +32,9 @@ pub struct ImageProcessor<T> {
     cs : ColorSpace
 }
 
-impl<T> ImageProcessor<T> {
-    /// Constructeur générique ////
-    pub fn create_processor(width: u32, height: u32, datatype: T, cs : ColorSpace) -> ImageProcessor<T> {
-        return ImageProcessor{
-            width : width,
-            height : height,
-            data : Vec::new(),
-            cs : cs,
-        }
-    }
+
+
+impl<T> ImageProcessor<T>{
 
     //// Constructeurs spécialisés ////
     pub fn create_byte_processor(width: u32, height: u32) -> ImageProcessor<u8> {
@@ -72,31 +65,32 @@ impl<T> ImageProcessor<T> {
         }
     }
 
+
     //// Affichage ////
     pub fn debug(&self){
-        println!("ImageProcessor : Dimensions : {}x{} px, Bit depth : {}, data_length : {}", self.get_width(), self.get_height(), self.get_bit_depth(), self.data().len());
+        println!("ImageProcessor : Dimensions : {}x{} px, Bit depth : {}, data length : {}", self.get_width(), self.get_height(), self.get_bit_depth(), self.data().len());
     }
     
     //// Getters ////
     
-    fn get_width(&self) -> u32 {
+    pub fn get_width(&self) -> u32 {
         return self.width
     }
-    fn get_height(&self) -> u32 {
+    pub fn get_height(&self) -> u32 {
         return self.height
     }
-    fn data(&self) -> &Vec<T> {
+    pub fn data(&self) -> &Vec<T> {
         return &self.data
     }  
     
     /// Returns the bit depth, 8, 16, 24 (RGB) or 32.
-    fn get_bit_depth(&self) -> u8 {
-        return self.cs.get_bit_depth()
+    pub fn get_bit_depth(&self) -> u8 {
+        return self.cs.get_bit_depth();
     }
     
     /// Returns the number of color channels in the image.
     /// Returns 1 for a grayscale image.
-    fn get_nb_channels(&self) -> u8 {
+    pub fn get_nb_channels(&self) -> u8 {
         return self.cs.get_nb_channels();
     }
       

@@ -16,16 +16,69 @@
 //
 //  You should have received a copy of the GNU General Public License
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
- 
- 
-pub trait Access<T : PixelType> {
-    type Output;
 
-    fn get_pixel(&self,index: usize) -> Self::Output;
+use crate::image_processor::ImageProcessor;
+ 
+pub trait Access<T> {
+    type Output;
+    // Get 1 pixel
+    fn get_pixel(&self, index: u32) -> Self::Output;
     fn get_pixel_at(&self,x: u32, y: u32) -> Self::Output;
-    // No check
-    fn getf(&self,index: usize) -> f32;
-/*
+    fn get(&self,index: usize) -> f32;
+
+    // Set 1 pixel
+    //fn put_pixel​(&self,u32 x, u32 y, Self::Output);
+    fn set(&mut self,index: u32, value: Self::Output);
+    //fn set_at​(&self,u32 x, u32 y, value: Self::Output);
+    
+    
+}
+
+impl<T> Access<T> for ImageProcessor<T> where T:Copy, f32:From<T>{
+    type Output = T;
+
+    ///// Get 1 pixel /////
+    fn get_pixel(&self, index: u32) -> Self::Output{
+        if u32::from(index) >= self.get_width()*self.get_height(){
+            panic!("Pixel out of bounds  ! index = {}, data length : {}",index ,self.get_width()*self.get_height());
+        }
+        return self.data()[usize::try_from(index).unwrap()];
+    }
+    fn get_pixel_at(&self,x: u32, y: u32) -> Self::Output{
+        if x >= self.get_width(){
+            panic!("Pixel out of bounds ! x={}, width={}",x,self.get_width());
+        }
+        if y >= self.get_height(){
+            panic!("Pixel out of bounds  ! x={}, height={}",y,self.get_height());
+        }
+        return self.get_pixel(y*self.get_width()+x)
+    }
+    // No check, faster, but prone to errors
+    fn get(&self,index: usize) -> f32{
+        return f32::from(self.data()[index]);
+    }
+
+
+    ///// set 1 Pixel /////
+    //fn put_pixel​(&self,i32 x, i32 y, i32 value) {}
+
+    /// Sets the value of the pixel at (&self,x,y) to 'value'.
+    /// Sets the value of the pixel at (&self,x,y) to 'value'. 
+    /// Does no bounds checking or clamping, making it faster than put_Pixel(&self,). 
+    /// Due to the lack of bounds checking, (&self,x,y) coordinates outside the image may cause an exception. 
+    /// Due to the lack of clamping, values outside the 0-255 range (for byte) or 0-65535 range (for short) 
+    /// are not handled correctly.
+    fn set(&mut self,index: u32, value: Self::Output){
+        self.data()[usize::try_from(index).unwrap()] = value;
+    }
+    
+    //fn set_at​(&self,i32 x, i32 y, value: f32);
+
+}
+
+
+
+    /*
 TODO
     /// Returns the pixel values down the column starting at (&self,x,y).
     float[] get_column​(&self,i32 x, i32 y, float[] data, i32 length);
@@ -84,9 +137,8 @@ TODO
 */
 
 
-}
 
-
+/*
 pub trait Resize {
     /// Returns a new processor containing an image that corresponds to the current ROI.
     fn crop(&self) -> Image_Processor<T> {}
@@ -96,3 +148,5 @@ pub trait Resize {
 
 
 }
+
+*/
