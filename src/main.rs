@@ -27,4 +27,5 @@ fn main() {
     pixel = img.get_pixel_at(0,0);
     println!("Pixel in position x=1, y=1 : {},{},{}", pixel.0,pixel.1,pixel.2);
 
+
 }
