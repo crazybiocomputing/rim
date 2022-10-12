@@ -24,17 +24,17 @@ pub trait Access<T> {
     // Get 1 pixel
     fn get_pixel(&self, index: u32) -> Self::Output;
     fn get_pixel_at(&self,x: u32, y: u32) -> Self::Output;
-    fn get(&self,index: usize) -> f32;
+    fn get(&self,index: usize) -> Self::Output;
 
     // Set 1 pixel
     //fn put_pixel​(&self,u32 x, u32 y, Self::Output);
-    fn set(&mut self,index: u32, value: Self::Output);
+    //fn set(&mut self,index: u32, value: Self::Output);
     //fn set_at​(&self,u32 x, u32 y, value: Self::Output);
     
     
 }
 
-impl<T> Access<T> for ImageProcessor<T> where T:Copy, f32:From<T>{
+impl<T> Access<T> for ImageProcessor<T> where T:Copy{
     type Output = T;
 
     ///// Get 1 pixel /////
@@ -54,11 +54,11 @@ impl<T> Access<T> for ImageProcessor<T> where T:Copy, f32:From<T>{
         return self.get_pixel(y*self.get_width()+x)
     }
     // No check, faster, but prone to errors
-    fn get(&self,index: usize) -> f32{
-        return f32::from(self.data()[index]);
+    fn get(&self,index: usize) -> Self::Output{
+        return self.data()[index];
     }
 
-
+    /*
     ///// set 1 Pixel /////
     //fn put_pixel​(&self,i32 x, i32 y, i32 value) {}
 
@@ -68,9 +68,11 @@ impl<T> Access<T> for ImageProcessor<T> where T:Copy, f32:From<T>{
     /// Due to the lack of bounds checking, (&self,x,y) coordinates outside the image may cause an exception. 
     /// Due to the lack of clamping, values outside the 0-255 range (for byte) or 0-65535 range (for short) 
     /// are not handled correctly.
+    
     fn set(&mut self,index: u32, value: Self::Output){
         self.data()[usize::try_from(index).unwrap()] = value;
     }
+    */
     
     //fn set_at​(&self,i32 x, i32 y, value: f32);
 

@@ -6,18 +6,20 @@
 mod image_processor;
 mod color_space;
 mod image_traits;
+mod image_stack;
 
 
 fn main() {
     use image_processor::ImageProcessor;
     use color_space::ColorSpace;
-    use crate::image_traits::Access;
+    use image_traits::Access;
+    //use image_stacks::ImageStack;
 
 
-    let mut img_byte = ImageProcessor::<u8>::create_byte_processor(10,100);
-    img_byte.debug();
+    let mut img = ImageProcessor::<(u8,u8,u8)>::create_color_processor(10,100);
+    img.debug();
 
-    println!("Pixel in position 100 : {}", img_byte.get_pixel(100));
-    println!("Pixel in position x=5, y=50 : {}", img_byte.get_pixel_at(5,50));
+    let pixel = img.get_pixel_at(5,50);
+    println!("Pixel in position x=5, y=50 : {},{},{}", pixel.0,pixel.1,pixel.2);
 
 }

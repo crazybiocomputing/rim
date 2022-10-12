@@ -27,6 +27,7 @@ use crate::image_traits::Access;
 pub struct ImageProcessor<T>{
     width: u32,
     height: u32,
+    size: u32,
     data: Vec<T>,
     // meta: MetaData, // Contains all the file info + lut : [u8; 256 * 3], etc.
     cs : ColorSpace
@@ -35,49 +36,48 @@ pub struct ImageProcessor<T>{
 
 
 impl<T> ImageProcessor<T>{
+    //// Constructeur générique ////
+    pub fn create_processor(width: u32, height: u32, size: u32, data : Vec<T>, cs : ColorSpace) -> ImageProcessor<T> {
+        return ImageProcessor{
+            width : width,
+            height : height,
+            size : size,
+            data : data,
+            cs : cs,
+        }
+    }
 
     //// Constructeurs spécialisés ////
     pub fn create_byte_processor(width: u32, height: u32) -> ImageProcessor<u8> {
         let cs : ColorSpace = ColorSpace::Gray8();
-        return ImageProcessor{
-            width : width,
-            height : height,
-            data : vec![0 as u8; (width*height*(cs.get_nb_channels() as u32)) as usize],
-            cs : cs,
-        }
+        let data = vec![0 as u8; (width*height*(cs.get_nb_channels() as u32)) as usize];
+        return ImageProcessor::<u8>::create_processor(width, height, 1, data, cs )
     }
     pub fn create_float_processor(width: u32, height: u32) -> ImageProcessor<f32> {
-        let cs : ColorSpace = ColorSpace::Grayf32();
-        return ImageProcessor{
-            width : width,
-            height : height,
-            data : vec![0 as f32; (width*height*(cs.get_nb_channels() as u32)) as usize],
-            cs : cs,
-        }
+        let cs : ColorSpace = ColorSpace::Gray8();
+        let data = vec![0 as f32; (width*height*(cs.get_nb_channels() as u32)) as usize];
+        return ImageProcessor::<f32>::create_processor(width, height, 1, data, cs )
     }
-    pub fn create_color_processor(width: u32, height: u32) -> ImageProcessor<u8> {
-        let cs : ColorSpace = ColorSpace::Rgb24();
-        return ImageProcessor{
-            width : width,
-            height : height,
-            data : vec![0 as u8; (width*height*(cs.get_nb_channels() as u32)) as usize],
-            cs : cs,
-        }
+    pub fn create_color_processor(width: u32, height: u32) -> ImageProcessor<(u8,u8,u8)> {
+        let cs : ColorSpace = ColorSpace::Gray8();
+        let data = vec![(0 as u8,0 as u8,0 as u8); (width*height*(cs.get_nb_channels() as u32)) as usize];
+        return ImageProcessor::<(u8,u8,u8)>::create_processor(width, height, 1, data, cs )
     }
-
 
     //// Affichage ////
     pub fn debug(&self){
-        println!("ImageProcessor : Dimensions : {}x{} px, Bit depth : {}, data length : {}", self.get_width(), self.get_height(), self.get_bit_depth(), self.data().len());
+        println!("ImageProcessor : Dimensions : {}x{}x{} px, Bit depth : {}, data length : {}", self.get_width(), self.get_height(), self.get_size(), self.get_bit_depth(), self.data().len());
     }
     
     //// Getters ////
-    
     pub fn get_width(&self) -> u32 {
         return self.width
     }
     pub fn get_height(&self) -> u32 {
         return self.height
+    }
+    pub fn get_size(&self) -> u32 {
+        return self.size
     }
     pub fn data(&self) -> &Vec<T> {
         return &self.data
@@ -88,8 +88,7 @@ impl<T> ImageProcessor<T>{
         return self.cs.get_bit_depth();
     }
     
-    /// Returns the number of color channels in the image.
-    /// Returns 1 for a grayscale image.
+    /// Returns the number of color channels in the image (1 for grayscale)
     pub fn get_nb_channels(&self) -> u8 {
         return self.cs.get_nb_channels();
     }
