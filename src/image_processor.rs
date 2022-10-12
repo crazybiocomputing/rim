@@ -29,7 +29,7 @@ use std::cell::RefMut;
 pub struct ImageProcessor<T>{
     width: u32,
     height: u32,
-    size: u32,
+    //size: u32,
     data: RefCell<Vec<T>>,
     // meta: MetaData, // Contains all the file info + lut : [u8; 256 * 3], etc.
     cs : ColorSpace
@@ -39,11 +39,11 @@ pub struct ImageProcessor<T>{
 
 impl<T> ImageProcessor<T>{
     //// Constructeur générique ////
-    pub fn create_processor(width: u32, height: u32, size: u32, data : RefCell<Vec<T>>, cs : ColorSpace) -> ImageProcessor<T> {
+    pub fn create_processor(width: u32, height: u32, data : RefCell<Vec<T>>, cs : ColorSpace) -> ImageProcessor<T> {
         return ImageProcessor{
             width : width,
             height : height,
-            size : size,
+            //size : size,
             data : data,
             cs : cs,
         }
@@ -53,22 +53,23 @@ impl<T> ImageProcessor<T>{
     pub fn create_byte_processor(width: u32, height: u32) -> ImageProcessor<u8> {
         let cs : ColorSpace = ColorSpace::Gray8();
         let data = RefCell::new(vec![0 as u8; (width*height*(cs.get_nb_channels() as u32)) as usize]);
-        return ImageProcessor::<u8>::create_processor(width, height, 1, data, cs )
+        return ImageProcessor::<u8>::create_processor(width, height, data, cs )
     }
     pub fn create_float_processor(width: u32, height: u32) -> ImageProcessor<f32> {
         let cs : ColorSpace = ColorSpace::Gray8();
         let data = RefCell::new(vec![0 as f32; (width*height*(cs.get_nb_channels() as u32)) as usize]);
-        return ImageProcessor::<f32>::create_processor(width, height, 1, data, cs )
+        return ImageProcessor::<f32>::create_processor(width, height, data, cs )
     }
     pub fn create_color_processor(width: u32, height: u32) -> ImageProcessor<(u8,u8,u8)> {
         let cs : ColorSpace = ColorSpace::Gray8();
         let data = RefCell::new(vec![(0 as u8,0 as u8,0 as u8); (width*height*(cs.get_nb_channels() as u32)) as usize]);
-        return ImageProcessor::<(u8,u8,u8)>::create_processor(width, height, 1, data, cs )
+        return ImageProcessor::<(u8,u8,u8)>::create_processor(width, height, data, cs )
     }
+
 
     //// Affichage ////
     pub fn debug(&self){
-        println!("ImageProcessor : Dimensions : {}x{}x{} px, Bit depth : {}, data length : {}", self.get_width(), self.get_height(), self.get_size(), self.get_bit_depth(), self.data().len());
+        println!("ImageProcessor : Dimensions : {}x{} px, Bit depth : {}, data length : {}", self.get_width(), self.get_height(), self.get_bit_depth(), self.data().len());
     }
     
     //// Getters ////
@@ -78,9 +79,9 @@ impl<T> ImageProcessor<T>{
     pub fn get_height(&self) -> u32 {
         return self.height
     }
-    pub fn get_size(&self) -> u32 {
+    /*pub fn get_size(&self) -> u32 {
         return self.size
-    }
+    }*/
     pub fn data(&self) -> RefMut<Vec<T>> {
         return self.data.borrow_mut()
     }  
