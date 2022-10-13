@@ -13,7 +13,7 @@ fn main() {
     use image_processor::ImageProcessor;
     use color_space::ColorSpace;
     use image_traits::Access;
-    //use image_stacks::ImageStack;
+    use image_stack::ImageStack;
 
 
     let mut img = ImageProcessor::<(u8,u8,u8)>::create_color_processor(10,100);
@@ -32,5 +32,6 @@ fn main() {
         println!("{},{},{}",i.0, i.1, i.2)
     }
 
+    let test = ImageStack::<f32>::create_float_stack(10,10,0);
 
 }

@@ -20,11 +20,13 @@
 
 #![allow(unused)]
 
+#[derive(Clone)]
 enum Space {
     Gray,
     Rgb
 }
 
+#[derive(Clone)]
 pub struct ColorSpace {
     nb_channels : u8,
     bits_per_color : u8,

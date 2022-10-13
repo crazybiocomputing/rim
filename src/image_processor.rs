@@ -26,6 +26,7 @@ use std::cell::RefMut;
 // ImageProcessor
 // Generic Struct for dedicated Processors:
 // Byte_Processor, Short_Processor, Float_Processor, Color_Processor, Image_Plus, Image_Stack
+#[derive(Clone)]
 pub struct ImageProcessor<T>{
     width: u32,
     height: u32,
