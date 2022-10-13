@@ -7,6 +7,7 @@ mod image_processor;
 mod color_space;
 mod image_traits;
 mod image_stack;
+mod stats;
 
 
 fn main() {
@@ -14,6 +15,7 @@ fn main() {
     use color_space::ColorSpace;
     use image_traits::Access;
     use image_stack::ImageStack;
+    use stats::Stats;
 
 
     let mut img = ImageProcessor::<(u8,u8,u8)>::create_color_processor(10,100);
@@ -27,11 +29,20 @@ fn main() {
     pixel = img.get_pixel_at(0,0);
     println!("Pixel in position x=1, y=1 : {},{},{}", pixel.0,pixel.1,pixel.2);
 
-    let column = img.get_column(0,0);
+    /*let column = img.get_column(0,0);
     for i in column {
         println!("{},{},{}",i.0, i.1, i.2)
-    }
+    }*/
 
     let test = ImageStack::<f32>::create_float_stack(10,10,0);
+    let im = ImageProcessor::<f32>::create_float_processor(10,10);
+    test.debug_stack();
+    test.set_data_stack(im);
+    test.debug_stack();
+    let im1 = ImageProcessor::<f32>::create_float_processor(10,10);
+    test.set_data_stack(im1);
+    test.set_slice_number(1);
+
+
 
 }

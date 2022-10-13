@@ -38,7 +38,7 @@ pub struct ImageProcessor<T>{
 
 
 
-impl<T> ImageProcessor<T>{
+impl<T> ImageProcessor<T> {
     //// Constructeur générique ////
     pub fn create_processor(width: u32, height: u32, data : RefCell<Vec<T>>, cs : ColorSpace) -> ImageProcessor<T> {
         return ImageProcessor{
@@ -57,12 +57,12 @@ impl<T> ImageProcessor<T>{
         return ImageProcessor::<u8>::create_processor(width, height, data, cs )
     }
     pub fn create_float_processor(width: u32, height: u32) -> ImageProcessor<f32> {
-        let cs : ColorSpace = ColorSpace::Gray8();
+        let cs : ColorSpace = ColorSpace::Grayf32();
         let data = RefCell::new(vec![0 as f32; (width*height*(cs.get_nb_channels() as u32)) as usize]);
         return ImageProcessor::<f32>::create_processor(width, height, data, cs )
     }
     pub fn create_color_processor(width: u32, height: u32) -> ImageProcessor<(u8,u8,u8)> {
-        let cs : ColorSpace = ColorSpace::Gray8();
+        let cs : ColorSpace = ColorSpace::Rgb24();
         let data = RefCell::new(vec![(0 as u8,0 as u8,0 as u8); (width*height*(cs.get_nb_channels() as u32)) as usize]);
         return ImageProcessor::<(u8,u8,u8)>::create_processor(width, height, data, cs )
     }
@@ -89,12 +89,12 @@ impl<T> ImageProcessor<T>{
     
     /// Returns the bit depth, 8, 16, 24 (RGB) or 32.
     pub fn get_bit_depth(&self) -> u8 {
-        return self.cs.get_bit_depth();
+        return self.cs.get_bit_depth()
     }
     
     /// Returns the number of color channels in the image (1 for grayscale)
     pub fn get_nb_channels(&self) -> u8 {
-        return self.cs.get_nb_channels();
+        return self.cs.get_nb_channels()
     }
       
 }
