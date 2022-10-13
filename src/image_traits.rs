@@ -29,7 +29,18 @@ pub trait Access<T> {
     // Set 1 pixel
     fn set_pixel(&mut self,index: u32, value: Self::Output);
     fn set_pixel_at(&mut self,x: u32, y: u32, value: Self::Output);
-    fn set(&mut self,index: u32, value: Self::Output);   
+    fn set(&mut self,index: u32, value: Self::Output);  
+
+    // Get multiple pixels
+    fn get_row(&self,x: u32, y: u32) -> Vec<Self::Output>;
+    fn get_column(&self,x: u32, y: u32) -> Vec<Self::Output>;
+
+    // Set multiple pixels
+    fn set_row(&mut self,x: u32, y: u32, data: Vec<Self::Output>);
+    fn set_column(&mut self,x: u32, y: u32, data: Vec<Self::Output>);
+
+    //Set slice number
+    fn set_slice_number(&self,slice: u32);
 }
 
 impl<T> Access<T> for ImageProcessor<T> where T:Copy{
@@ -58,7 +69,6 @@ impl<T> Access<T> for ImageProcessor<T> where T:Copy{
 
     
     ///// set 1 Pixel /////
-    
     fn set_pixel(&mut self,index: u32, value: Self::Output){
         if u32::from(index) >= self.get_width()*self.get_height(){
             panic!("Pixel out of bounds  ! index = {}, data length : {}",index ,self.get_width()*self.get_height());
@@ -66,8 +76,6 @@ impl<T> Access<T> for ImageProcessor<T> where T:Copy{
         
         self.data()[usize::try_from(index).unwrap()] = value;
     }
-    
-
     fn set_pixel_at(&mut self,x: u32, y: u32, value: Self::Output){
         if x >= self.get_width(){
             panic!("Pixel out of bounds ! x={}, width={}",x,self.get_width());
@@ -77,10 +85,45 @@ impl<T> Access<T> for ImageProcessor<T> where T:Copy{
         }
         self.set_pixel(y*self.get_width()+x,value);
     }
-    
     // No check, faster, but prone to errors
     fn set(&mut self,index: u32, value: Self::Output){
         self.data()[usize::try_from(index).unwrap()] = value;
+    }
+    
+    fn get_row(&self,x: u32, y: u32) -> Vec<Self::Output>{
+        let mut out : Vec<Self::Output> = Vec::new();
+        let width = self.get_width();
+        for local_x in x..width{
+            out.push(self.get(usize::try_from(y*width+local_x).unwrap()));
+        }
+        return out;
+    } 
+    fn get_column(&self,x: u32, y: u32) -> Vec<Self::Output>{
+        let mut out : Vec<Self::Output> = Vec::new();
+        let width = self.get_width();
+        let height = self.get_height();
+        for local_y in y..height{
+            out.push(self.get(usize::try_from(local_y*width+x).unwrap()));
+        }
+        return out;
+    }
+
+    fn set_row(&mut self,x: u32, y: u32, data: Vec<Self::Output>){
+        let width = self.get_width();
+        for local_x in x..width{
+            self.set(u32::try_from(y*width+local_x).unwrap(), data[usize::try_from(local_x-x).unwrap()]);
+        }
+    }
+    fn set_column(&mut self,x: u32, y: u32, data: Vec<Self::Output>){
+        let width = self.get_width();
+        let height = self.get_height();
+        for local_y in y..height{
+            self.set(u32::try_from(local_y*width+x).unwrap(), data[usize::try_from(local_y-y).unwrap()]);
+        }
+    }
+
+    fn set_slice_number(&self,slice: u32){
+        //Ptet envoyer un message d'erreur pour dire que c'est pas un stack ?
     }
     
 
@@ -88,57 +131,9 @@ impl<T> Access<T> for ImageProcessor<T> where T:Copy{
 
 
 
-    /*
+/*
 TODO
-    /// Returns the pixel values down the column starting at (&self,x,y).
-    float[] get_column​(&self,i32 x, i32 y, float[] data, i32 length);
-
-    /// Returns the pixel values down the column starting at (&self,x,y).
-    fn get_column​(&self,i32 x, i32 y, i32[] data, i32 length);
     
-    /// Inserts the pixels contained in 'data' i32o a column starting at (&self,x,y).
-    fn put_column​(&self,i32 x, i32 y, float[] data, i32 length) {}
-
-    /// Inserts the pixels contained in 'data' i32o a column starting at (&self,x,y).
-    fn put_column​(&self,i32 x, i32 y, i32[] data, i32 length) {}
-
-    /// Stores the specified value at (&self,x,y).
-    abstract fn put_pixel​(&self,i32 x, i32 y, i32 value) {}
-
-    /// Sets a pixel in the image using an i32 array of samples.
-    fn put_pixel​(&self,i32 x, i32 y, i32[] i_Array) {}
-
-    /// Stores the specified value at (&self,x,y).
-    abstract fn put_Pixel_Value​(&self,i32 x, i32 y, f64 value) {}
-
-    /// Inserts the pixels contained in 'data' i32o a horizontal line starting at (&self,x,y).
-    fn put_row​(&self,i32 x, i32 y, float[] data, i32 length) {}
-
-    /// Inserts the pixels contained in 'data' i32o a horizontal line starting at (&self,x,y).
-    fn put_row​(&self,i32 x, i32 y, i32[] data, i32 length) {}
-
-
-    /// Sets the value of the pixel at (&self,x,y) to 'value'.
-    /// Sets the value of the pixel at (&self,x,y) to 'value'. 
-    /// Does no bounds checking or clamping, making it faster than put_Pixel(&self,). 
-    /// Due to the lack of bounds checking, (&self,x,y) coordinates outside the image may cause an exception. 
-    /// Due to the lack of clamping, values outside the 0-255 range (for byte) or 0-65535 range (for short) 
-    /// are not handled correctly.
-    fn setf​(&self,i32 index, value: f32);
-    
-    fn setf_at​(&self,i32 x, i32 y, value: f32);
-
-    /// Replaces the pixel data with contents of the specified 2D float array.
-    fn set_float_array​(&self,float[][] a);
-
-    /// Replaces the pixel data with contents of the specified 2D i32 array.
-    fn set_int_array​(&self,i32[][] a);
-    
-    /// Sets the pixels (&self,of one color channel for RGB images) from a Float_Processor.
-    fn set_pixels​(&self,channel_number: i32, Float_Processor fp);
-
-    /// Sets a new pixel array for the image.
-    fn set_pixels​(&self,java.lang.Object pixels);
 
     /// Plug_In_Filter_Runner uses this method to set the slice number.
     fn set_slice_number​(&self,i32 slice);
