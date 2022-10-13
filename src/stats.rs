@@ -18,8 +18,37 @@
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
 
 
-pub trait Stats {
+use crate::image_processor::ImageProcessor;
+use crate::image_traits::Access;
+use std::collections::HashMap;
 
+pub trait Stats {
+    type Output;
+    //fn get_min_possible() -> Self::Output;
+    //fn get_max_possible() -> Self::Output;
+    fn get_histogram(&self,) -> HashMap<Self::Output,usize>;
+}
+
+impl<T> Stats for ImageProcessor<T> where T: Copy + std::cmp::Eq + std::hash::Hash {
+    type Output = T;
+    
+    fn get_histogram(&self,) -> HashMap<Self::Output,usize>{
+        let mut out : HashMap<Self::Output,usize> = HashMap::new();
+        // Vecteur vide de taille (max-min),On le remplit lentement ?
+        // Dictionnaire, augmente si valeur connue, crée sinon ?
+        let limit = self.get_width()*self.get_height();
+
+        for i in 0..limit {
+            let pixel = self.get(usize::try_from(i).unwrap());
+            out.insert(pixel, 1 + if out.contains_key(&pixel) { out[&pixel] } else { 0 });
+        }
+        
+        return out
+    }
+}
+
+
+/*
     /// Returns the histogram of the image or ROI.
     fn i32[] get_histogram() {};
 
@@ -59,5 +88,4 @@ pub trait Stats {
     fn set_histogram_size​(i32 size) {};
     /// Set the number of bins to be used for histograms of float images.
 
-}
-
+*/
