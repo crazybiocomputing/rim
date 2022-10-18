@@ -21,12 +21,16 @@
 #![allow(unused)]
 
 #[derive(Clone)]
+#[derive(PartialEq)]
+#[derive(Debug)]
 enum Space {
     Gray,
     Rgb
 }
 
 #[derive(Clone)]
+#[derive(PartialEq)]
+#[derive(Debug)]
 pub struct ColorSpace<T>  {
     nb_channels : u8,
     bits_per_color : u8,
