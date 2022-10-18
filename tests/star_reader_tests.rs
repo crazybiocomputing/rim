@@ -4,7 +4,7 @@
  * Jean-Christophe Taveau
  *
  */
-
+/*
 const file00: String = "data_BIOINFORMATICS";
 
 const file01: String = "# This is a comment
@@ -131,16 +131,16 @@ Un sacré papa
 ;
 ?
 #
-";
+";*/
 
 //////////////////// UNITARY TESTS FOR STAR READER /////////////////////////
-
+/*
 #[test]
 fn should_contain_datablock_equal_to_bioinformatics() {
     let molecule = parse_star(file00);
     assert_eq!(molecule.datablock, "BIOINFORMATICS");
 }
-
+*/
 /*
     #[test]
     fn test_bad_add() {

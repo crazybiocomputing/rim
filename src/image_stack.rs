@@ -145,3 +145,118 @@ pub fn debug_stack(&self){
     }
 }
 
+
+#[cfg(test)]
+mod test{
+    //use super ::super::ImageStack::{*};
+    //use super :: super:: ImageProcessor::{*};
+    use crate::image_stack::ImageStack;
+    use crate::image_stack::ImageProcessor;
+    use crate::color_space::ColorSpace;
+    use core::cell::RefCell;
+    use core::cell::Cell;
+
+    /*#[test]
+    fn test_create_byte_stack(){
+        assert_eq!(create_byte_stack(10,15,2), ImageStack::<u8>);
+    }*/
+
+    #[test]
+    fn test_get_size(){
+        let stack = ImageStack::<u8> {width: 10, 
+            height: 15, 
+            size: Cell:: new(12),
+            data: RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(10,15);12]),
+            cs : ColorSpace::Gray8(),
+            focus_slice: Cell::new(0)
+            };
+        assert_eq!(stack.get_size(),12);
+    }
+
+    #[test]
+    fn test_get_width_stack(){
+        let stack = ImageStack::<u8> {width: 10, 
+            height: 15, 
+            size: Cell:: new(12),
+            data: RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(10,15);12]),
+            cs : ColorSpace::Gray8(),
+            focus_slice: Cell::new(0)
+            };
+        assert_eq!(stack.get_width_stack(),10);
+    }
+
+    #[test]
+    fn test_get_height_stack(){
+        let stack = ImageStack::<u8> {width: 10, 
+            height: 15, 
+            size: Cell:: new(12),
+            data: RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(10,15);12]),
+            cs : ColorSpace::Gray8(),
+            focus_slice: Cell::new(0)
+            };
+        assert_eq!(stack.get_height_stack(),15);
+    }
+
+    #[test]
+    //should_get_focus_slice_equal_to_0
+    fn test_get_focus_slice(){
+        let stack = ImageStack::<u8> {width: 10, 
+            height: 15, 
+            size: Cell:: new(12),
+            data: RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(10,15);12]),
+            cs : ColorSpace::Gray8(),
+            focus_slice: Cell::new(0)
+            };
+        assert_eq!(stack.get_focus_slice(),0);
+    }
+    
+    #[test]
+    fn test_get_nb_channels_stacks(){
+        let stack = ImageStack::<u8> {width: 10, 
+            height: 15, 
+            size: Cell:: new(12),
+            data: RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(10,15);12]),
+            cs : ColorSpace::Gray8(),
+            focus_slice: Cell::new(0)
+            };
+        assert_eq!(stack.get_nb_channels_stacks(),1);
+    }
+
+    #[test]
+    fn test_get_bit_depth_stack(){
+        let stack = ImageStack::<u8> {width: 10, 
+            height: 15, 
+            size: Cell:: new(12),
+            data: RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(10,15);12]),
+            cs : ColorSpace::Gray8(),
+            focus_slice: Cell::new(0)
+            };
+        assert_eq!(stack.get_bit_depth_stack(),8);
+    }
+
+    /*#[test]
+    fn test_get_data_stack(){
+        let stack = ImageStack::<u8> {width: 10, 
+            height: 15, 
+            size: Cell:: new(12),
+            data: RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(10,15);12]),
+            cs : ColorSpace::Gray8(),
+            focus_slice: Cell::new(0)
+            };
+        assert_eq!(stack.get_data_stack(),vec![ImageProcessor::<u8>::create_byte_processor(10,15);12]);
+    }*/
+
+  /*  #[test]
+    fn test_get_one_slice(){
+        let stack = ImageStack::<u8> {width: 10, 
+            height: 15, 
+            size: Cell:: new(12),
+            data: RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(10,15);12]),
+            cs : ColorSpace::Gray8(),
+            focus_slice: Cell::new(0)
+            };
+        assert_eq!(stack.get_one_slice(),);
+    }*/
+
+
+}
