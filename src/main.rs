@@ -43,6 +43,17 @@ fn main() {
     test.set_data_stack(im1);
     test.set_slice_number(1);
 
+    let mut img_stack= test.get_one_slice();
+
+    let mut p = img_stack.get_pixel_at(0,0);
+    println!("Pixel in position x=1, y=1 : {}", p);
+
+    img_stack.set(0,10.0);
+    let mut p = img_stack.get_pixel_at(0,0);
+    println!("Pixel in position x=1, y=1 : {}", p);
+    test.set_slice_number(1);
+
+
 
 
 }
