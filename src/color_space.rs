@@ -27,33 +27,41 @@ enum Space {
 }
 
 #[derive(Clone)]
-pub struct ColorSpace {
+pub struct ColorSpace<T>  {
     nb_channels : u8,
     bits_per_color : u8,
-    space : Space
+    space : Space,
+    min : T,
+    max : T
 }
 
-impl ColorSpace {
+impl<T> ColorSpace<T> where T: Copy {
     //// Constructeurs ////
-    pub fn Gray8() -> Self {
+    pub fn Gray8() -> ColorSpace<u8> {
         return ColorSpace{
             nb_channels : 1,
             bits_per_color : 8,
-            space : Space::Gray
+            space : Space::Gray,
+            min : u8::MIN,
+            max : u8::MAX
         }
     }
-    pub fn Grayf32() -> Self {
+    pub fn Grayf32() -> ColorSpace<f32> {
         return ColorSpace{
             nb_channels : 1,
             bits_per_color : 32,
-            space : Space::Gray
+            space : Space::Gray,
+            min : f32::MIN,
+            max : f32::MAX
         }
     }
-    pub fn Rgb24() -> Self {
+    pub fn Rgb24() -> ColorSpace<u8> {
         return ColorSpace{
             nb_channels : 3,
             bits_per_color : 8,
-            space : Space::Rgb
+            space : Space::Rgb,
+            min : u8::MIN,
+            max : u8::MAX
         }
     }
 
@@ -63,6 +71,13 @@ impl ColorSpace {
     }
     pub fn get_bit_depth(&self) -> u8 {
         return self.bits_per_color * self.get_nb_channels()
+    }
+
+    pub fn get_min(&self) -> T {
+        return self.min
+    }
+    pub fn get_max(&self) -> T {
+        return self.max
     }
 }
 

@@ -24,15 +24,40 @@ use std::collections::HashMap;
 
 pub trait Stats {
     type Output;
-    //fn get_min_possible() -> Self::Output;
-    //fn get_max_possible() -> Self::Output;
-    fn get_histogram(&self,) -> HashMap<Self::Output,usize>;
+    fn get_min_value(&self) -> Self::Output;
+    fn get_max_value(&self) -> Self::Output;
+    //fn get_raw_histogram(&self) -> HashMap<Self::Output,usize>;
+    
+    //get mean
+    //get standard deviation
 }
 
-impl<T> Stats for ImageProcessor<T> where T: Copy + std::cmp::Eq + std::hash::Hash {
+
+impl<T> Stats for ImageProcessor<T> where T: Copy + std::cmp::Eq + std::hash::Hash + std::cmp::Ord{
     type Output = T;
     
-    fn get_histogram(&self,) -> HashMap<Self::Output,usize>{
+    
+    fn get_min_value(&self) -> Self::Output {
+        let size = self.get_height() * self.get_width();
+        let mut minimum : T = self.get(usize::try_from(0).unwrap());
+        for i in 1..size {
+            minimum = std::cmp::min(minimum, self.get(usize::try_from(i).unwrap()));
+        }
+        return minimum
+    }
+
+    fn get_max_value(&self) -> Self::Output {
+        let size = self.get_height() * self.get_width();
+        let mut maximum : T = self.get(usize::try_from(0).unwrap());
+        for i in 1..size {
+            maximum = std::cmp::max(maximum, self.get(usize::try_from(i).unwrap()));
+        }
+        return maximum
+    }
+
+
+    /*
+    fn get_raw_histogram(&self) -> HashMap<Self::Output,usize>{
         let mut out : HashMap<Self::Output,usize> = HashMap::new();
         // Vecteur vide de taille (max-min),On le remplit lentement ?
         // Dictionnaire, augmente si valeur connue, crée sinon ?
@@ -45,7 +70,10 @@ impl<T> Stats for ImageProcessor<T> where T: Copy + std::cmp::Eq + std::hash::Ha
         
         return out
     }
+    */
+    
 }
+
 
 
 /*

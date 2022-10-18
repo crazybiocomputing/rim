@@ -33,18 +33,17 @@ pub struct ImageProcessor<T>{
     //size: u32,
     data: RefCell<Vec<T>>,
     // meta: MetaData, // Contains all the file info + lut : [u8; 256 * 3], etc.
-    cs : ColorSpace
+    cs : ColorSpace<T>
 }
 
 
 
-impl<T> ImageProcessor<T> {
+impl<T> ImageProcessor<T> where T: Copy {
     //// Constructeur générique ////
-    pub fn create_processor(width: u32, height: u32, data : RefCell<Vec<T>>, cs : ColorSpace) -> ImageProcessor<T> {
+    pub fn create_processor(width: u32, height: u32, data : RefCell<Vec<T>>, cs : ColorSpace<T>) -> ImageProcessor<T> {
         return ImageProcessor{
             width : width,
             height : height,
-            //size : size,
             data : data,
             cs : cs,
         }
@@ -52,19 +51,19 @@ impl<T> ImageProcessor<T> {
 
     //// Constructeurs spécialisés ////
     pub fn create_byte_processor(width: u32, height: u32) -> ImageProcessor<u8> {
-        let cs : ColorSpace = ColorSpace::Gray8();
+        let cs : ColorSpace<u8> = ColorSpace::<u8>::Gray8();
         let data = RefCell::new(vec![0 as u8; (width*height*(cs.get_nb_channels() as u32)) as usize]);
         return ImageProcessor::<u8>::create_processor(width, height, data, cs )
     }
     pub fn create_float_processor(width: u32, height: u32) -> ImageProcessor<f32> {
-        let cs : ColorSpace = ColorSpace::Grayf32();
+        let cs : ColorSpace<f32> = ColorSpace::<f32>::Grayf32();
         let data = RefCell::new(vec![0 as f32; (width*height*(cs.get_nb_channels() as u32)) as usize]);
         return ImageProcessor::<f32>::create_processor(width, height, data, cs )
     }
-    pub fn create_color_processor(width: u32, height: u32) -> ImageProcessor<(u8,u8,u8)> {
-        let cs : ColorSpace = ColorSpace::Rgb24();
-        let data = RefCell::new(vec![(0 as u8,0 as u8,0 as u8); (width*height*(cs.get_nb_channels() as u32)) as usize]);
-        return ImageProcessor::<(u8,u8,u8)>::create_processor(width, height, data, cs )
+    pub fn create_color_processor(width: u32, height: u32) -> ImageProcessor<u8> {
+        let cs : ColorSpace<u8> = ColorSpace::<u8>::Rgb24();
+        let data = RefCell::new(vec![0 as u8; (width*height*(cs.get_nb_channels() as u32)) as usize]);
+        return ImageProcessor::<u8>::create_processor(width, height, data, cs )
     }
 
 
@@ -80,22 +79,29 @@ impl<T> ImageProcessor<T> {
     pub fn get_height(&self) -> u32 {
         return self.height
     }
-    /*pub fn get_size(&self) -> u32 {
-        return self.size
-    }*/
     pub fn data(&self) -> RefMut<Vec<T>> {
         return self.data.borrow_mut()
     }  
     
     /// Returns the bit depth, 8, 16, 24 (RGB) or 32.
     pub fn get_bit_depth(&self) -> u8 {
-        return self.cs.get_bit_depth()
+        return self.cs.get_bit_depth();
     }
     
     /// Returns the number of color channels in the image (1 for grayscale)
     pub fn get_nb_channels(&self) -> u8 {
-        return self.cs.get_nb_channels()
+        return self.cs.get_nb_channels();
     }
+
+    /// returns the mimimum possible value
+    pub fn get_min_possible(&self) -> T{
+        return self.cs.get_min()
+    }
+
+    /// returns the maximum possible value
+    pub fn get_max_possible(&self) -> T{
+        return self.cs.get_max()
+    } 
       
 }
 
@@ -323,3 +329,4 @@ impl fmt::Display for ImageProcessor {
     }
 }
 */
+
