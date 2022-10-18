@@ -37,13 +37,13 @@ pub struct ImageStack<T>{
     height : u32,
     size : Cell<u32>,
     data : RefCell<Vec<ImageProcessor<T>>>,
-    cs : ColorSpace,
+    cs : ColorSpace<T>,
     focus_slice : Cell<u32>,
 }
 
-impl<T> ImageStack<T> where T: Clone {
+impl<T> ImageStack<T> where T: Copy {
     
-    pub fn create_stack(width: u32, height: u32, size: Cell<u32>, data: RefCell<Vec<ImageProcessor<T>>>,cs : ColorSpace,focus_slice: Cell<u32>) -> ImageStack<T>{
+    pub fn create_stack(width: u32, height: u32, size: Cell<u32>, data: RefCell<Vec<ImageProcessor<T>>>,cs : ColorSpace<T>,focus_slice: Cell<u32>) -> ImageStack<T>{
         return ImageStack{
             width : width,
             height : height,
@@ -55,7 +55,7 @@ impl<T> ImageStack<T> where T: Clone {
     }
 
     pub fn create_byte_stack(width: u32, height: u32, size: u32) -> ImageStack<u8> {
-        let cs : ColorSpace = ColorSpace::Gray8();
+        let cs : ColorSpace<u8> = ColorSpace::<u8>::Gray8();
         let data = RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(width,height);size.try_into().unwrap()]);
         let focus_slice = Cell::new(0);
         let size = Cell:: new(size);
@@ -63,7 +63,7 @@ impl<T> ImageStack<T> where T: Clone {
     }
 
     pub fn create_float_stack(width: u32, height: u32, size: u32) -> ImageStack<f32> {
-        let cs : ColorSpace = ColorSpace::Grayf32();
+        let cs : ColorSpace<f32> = ColorSpace::<f32>::Grayf32();
         let data = RefCell::new(vec![ImageProcessor::<f32>::create_float_processor(width,height);size.try_into().unwrap()]);
         let focus_slice = Cell::new(0);
         let size = Cell:: new(size);
@@ -71,8 +71,8 @@ impl<T> ImageStack<T> where T: Clone {
     }
 
     pub fn create_color_stack(width: u32, height: u32, size: u32) -> ImageStack<u8> {
-        let cs : ColorSpace = ColorSpace::Rgb24();
-        let data = RefCell::new(vec![ImageProcessor::<(u8,u8,u8)>::create_byte_processor(width,height);size.try_into().unwrap()]);
+        let cs : ColorSpace<u8> = ColorSpace::<u8>::Rgb24();
+        let data = RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(width,height);size.try_into().unwrap()]);
         let focus_slice = Cell::new(0);
         let size = Cell:: new(size);
         return ImageStack::<u8>::create_stack(width,height,size,data,cs,focus_slice)   
