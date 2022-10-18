@@ -44,8 +44,11 @@ pub trait Access<T> {
     fn set_slice_number(&self,slice: u32);
 }
 
-impl<T> Access<T> for ImageProcessor<T> where T:Copy{
+impl<T> Access<T> for ImageProcessor<T> where T:Copy {
     type Output = T;
+
+    
+    
 
     ///// Get 1 pixel /////
     fn get_pixel(&self, index: u32) -> Self::Output{
@@ -124,9 +127,10 @@ impl<T> Access<T> for ImageProcessor<T> where T:Copy{
     }
 
     fn set_slice_number(&self,slice: u32){
-        //Ptet envoyer un message d'erreur pour dire que c'est pas un stack ?
+        panic!("You cannot set the slice number for a single image")
     }
 }
+
 
 
 impl<T> Access<T> for ImageStack<T> where T:Copy{

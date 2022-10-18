@@ -26,43 +26,67 @@ pub trait Stats {
     type Output;
     fn get_min_value(&self) -> Self::Output;
     fn get_max_value(&self) -> Self::Output;
-    //fn get_raw_histogram(&self) -> HashMap<Self::Output,usize>;
+    //fn get_average_value(&self) -> Self::Output;
+
+
+    //fn get_histogram(&self) -> HashMap<Self::Output,usize>;
+    // get histograms specified bins
+    // get histograms autobins
     
-    //get mean
+    //get mean_value
     //get standard deviation
 }
 
 
-impl<T> Stats for ImageProcessor<T> where T: Copy + std::cmp::Eq + std::hash::Hash + std::cmp::Ord{
+impl<T> Stats for ImageProcessor<T> where T: Copy + std::cmp::PartialOrd + std::ops::Add<Output=T> + std::ops::Div<Output=T> { //+ std::cmp::Eq + std::hash::Hash + std::cmp::Ord
     type Output = T;
     
-    
+    /// Returns the minimum displayed value in the image
     fn get_min_value(&self) -> Self::Output {
         let size = self.get_height() * self.get_width();
         let mut minimum : T = self.get(usize::try_from(0).unwrap());
         for i in 1..size {
-            minimum = std::cmp::min(minimum, self.get(usize::try_from(i).unwrap()));
+            let tmp = self.get(usize::try_from(i).unwrap());
+            if tmp < minimum {
+                minimum = tmp;
+            }
         }
         return minimum
     }
 
+    /// Returns the maximum displayed value in the image
     fn get_max_value(&self) -> Self::Output {
         let size = self.get_height() * self.get_width();
         let mut maximum : T = self.get(usize::try_from(0).unwrap());
         for i in 1..size {
-            maximum = std::cmp::max(maximum, self.get(usize::try_from(i).unwrap()));
+            let tmp = self.get(usize::try_from(i).unwrap());
+            if tmp > maximum {
+                maximum = tmp;
+            }
         }
         return maximum
     }
 
+    /*
+    fn get_average_value(&self) -> Self::Output {
+        let size = self.get_height() * self.get_width();
+        let mut average : T = self.get(usize::try_from(0).unwrap());
+        for i in 1..size {
+            average = average + self.get(usize::try_from(i).unwrap());
+        }
+        average = average / (size.into());
+        return average
+    }
+    */
+    
 
     /*
-    fn get_raw_histogram(&self) -> HashMap<Self::Output,usize>{
+    fn get_histogram(&self) -> HashMap<Self::Output,usize>{
         let mut out : HashMap<Self::Output,usize> = HashMap::new();
         // Vecteur vide de taille (max-min),On le remplit lentement ?
         // Dictionnaire, augmente si valeur connue, crée sinon ?
         let limit = self.get_width()*self.get_height();
-
+        
         for i in 0..limit {
             let pixel = self.get(usize::try_from(i).unwrap());
             out.insert(pixel, 1 + if out.contains_key(&pixel) { out[&pixel] } else { 0 });
