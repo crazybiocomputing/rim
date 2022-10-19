@@ -46,6 +46,7 @@ pub type ColorProcessor = ImageProcessor<(u8,u8,u8)>;
 
 impl<T> ImageProcessor<T> where T: Copy {
     //// Constructeur générique ////
+    /// creates an image processor of dimentions width x height, containing an array and a color space of type T
     pub fn create_processor(width: u32, height: u32, data : RefCell<Vec<T>>, cs : ColorSpace<T>) -> ImageProcessor<T> {
         return ImageProcessor{
             width : width,
@@ -56,16 +57,19 @@ impl<T> ImageProcessor<T> where T: Copy {
     }
 
     //// Constructeurs spécialisés ////
+    /// creates a byte processor of dimentions width x height
     pub fn create_byte_processor(width: u32, height: u32) -> ByteProcessor {
         let cs : ColorSpace<u8> = ColorSpace::<u8>::Gray8();
         let data = RefCell::new(vec![0 as u8; (width*height) as usize]);
         return ImageProcessor::<u8>::create_processor(width, height, data, cs )
     }
+    /// creates a float processor of dimentions width x height
     pub fn create_float_processor(width: u32, height: u32) -> FloatProcessor {
         let cs : ColorSpace<f32> = ColorSpace::<f32>::Grayf32();
         let data = RefCell::new(vec![0 as f32; (width*height) as usize]);
         return ImageProcessor::<f32>::create_processor(width, height, data, cs )
     }
+    /// creates a color processor of dimentions width x height
     pub fn create_color_processor(width: u32, height: u32) -> ColorProcessor {
         let cs : ColorSpace<(u8,u8,u8)> = ColorSpace::<(u8,u8,u8)>::Rgb24();
         let data = RefCell::new(vec![(0 as u8,0 as u8,0 as u8) ; (width*height) as usize]);
@@ -74,17 +78,21 @@ impl<T> ImageProcessor<T> where T: Copy {
 
 
     //// Affichage ////
+    /// Shows some basic information about the image processor
     pub fn debug(&self){
         println!("ImageProcessor : Dimensions : {}x{} px, Bit depth : {}, data length : {}", self.get_width(), self.get_height(), self.get_bit_depth(), self.get_data().len());
     }
     
     //// Getters ////
+    /// returns the width of the processor
     pub fn get_width(&self) -> u32 {
         return self.width
     }
+    /// returns the height of the processor
     pub fn get_height(&self) -> u32 {
         return self.height
     }
+    /// returns the data of the processor
     pub fn get_data(&self) -> RefMut<Vec<T>> {
         return self.data.borrow_mut()
     }  

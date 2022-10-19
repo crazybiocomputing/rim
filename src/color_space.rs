@@ -41,6 +41,7 @@ pub struct ColorSpace<T>  {
 
 impl<T> ColorSpace<T> where T: Copy {
     //// Constructeurs ////
+    /// Returns a Gray8 ColorSpace, used by ByteProcessors
     pub fn Gray8() -> ColorSpace<u8> {
         return ColorSpace{
             nb_channels : 1,
@@ -50,6 +51,7 @@ impl<T> ColorSpace<T> where T: Copy {
             max : u8::MAX
         }
     }
+    /// Returns a Grayf32 ColorSpace, used by FloatProcessors
     pub fn Grayf32() -> ColorSpace<f32> {
         return ColorSpace{
             nb_channels : 1,
@@ -59,6 +61,7 @@ impl<T> ColorSpace<T> where T: Copy {
             max : f32::MAX
         }
     }
+    /// Returns a Rgb24 ColorSpace, used by ColorProcessors
     pub fn Rgb24() -> ColorSpace<(u8,u8,u8)> {
         return ColorSpace{
             nb_channels : 3,
@@ -70,16 +73,20 @@ impl<T> ColorSpace<T> where T: Copy {
     }
 
     //// Getters ////
+    /// Returns the number of channels (1 for grayspaces, 3 for RGB)
     pub fn get_nb_channels(&self) -> u8 {
         return self.nb_channels
     }
+    /// Returns the bit depth, 8, 16, 24 (RGB) or 32.
     pub fn get_bit_depth(&self) -> u8 {
         return self.bits_per_color * self.get_nb_channels()
     }
 
+    /// Returns the minimum value of that color space
     pub fn get_min(&self) -> T {
         return self.min
     }
+    /// Returns the maximum value of that color space
     pub fn get_max(&self) -> T {
         return self.max
     }
