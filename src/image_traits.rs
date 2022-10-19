@@ -131,7 +131,7 @@ impl<T> Access<T> for ImageProcessor<T> where T:Copy{
     }
 }
 
-/*
+
 
 impl<T> Access<T> for ImageStack<T> where T:Copy{
     type Output = T;
@@ -152,7 +152,7 @@ impl<T> Access<T> for ImageStack<T> where T:Copy{
     }
     // No check, faster, but prone to errors
     fn get(&self,index: usize) -> Self::Output{
-        return self.get_one_slice().data()[index];
+        return self.get_one_slice().get_data()[index];
     }
 
     
@@ -162,7 +162,7 @@ impl<T> Access<T> for ImageStack<T> where T:Copy{
             panic!("Pixel out of bounds  ! index = {}, data length : {}",index ,self.get_one_slice().get_width()*self.get_one_slice().get_height());
         }
         
-        self.get_one_slice().data()[usize::try_from(index).unwrap()] = value;
+        self.get_one_slice().get_data()[usize::try_from(index).unwrap()] = value;
     }
     fn set_pixel_at(&mut self,x: u32, y: u32, value: Self::Output){
         if x >= self.get_one_slice().get_width(){
@@ -175,7 +175,7 @@ impl<T> Access<T> for ImageStack<T> where T:Copy{
     }
     // No check, faster, but prone to errors
     fn set(&mut self,index: u32, value: Self::Output){
-        self.get_one_slice().data()[usize::try_from(index).unwrap()] = value;
+        self.get_one_slice().get_data()[usize::try_from(index).unwrap()] = value;
     }
     
     fn get_row(&self,x: u32, y: u32) -> Vec<Self::Output>{
@@ -215,7 +215,7 @@ impl<T> Access<T> for ImageStack<T> where T:Copy{
     }
 }
 
-*/
+
 /*
 TODO
     

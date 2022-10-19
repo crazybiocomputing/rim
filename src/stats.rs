@@ -21,12 +21,13 @@
 use crate::image_processor::*;
 use crate::image_traits::Access;
 use std::collections::HashMap;
+use std::ops::Div;
 
 pub trait Stats {
     type Output;
     fn get_min_value(&self) -> Self::Output;
     fn get_max_value(&self) -> Self::Output;
-    //fn get_mean(&self) -> Self::Output;
+    fn get_mean(&self) -> Self::Output;
     //fn get standard_deviation(&self) -> Self::Output;
 
     //fn get_histogram(&self) -> HashMap<Self::Output,usize>;
@@ -37,8 +38,13 @@ pub trait Stats {
     //get standard deviation
 }
 
-impl Stats for FloatProcessor{  
-    type Output = f32;
+/*
+impl<T> Stats for ImageProcessor<T> where T:Copy 
+                                    + std::cmp::PartialOrd 
+                                    + std::ops::Add<Output=T> 
+                                    + std::ops::Div<T> 
+                                    + Div<Output = T>{  
+    type Output = T;
     
     /// Returns the minimum displayed value in the image
     fn get_min_value(&self) -> Self::Output {
@@ -66,8 +72,7 @@ impl Stats for FloatProcessor{
         return maximum
     }
 
-    /*
-    fn get_average_value(&self) -> Self::Output {
+    fn get_mean(&self) -> Self::Output {
         let size = self.get_height() * self.get_width();
         let mut average : T = self.get(usize::try_from(0).unwrap());
         for i in 1..size {
@@ -76,7 +81,7 @@ impl Stats for FloatProcessor{
         average = average / (size.into());
         return average
     }
-    */
+    
     
 
     /*
@@ -96,6 +101,8 @@ impl Stats for FloatProcessor{
     */
     
 }
+
+*/
 
 
 
