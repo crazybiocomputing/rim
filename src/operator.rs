@@ -41,20 +41,16 @@ pub trait Operator<T> {
     /// Pixels less than 'value' are set to 'value'.
     fn floor(&self, value: Self::Input);
 
-    
-
-
-    /*
     /// Binary AND of each pixel in the image or ROI with 'value'.
-    fn and​(&self,value: i32);
-    
+    fn and(&self, value: Self::Input);
+
     /// Binary OR of each pixel in the image or ROI with 'value'.
-    fn or​(&self,value: i32);
+    fn or(&self, value: Self::Input);
     
     /// Binary exclusive OR of each pixel in the image or ROI with 'value'.
-    fn xor​(&self,value: i32);
+    fn xor(&self, value: Self::Input);
 
-
+    /*
     /// If this is a 32-bit or signed 16-bit image, performs an absolute value transform, otherwise does nothing.
     fn abs(&self);    
 
@@ -74,17 +70,14 @@ pub trait Operator<T> {
     fn gamma​(value: f64);
 
     
+    
+    
+    static fn set_random_seed​(random_seed: f64);
 
     /// Adds pseudorandom, Gaussian ("normally") distributed values, 
     /// with mean 0.0 and the specified standard deviation, to this image or ROI.
     fn noise​(&self,standard_deviation: f64);
 
-    
-
-    static fn set_random_seed​(random_seed: f64);
-    
-
-   
 
     /// Uses the Process/Math/Macro command to apply functional code to this image/volume.
     /// The function takes eight arguments:
@@ -104,13 +97,17 @@ pub trait Operator<T> {
 }
 
 
-impl<T> Operator<T> for ImageProcessor<T> where T : Copy 
-                                                + std::ops::AddAssign 
-                                                + std::ops::SubAssign 
-                                                + std::ops::MulAssign
-                                                + std::ops::DivAssign
-                                                + std::cmp::PartialOrd{
-
+impl<T> Operator<T> for ImageProcessor<T> 
+    where T : Copy 
+        + std::ops::AddAssign 
+        + std::ops::SubAssign 
+        + std::ops::MulAssign
+        + std::ops::DivAssign
+        + std::cmp::PartialOrd
+        + std::ops::BitAnd<Output=T>
+        + std::ops::BitOr<Output=T>
+        + std::ops::BitXor<Output=T>
+    {
 
     type Input = T;
 
@@ -151,11 +148,81 @@ impl<T> Operator<T> for ImageProcessor<T> where T : Copy
         }
     }
 
-    /*
-    fn abs(&self){
-        if(self.get_min_possible() < 0){
-            self.multiply(-1)
+    fn and(&self,value: Self::Input){
+        for i in self.get_data().iter_mut() {
+            *i = *i & value;
         }
     }
-    */
+    fn or(&self,value: Self::Input){
+        for i in self.get_data().iter_mut() {
+            *i = *i | value;
+        }
+    }
+    fn xor(&self,value: Self::Input){
+        for i in self.get_data().iter_mut() {
+            *i = *i ^ value;
+        }
+    }
+}
+
+impl<T> Operator<T> for ImageStack<T>
+    where T : Copy 
+        + std::ops::AddAssign 
+        + std::ops::SubAssign 
+        + std::ops::MulAssign
+        + std::ops::DivAssign
+        + std::cmp::PartialOrd
+        + std::ops::BitAnd<Output=T>
+        + std::ops::BitOr<Output=T>
+        + std::ops::BitXor<Output=T>
+    {
+
+    type Input = T;
+
+    fn add(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.add(value)
+        }
+    }
+    fn substract(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.substract(value)
+        }
+    }
+    fn multiply(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.multiply(value)
+        }
+    }
+    fn divide(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.divide(value)
+        }
+    }
+
+    fn ceil(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.ceil(value)
+        }
+    }
+    fn floor(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.floor(value)
+        }
+    }
+
+    fn and(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.and(value)
+        }
+    }fn or(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.or(value)
+        }
+    }fn xor(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.xor(value)
+        }
+    }
+
 }
