@@ -6,6 +6,7 @@ mod color_space;
 mod image_traits;
 mod image_stack;
 mod stats;
+mod operator;
 
 
 fn main() {
@@ -14,27 +15,26 @@ fn main() {
     use image_traits::Access;
     use image_stack::ImageStack;
     use stats::Stats;
-
+    use operator::Operator;
 
     let mut img = FloatProcessor::create_float_processor(10,10);
     img.debug();
 
     let mut pixel = img.get_pixel_at(0,0);
-    println!("Pixel in position x=1, y=1 : {}", pixel);
+    println!("Pixel in position x=0, y=0 : {}", pixel);
+    println!("Pixel in position x=1, y=1 : {}", img.get_pixel_at(1,1));
 
     img.set(0,10.0);
-    img.set(1,10.0);
-    img.set(8,10.0);
-    img.set(0,20.0);
+    img.add(1.0);
+    img.ceil(8.3);
+    img.floor(1.2);
+    img.multiply(2.0);
+    img.divide(1.3);
 
     pixel = img.get_pixel_at(0,0);
-    println!("Pixel in position x=1, y=1 : {}", pixel);
+    println!("Pixel in position x=0, y=0 : {}", pixel);
+    println!("Pixel in position x=1, y=1 : {}", img.get_pixel_at(1,1));
 
-    println!("Min Possible {}", img.get_min_possible());
-    println!("Max Possible {}", img.get_max_possible());
-    println!("");
-    println!("Min {}", img.get_min_value());
-    println!("Max {}", img.get_max_value());
     //println!("Average {}", img.get_average_value());
 
 

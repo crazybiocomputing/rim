@@ -16,18 +16,36 @@
 //
 //  You should have received a copy of the GNU General Public License
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
+use std::ops::Add;
 
+use crate::image_processor::ImageProcessor;
+use crate::image_stack::ImageStack;
 
-pub trait Operator {
+pub trait Operator<T> {
+    type Input;
     /// Adds 'value' to each pixel in the image or ROI.
-    fn add​(&self, value: i32);
-    
-    /// Adds 'value' to each pixel in the image or ROI.
-    fn add​_float(&self, value: f64);
+    fn add(&self, value: Self::Input);
 
+    /// Removes 'value' to each pixel in the image or ROI.
+    fn remove(&self, value: Self::Input);
+
+    /// Multiplies each pixel in the image or ROI by 'value'.
+    fn multiply(&self, value: Self::Input);
+
+    /// Divides each pixel in the image or ROI by 'value'.
+    fn divide(&self, value: Self::Input);
+
+
+    /// Pixels greater than 'value' are set to 'value'.
+    fn ceil(&self, value: Self::Input);
+
+    /// Pixels less than 'value' are set to 'value'.
+    fn floor(&self, value: Self::Input);
+
+    /*
     /// Binary AND of each pixel in the image or ROI with 'value'.
     fn and​(&self,value: i32);
-
+    
     /// If this is a 32-bit or signed 16-bit image, performs an absolute value transform, otherwise does nothing.
     fn abs(&self);
 
@@ -42,15 +60,8 @@ pub trait Operator {
 
     /// Does a logarithmic (base 10) transform of the image or ROI.
     fn log(&self);
- 
-    /// Pixels greater than 'value' are set to 'value'.
-    fn max​(&self, value: f64);
 
-    /// Pixels less than 'value' are set to 'value'.
-    fn min​(&self,value: f64);
-
-    /// Multiplies each pixel in the image or ROI by 'value'.
-    fn multiply​(&self,value: f64);
+    
 
     /// Adds pseudorandom, Gaussian ("normally") distributed values, 
     /// with mean 0.0 and the specified standard deviation, to this image or ROI.
@@ -85,5 +96,58 @@ pub trait Operator {
     /// Uses the Process/Math/Macro command to apply macro code to this image.
     /// See apply_func(..)
     fn apply_macro​(&self, func: F);
+
+    */
+
+}
+
+
+impl<T> Operator<T> for ImageProcessor<T> where T : Copy 
+                                                + std::ops::AddAssign 
+                                                + std::ops::SubAssign 
+                                                + std::ops::MulAssign
+                                                + std::ops::DivAssign
+                                                + std::cmp::PartialOrd{
+
+
+    type Input = T;
+
+    fn add(&self, value: Self::Input){
+        for i in self.get_data().iter_mut() {
+            *i += value;
+        }
+    }
+    fn remove(&self, value: Self::Input){
+        for i in self.get_data().iter_mut() {
+            *i -= value;
+        }
+    }
+    fn multiply(&self, value: Self::Input){
+        for i in self.get_data().iter_mut() {
+            *i *= value;
+        }
+    }
+    fn divide(&self, value: Self::Input){
+        for i in self.get_data().iter_mut() {
+            *i /= value;
+        }
+    }
+
+    fn ceil(&self, value: Self::Input){
+        for i in self.get_data().iter_mut() {
+            if *i > value {
+                *i = value;
+            }
+    
+        }
+    }
+    fn floor(&self, value: Self::Input){
+        for i in self.get_data().iter_mut() {
+            if *i < value {
+                *i = value;
+            }
+        }
+    }
+
 
 }
