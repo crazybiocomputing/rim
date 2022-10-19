@@ -85,6 +85,146 @@ impl<T> ColorSpace<T> where T: Copy {
     }
 }
 
+#[cfg(test)]
+mod test{
+    use crate::color_space::ColorSpace;
+    use crate::color_space::Space;
+    use core::cell::RefCell;
+    use core::cell::Cell;
+
+    #[test]
+    fn test_Gray8(){
+        let color = ColorSpace{
+            nb_channels : 1,
+            bits_per_color : 8,
+            space : Space::Gray,
+            min : u8::MIN,
+            max : u8::MAX
+        };
+        assert_eq!(ColorSpace::<u8>::Gray8(),color);
+    }
+
+    #[test]
+    fn test_Grayf32(){
+        let color = ColorSpace{
+            nb_channels : 1,
+            bits_per_color : 32,
+            space : Space::Gray,
+            min : f32::MIN,
+            max : f32::MAX
+        };
+        assert_eq!(ColorSpace::<f32>::Grayf32(),color);
+    }
+
+    #[test]
+    fn test_Rgb24(){
+        let color = ColorSpace{
+            nb_channels : 3,
+            bits_per_color : 8,
+            space : Space::Rgb,
+            min : (u8::MIN,u8::MIN,u8::MIN),
+            max : (u8::MAX,u8::MAX,u8::MAX)
+        };
+        assert_eq!(ColorSpace::<(u8,u8,u8)>::Rgb24(),color);
+    }
+
+    #[test]
+    fn test_get_nb_channels(){
+        let color = ColorSpace{
+            nb_channels : 3,
+            bits_per_color : 8,
+            space : Space::Rgb,
+            min : (u8::MIN,u8::MIN,u8::MIN),
+            max : (u8::MAX,u8::MAX,u8::MAX)
+        };
+        assert_eq!(color.get_nb_channels(),3);
+    }
+
+    #[test]
+    fn test_get_bit_depth(){
+        let color = ColorSpace{
+            nb_channels : 1,
+            bits_per_color : 32,
+            space : Space::Gray,
+            min : f32::MIN,
+            max : f32::MAX
+        };
+        assert_eq!(color.get_bit_depth(),32);
+    }
+
+    #[test]
+    fn test_get_min_Gray8(){
+        let color = ColorSpace{
+            nb_channels : 1,
+            bits_per_color : 8,
+            space : Space::Gray,
+            min : u8::MIN,
+            max : u8::MAX
+        };
+        assert_eq!(color.get_min(),0);
+    }
+
+    #[test]
+    fn test_get_min_Grayf32(){
+        let color = ColorSpace{
+            nb_channels : 1,
+            bits_per_color : 32,
+            space : Space::Gray,
+            min : f32::MIN,
+            max : f32::MAX
+        };
+        assert_eq!(color.get_min(),-3.4028235e38);
+    }
+
+    #[test]
+    fn test_get_min_RGB(){
+        let color = ColorSpace{
+            nb_channels : 3,
+            bits_per_color : 8,
+            space : Space::Rgb,
+            min : (u8::MIN,u8::MIN,u8::MIN),
+            max : (u8::MAX,u8::MAX,u8::MAX)
+        };
+        assert_eq!(color.get_min(),(0,0,0));
+    }
+
+    #[test]
+    fn test_get_max_Gray8(){
+        let color = ColorSpace{
+            nb_channels : 1,
+            bits_per_color : 8,
+            space : Space::Gray,
+            min : u8::MIN,
+            max : u8::MAX
+        };
+        assert_eq!(color.get_max(),255);
+    }
+
+    #[test]
+    fn test_get_max_Grayf32(){
+        let color = ColorSpace{
+            nb_channels : 1,
+            bits_per_color : 32,
+            space : Space::Gray,
+            min : f32::MIN,
+            max : f32::MAX
+        };
+        assert_eq!(color.get_max(),3.4028235e38);
+    }
+
+    #[test]
+    fn test_get_max_RGB(){
+        let color = ColorSpace{
+            nb_channels : 3,
+            bits_per_color : 8,
+            space : Space::Rgb,
+            min : (u8::MIN,u8::MIN,u8::MIN),
+            max : (u8::MAX,u8::MAX,u8::MAX)
+        };
+        assert_eq!(color.get_max(),(255,255,255));
+    }
+    
+}
 /*
 Old Code
 enum Space {
