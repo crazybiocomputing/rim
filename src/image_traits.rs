@@ -62,7 +62,7 @@ impl<T> Access<T> for ImageProcessor<T> where T:Copy{
             panic!("Pixel out of bounds ! x={}, width={}",x,self.get_width());
         }
         if y >= self.get_height(){
-            panic!("Pixel out of bounds  ! x={}, height={}",y,self.get_height());
+            panic!("Pixel out of bounds ! y={}, height={}",y,self.get_height());
         }
         return self.get_pixel(y*self.get_width()+x)
     }
@@ -85,7 +85,7 @@ impl<T> Access<T> for ImageProcessor<T> where T:Copy{
             panic!("Pixel out of bounds ! x={}, width={}",x,self.get_width());
         }
         if y >= self.get_height(){
-            panic!("Pixel out of bounds  ! x={}, height={}",y,self.get_height());
+            panic!("Pixel out of bounds ! y={}, height={}",y,self.get_height());
         }
         self.set_pixel(y*self.get_width()+x,value);
     }
@@ -211,11 +211,125 @@ impl<T> Access<T> for ImageStack<T> where T:Copy{
     }
 
     fn set_slice_number(&self,slice: u32){
-        //Ptet envoyer un message d'erreur pour dire que c'est pas un stack ?
+        self.set_slice_number(slice);
     }
 }
 
 
+#[cfg(test)]
+mod test{
+    //use super ::super::ImageStack::{*};
+    //use super :: super:: ImageProcessor::{*};
+    use crate :: image_processor::*;
+    /*use crate::image_stack::ImageStack;
+    use crate::image_stack::ImageProcessor;
+    use crate::image_stack::ByteStack;
+    use crate::image_stack::ByteProcessor;
+    use crate::image_stack::FloatProcessor;
+    use crate::image_stack::FloatStack;*/
+    use crate::color_space::ColorSpace;
+    
+    use crate::image_traits::Access;
+    use core::cell::RefCell;
+    use core::cell::Cell;
+
+    #[test]
+    fn test_ImageProcessor_get_pixel(){
+       let img= ByteProcessor::create_byte_processor(10,15);
+        assert_eq!(img.get_pixel(0),0);
+    }
+
+    #[test]
+    #[should_panic(expected = "Pixel out of bounds  ! index = 200, data length : 200")]
+    fn test_ImageProcessor_get_pixel_panic(){
+       let img= ByteProcessor::create_byte_processor(10,20);
+       img.get_pixel(200);
+    }
+
+    #[test]
+    fn test_ImageProcessor_get_pixel_at(){
+       let img= ByteProcessor::create_byte_processor(10,15);
+        assert_eq!(img.get_pixel_at(0,1),0);
+    }
+
+    #[test]
+    #[should_panic(expected = "Pixel out of bounds ! x=10, width=10")]
+    fn test_ImageProcessor_get_pixel_at_panic_width(){
+       let img= ByteProcessor::create_byte_processor(10,15);
+        img.get_pixel_at(10,0);
+    }
+
+    #[test]
+    #[should_panic(expected = "Pixel out of bounds ! y=15, height=15")]
+    fn test_ImageProcessor_get_pixel_at_panic_height(){
+       let img= ByteProcessor::create_byte_processor(10,15);
+        img.get_pixel_at(0,15);
+    }
+
+    #[test]
+    fn test_ImageProcessor_get(){
+        let img= ByteProcessor::create_byte_processor(10,15);
+         assert_eq!(img.get(0),0);
+    }
+
+    #[test]
+    fn test_ImageProcessor_set_pixel(){
+        let mut img= ByteProcessor::create_byte_processor(2,2);
+        img.set_pixel(0,10);
+        assert_eq!(img.get_pixel(0),10);
+    }
+
+    #[test]
+    #[should_panic(expected = "Pixel out of bounds  ! index = 4, data length : 4")]
+    fn test_ImageProcessor_set_pixel_panic(){
+        let mut img= ByteProcessor::create_byte_processor(2,2);
+        img.set_pixel(4,10);
+    }
+
+    #[test]
+    fn test_ImageProcessor_set_pixel_color(){
+        let mut img= ColorProcessor::create_color_processor(2,2);
+        img.set_pixel(0,(10,0,16));
+        assert_eq!(img.get_pixel(0),(10,0,16));
+    }
+
+    #[test]
+    fn test_ImageProcessor_set_pixel_at(){
+        let mut img= ByteProcessor::create_byte_processor(2,2);
+        img.set_pixel_at(0,0,10);
+        assert_eq!(img.get_pixel(0),10);
+    }
+
+    #[test]
+    #[should_panic(expected = "Pixel out of bounds ! x=4, width=2")]
+    fn test_ImageProcessor_set_pixel_at_panic_width(){
+        let mut img= ByteProcessor::create_byte_processor(2,2);
+        img.set_pixel_at(4,0,10);
+    }
+
+    #[test]
+    #[should_panic(expected = "Pixel out of bounds ! y=4, height=2")]
+    fn test_ImageProcessor_set_pixel_at_panic_height(){
+        let mut img= ByteProcessor::create_byte_processor(2,2);
+        img.set_pixel_at(0,4,10);
+    }
+
+    #[test]
+    fn test_ImageProcessor_set_pixel_at_color(){
+        let mut img= ColorProcessor::create_color_processor(2,2);
+        img.set_pixel_at(0,0,(10,0,16));
+        assert_eq!(img.get_pixel(0),(10,0,16));
+    }
+
+    #[test]
+    fn test_ImageProcessor_set_pixel_at_float(){
+        let mut img= FloatProcessor::create_float_processor(2,2);
+        img.set_pixel_at(0,0,10.2);
+        assert_eq!(img.get_pixel(0),10.2);
+    }
+
+    
+}
 /*
 TODO
     
