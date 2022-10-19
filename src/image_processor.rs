@@ -39,6 +39,10 @@ pub struct ImageProcessor<T>{
 }
 
 
+pub type ByteProcessor = ImageProcessor<u8>;
+pub type FloatProcessor = ImageProcessor<f32>;
+pub type ColorProcessor = ImageProcessor<(u8,u8,u8)>;
+
 
 impl<T> ImageProcessor<T> where T: Copy {
     //// Constructeur générique ////
@@ -52,20 +56,20 @@ impl<T> ImageProcessor<T> where T: Copy {
     }
 
     //// Constructeurs spécialisés ////
-    pub fn create_byte_processor(width: u32, height: u32) -> ImageProcessor<u8> {
+    pub fn create_byte_processor(width: u32, height: u32) -> ByteProcessor {
         let cs : ColorSpace<u8> = ColorSpace::<u8>::Gray8();
-        let data = RefCell::new(vec![0 as u8; (width*height*(cs.get_nb_channels() as u32)) as usize]);
+        let data = RefCell::new(vec![0 as u8; (width*height) as usize]);
         return ImageProcessor::<u8>::create_processor(width, height, data, cs )
     }
-    pub fn create_float_processor(width: u32, height: u32) -> ImageProcessor<f32> {
+    pub fn create_float_processor(width: u32, height: u32) -> FloatProcessor {
         let cs : ColorSpace<f32> = ColorSpace::<f32>::Grayf32();
-        let data = RefCell::new(vec![0 as f32; (width*height*(cs.get_nb_channels() as u32)) as usize]);
+        let data = RefCell::new(vec![0 as f32; (width*height) as usize]);
         return ImageProcessor::<f32>::create_processor(width, height, data, cs )
     }
-    pub fn create_color_processor(width: u32, height: u32) -> ImageProcessor<u8> {
-        let cs : ColorSpace<u8> = ColorSpace::<u8>::Rgb24();
-        let data = RefCell::new(vec![0 as u8; (width*height*(cs.get_nb_channels() as u32)) as usize]);
-        return ImageProcessor::<u8>::create_processor(width, height, data, cs )
+    pub fn create_color_processor(width: u32, height: u32) -> ColorProcessor {
+        let cs : ColorSpace<(u8,u8,u8)> = ColorSpace::<(u8,u8,u8)>::Rgb24();
+        let data = RefCell::new(vec![(0 as u8,0 as u8,0 as u8) ; (width*height) as usize]);
+        return ImageProcessor::<(u8,u8,u8)>::create_processor(width, height, data, cs )
     }
 
 

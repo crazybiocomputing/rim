@@ -59,13 +59,13 @@ impl<T> ColorSpace<T> where T: Copy {
             max : f32::MAX
         }
     }
-    pub fn Rgb24() -> ColorSpace<u8> {
+    pub fn Rgb24() -> ColorSpace<(u8,u8,u8)> {
         return ColorSpace{
             nb_channels : 3,
             bits_per_color : 8,
             space : Space::Rgb,
-            min : u8::MIN,
-            max : u8::MAX
+            min : (u8::MIN,u8::MIN,u8::MIN),
+            max : (u8::MAX,u8::MAX,u8::MAX)
         }
     }
 

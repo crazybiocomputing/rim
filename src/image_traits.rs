@@ -44,19 +44,19 @@ pub trait Access<T> {
     fn set_slice_number(&self,slice: u32);
 }
 
-impl<T> Access<T> for ImageProcessor<T> where T:Copy {
-    type Output = T;
 
-    
-    
+
+impl<T> Access<T> for ImageProcessor<T> where T:Copy{
+    type Output = T;
 
     ///// Get 1 pixel /////
     fn get_pixel(&self, index: u32) -> Self::Output{
         if u32::from(index) >= self.get_width()*self.get_height(){
             panic!("Pixel out of bounds  ! index = {}, data length : {}",index ,self.get_width()*self.get_height());
-        }
-        return self.data()[usize::try_from(index).unwrap()];
+        } 
+        return self.data()[usize::try_from(index).unwrap()]; 
     }
+    
     fn get_pixel_at(&self,x: u32, y: u32) -> Self::Output{
         if x >= self.get_width(){
             panic!("Pixel out of bounds ! x={}, width={}",x,self.get_width());
@@ -127,11 +127,11 @@ impl<T> Access<T> for ImageProcessor<T> where T:Copy {
     }
 
     fn set_slice_number(&self,slice: u32){
-        panic!("You cannot set the slice number for a single image")
+        panic!("You cannot set the slice number for a single image");
     }
 }
 
-
+/*
 
 impl<T> Access<T> for ImageStack<T> where T:Copy{
     type Output = T;
@@ -215,7 +215,7 @@ impl<T> Access<T> for ImageStack<T> where T:Copy{
     }
 }
 
-
+*/
 /*
 TODO
     

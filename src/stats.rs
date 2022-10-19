@@ -18,7 +18,7 @@
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
 
 
-use crate::image_processor::ImageProcessor;
+use crate::image_processor::*;
 use crate::image_traits::Access;
 use std::collections::HashMap;
 
@@ -26,8 +26,8 @@ pub trait Stats {
     type Output;
     fn get_min_value(&self) -> Self::Output;
     fn get_max_value(&self) -> Self::Output;
-    //fn get_average_value(&self) -> Self::Output;
-
+    //fn get_mean(&self) -> Self::Output;
+    //fn get standard_deviation(&self) -> Self::Output;
 
     //fn get_histogram(&self) -> HashMap<Self::Output,usize>;
     // get histograms specified bins
@@ -37,14 +37,13 @@ pub trait Stats {
     //get standard deviation
 }
 
-
-impl<T> Stats for ImageProcessor<T> where T: Copy + std::cmp::PartialOrd + std::ops::Add<Output=T> + std::ops::Div<Output=T> { //+ std::cmp::Eq + std::hash::Hash + std::cmp::Ord
-    type Output = T;
+impl Stats for FloatProcessor{  
+    type Output = f32;
     
     /// Returns the minimum displayed value in the image
     fn get_min_value(&self) -> Self::Output {
         let size = self.get_height() * self.get_width();
-        let mut minimum : T = self.get(usize::try_from(0).unwrap());
+        let mut minimum = self.get(usize::try_from(0).unwrap());
         for i in 1..size {
             let tmp = self.get(usize::try_from(i).unwrap());
             if tmp < minimum {
@@ -53,11 +52,11 @@ impl<T> Stats for ImageProcessor<T> where T: Copy + std::cmp::PartialOrd + std::
         }
         return minimum
     }
-
+    
     /// Returns the maximum displayed value in the image
     fn get_max_value(&self) -> Self::Output {
         let size = self.get_height() * self.get_width();
-        let mut maximum : T = self.get(usize::try_from(0).unwrap());
+        let mut maximum = self.get(usize::try_from(0).unwrap());
         for i in 1..size {
             let tmp = self.get(usize::try_from(i).unwrap());
             if tmp > maximum {

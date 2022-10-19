@@ -9,14 +9,14 @@ mod stats;
 
 
 fn main() {
-    use image_processor::ImageProcessor;
+    use image_processor::*;
     use color_space::ColorSpace;
     use image_traits::Access;
     use image_stack::ImageStack;
     use stats::Stats;
 
 
-    let mut img = ImageProcessor::<f32>::create_float_processor(10,10);
+    let mut img = FloatProcessor::create_float_processor(10,10);
     img.debug();
 
     let mut pixel = img.get_pixel_at(0,0);
