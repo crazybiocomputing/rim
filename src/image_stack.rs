@@ -37,7 +37,7 @@ pub struct ImageStack<T>{
     width : u32,
     height : u32,
     size : Cell<u32>,
-    data : RefCell<Vec<ImageProcessor<T>>>,
+    data : RefCell<Vec<RefCell<ImageProcessor<T>>>>,
     cs : ColorSpace<T>,
     focus_slice : Cell<u32>,
 }
@@ -48,7 +48,7 @@ pub type ColorStack = ImageStack<(u8,u8,u8)>;
 
 impl<T> ImageStack<T> where T: Copy {
     
-    pub fn create_stack(width: u32, height: u32, size: Cell<u32>, data: RefCell<Vec<ImageProcessor<T>>>,cs : ColorSpace<T>,focus_slice: Cell<u32>) -> ImageStack<T>{
+    pub fn create_stack(width: u32, height: u32, size: Cell<u32>, data: RefCell<Vec<RefCell<ImageProcessor<T>>>>,cs : ColorSpace<T>,focus_slice: Cell<u32>) -> ImageStack<T>{
         return ImageStack{
             width : width,
             height : height,
@@ -61,7 +61,7 @@ impl<T> ImageStack<T> where T: Copy {
 
     pub fn create_byte_stack(width: u32, height: u32, size: u32) -> ByteStack {
         let cs : ColorSpace<u8> = ColorSpace::<u8>::Gray8();
-        let data = RefCell::new(vec![ByteProcessor::create_byte_processor(width,height);size.try_into().unwrap()]);
+        let data = RefCell::new(vec![RefCell::new(ByteProcessor::create_byte_processor(width,height));size.try_into().unwrap()]);
         let focus_slice = Cell::new(0);
         let size = Cell:: new(size);
         return ImageStack::<u8>::create_stack(width,height,size,data,cs,focus_slice)   
@@ -69,7 +69,7 @@ impl<T> ImageStack<T> where T: Copy {
 
     pub fn create_float_stack(width: u32, height: u32, size: u32) -> FloatStack {
         let cs : ColorSpace<f32> = ColorSpace::<f32>::Grayf32();
-        let data = RefCell::new(vec![FloatProcessor::create_float_processor(width,height);size.try_into().unwrap()]);
+        let data = RefCell::new(vec![RefCell::new(FloatProcessor::create_float_processor(width,height));size.try_into().unwrap()]);
         let focus_slice = Cell::new(0);
         let size = Cell:: new(size);
         return ImageStack::<f32>::create_stack(width,height,size,data,cs,focus_slice)   
@@ -77,7 +77,7 @@ impl<T> ImageStack<T> where T: Copy {
 
     pub fn create_color_stack(width: u32, height: u32, size: u32) -> ColorStack {
         let cs : ColorSpace<(u8,u8,u8)> = ColorSpace::<(u8,u8,u8)>::Rgb24();
-        let data = RefCell::new(vec![ColorProcessor::create_color_processor(width,height);size.try_into().unwrap()]);
+        let data = RefCell::new(vec![RefCell::new(ColorProcessor::create_color_processor(width,height));size.try_into().unwrap()]);
         let focus_slice = Cell::new(0);
         let size = Cell:: new(size);
         return ImageStack::<(u8,u8,u8)>::create_stack(width,height,size,data,cs,focus_slice)   
@@ -116,16 +116,17 @@ pub fn debug_stack(&self){
     }
 
     //retourne le vecteur contenant les vecteurs d'images
-    pub fn get_data_stack(&self) -> RefMut<Vec<ImageProcessor<T>>>{
+    pub fn get_data_stack(&self) -> RefMut<Vec<RefCell<ImageProcessor<T>>>>{
         return self.data.borrow_mut()
     }
-
-    pub fn get_one_slice(&self)-> ImageProcessor<T>{
-        return self.get_data_stack()[usize::try_from(self.get_focus_slice()).unwrap()].clone()
+    /*
+    pub fn get_one_slice(&self)-> RefMut<ImageProcessor<T>>{
+        return self.get_data_stack()[usize::try_from(self.get_focus_slice()).unwrap()].borrow_mut()
     }
+    */
 
     pub fn get_one_slice_copy(&self)-> ImageProcessor<T>{
-        return self.get_data_stack()[usize::try_from(self.get_focus_slice()).unwrap()].clone()
+        return self.get_data_stack()[usize::try_from(self.get_focus_slice()).unwrap()].borrow().clone()
     }
 
 
@@ -135,6 +136,7 @@ pub fn debug_stack(&self){
         self.size.set(self.size.get()+1);
     }
 
+    ///push data stack
     pub fn set_data_stack(&self,img: ImageProcessor<T>){
         if img.get_width() != self.get_width_stack() {
             panic!("Width out of bounds ! width stack={}, width image={}",self.get_width_stack(),img.get_width());
@@ -142,7 +144,7 @@ pub fn debug_stack(&self){
         if img.get_height() != self.get_height_stack(){
             panic!("Heigth out of bounds ! height stack={}, height image={}",self.get_height_stack(),img.get_height());
         }
-        self.get_data_stack().push(img);
+        self.get_data_stack().push(RefCell::new(img));
         self.set_size();
     }
     //à modifier pour ne pas débasser le nombre d'image contenue
@@ -152,7 +154,7 @@ pub fn debug_stack(&self){
         } 
         self.focus_slice.set(slice);
         println!("Focus slice : {}", self.get_focus_slice());
-        self.get_data_stack()[usize::try_from(self.get_focus_slice()).unwrap()].debug();
+        self.get_one_slice_copy().debug();
     }
 }
 
@@ -178,7 +180,7 @@ mod test{
         let stack = ByteStack {width: 10, 
             height: 15, 
             size: Cell:: new(12),
-            data: RefCell::new(vec![ByteProcessor::create_byte_processor(10,15);12]),
+            data: RefCell::new(vec![RefCell::new(ByteProcessor::create_byte_processor(10,15));12]),
             cs : ColorSpace::<u8>::Gray8(),
             focus_slice: Cell::new(0)
             };
@@ -190,7 +192,7 @@ mod test{
         let stack = FloatStack {width: 10, 
             height: 15, 
             size: Cell:: new(12),
-            data: RefCell::new(vec![FloatProcessor::create_float_processor(10,15);12]),
+            data: RefCell::new(vec![RefCell::new(FloatProcessor::create_float_processor(10,15));12]),
             cs : ColorSpace::<f32>::Grayf32(),
             focus_slice: Cell::new(0)
             };
@@ -203,7 +205,7 @@ mod test{
         let stack = ColorStack {width: 10, 
             height: 15, 
             size: Cell:: new(12),
-            data: RefCell::new(vec![ColorProcessor::create_color_processor(10,15);12]),
+            data: RefCell::new(vec![RefCell::new(ColorProcessor::create_color_processor(10,15));12]),
             cs : ColorSpace::<(u8,u8,u8)>::Rgb24(),
             focus_slice: Cell::new(0)
             };
@@ -215,7 +217,7 @@ mod test{
         let stack = ByteStack {width: 10, 
             height: 15, 
             size: Cell:: new(12),
-            data: RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(10,15);12]),
+            data: RefCell::new(vec![RefCell::new(ImageProcessor::<u8>::create_byte_processor(10,15));12]),
             cs : ColorSpace::<u8>::Gray8(),
             focus_slice: Cell::new(0)
             };
@@ -227,7 +229,7 @@ mod test{
         let stack = ByteStack {width: 10, 
             height: 15, 
             size: Cell:: new(12),
-            data: RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(10,15);12]),
+            data: RefCell::new(vec![RefCell::new(ImageProcessor::<u8>::create_byte_processor(10,15));12]),
             cs : ColorSpace::<u8>::Gray8(),
             focus_slice: Cell::new(0)
             };
@@ -239,7 +241,7 @@ mod test{
         let stack = ByteStack {width: 10, 
             height: 15, 
             size: Cell:: new(12),
-            data: RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(10,15);12]),
+            data: RefCell::new(vec![RefCell::new(ImageProcessor::<u8>::create_byte_processor(10,15));12]),
             cs : ColorSpace::<u8>::Gray8(),
             focus_slice: Cell::new(0)
             };
@@ -252,7 +254,7 @@ mod test{
         let stack = ByteStack {width: 10, 
             height: 15, 
             size: Cell:: new(12),
-            data: RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(10,15);12]),
+            data: RefCell::new(vec![RefCell::new(ImageProcessor::<u8>::create_byte_processor(10,15));12]),
             cs : ColorSpace::<u8>::Gray8(),
             focus_slice: Cell::new(0)
             };
@@ -264,7 +266,7 @@ mod test{
         let stack = ByteStack {width: 10, 
             height: 15, 
             size: Cell:: new(12),
-            data: RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(10,15);12]),
+            data: RefCell::new(vec![RefCell::new(ImageProcessor::<u8>::create_byte_processor(10,15));12]),
             cs : ColorSpace::<u8>::Gray8(),
             focus_slice: Cell::new(0)
             };
@@ -276,7 +278,7 @@ mod test{
         let stack = ByteStack {width: 10, 
             height: 15, 
             size: Cell:: new(12),
-            data: RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(10,15);12]),
+            data: RefCell::new(vec![RefCell::new(ImageProcessor::<u8>::create_byte_processor(10,15));12]),
             cs : ColorSpace::<u8>::Gray8(),
             focus_slice: Cell::new(0)
             };
@@ -300,12 +302,12 @@ mod test{
         let stack = ByteStack {width: 10, 
             height: 15, 
             size: Cell:: new(12),
-            data: RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(10,15);12]),
+            data: RefCell::new(vec![RefCell::new(ImageProcessor::<u8>::create_byte_processor(10,15));12]),
             cs : ColorSpace::<u8>::Gray8(),
             focus_slice: Cell::new(0)
             };
             let img =ImageProcessor::<u8>::create_byte_processor(10, 15);
-        assert_eq!(stack.get_one_slice(),img);
+        assert_eq!(stack.get_one_slice_copy(),img);
     }
 
     
@@ -314,7 +316,7 @@ mod test{
         let stack = ByteStack {width: 10, 
             height: 15, 
             size: Cell:: new(12),
-            data: RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(10,15);12]),
+            data: RefCell::new(vec![RefCell::new(ImageProcessor::<u8>::create_byte_processor(10,15));12]),
             cs : ColorSpace::<u8>::Gray8(),
             focus_slice: Cell::new(0)
             };
@@ -327,7 +329,7 @@ mod test{
         let stack = ByteStack {width: 10, 
             height: 15, 
             size: Cell:: new(12),
-            data: RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(10,15);12]),
+            data: RefCell::new(vec![RefCell::new(ImageProcessor::<u8>::create_byte_processor(10,15));12]),
             cs : ColorSpace::<u8>::Gray8(),
             focus_slice: Cell::new(0)
             };
@@ -343,7 +345,7 @@ mod test{
         let stack = ByteStack {width: 10, 
             height: 15, 
             size: Cell:: new(12),
-            data: RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(10,15);12]),
+            data: RefCell::new(vec![RefCell::new(ImageProcessor::<u8>::create_byte_processor(10,15));12]),
             cs : ColorSpace::<u8>::Gray8(),
             focus_slice: Cell::new(0)
             };
@@ -357,7 +359,7 @@ mod test{
         let stack = ByteStack {width: 10, 
             height: 15, 
             size: Cell:: new(12),
-            data: RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(10,15);12]),
+            data: RefCell::new(vec![RefCell::new(ImageProcessor::<u8>::create_byte_processor(10,15));12]),
             cs : ColorSpace::<u8>::Gray8(),
             focus_slice: Cell::new(0)
             };
@@ -370,7 +372,7 @@ mod test{
         let stack = ByteStack {width: 10, 
             height: 15, 
             size: Cell:: new(12),
-            data: RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(10,15);12]),
+            data: RefCell::new(vec![RefCell::new(ImageProcessor::<u8>::create_byte_processor(10,15));12]),
             cs : ColorSpace::<u8>::Gray8(),
             focus_slice: Cell::new(0)
             };
@@ -384,7 +386,7 @@ mod test{
         let stack = ByteStack {width: 10, 
             height: 15, 
             size: Cell:: new(12),
-            data: RefCell::new(vec![ImageProcessor::<u8>::create_byte_processor(10,15);12]),
+            data: RefCell::new(vec![RefCell::new(ImageProcessor::<u8>::create_byte_processor(10,15));12]),
             cs : ColorSpace::<u8>::Gray8(),
             focus_slice: Cell::new(0)
             };

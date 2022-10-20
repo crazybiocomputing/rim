@@ -17,6 +17,9 @@
 //  You should have received a copy of the GNU General Public License
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
 use std::ops::Add;
+use rand::Rng;
+use rand::distributions::normal::Normal;
+use rand::distributions::IndependentSample;
 
 use crate::image_processor::ImageProcessor;
 use crate::image_stack::ImageStack;
@@ -76,8 +79,14 @@ pub trait Operator<T> {
 
     /// Adds pseudorandom, Gaussian ("normally") distributed values, 
     /// with mean 0.0 and the specified standard deviation, to this image or ROI.
-    fn noise​(&self,standard_deviation: f64);
-
+    fn noise(&self,standard_deviation: f64);
+    fn noise(&self,standard_deviation: f64){
+        let normal = Normal::new(0.0, standard_deviation);
+        for i in self.get_data().iter_mut() {
+            
+            *i += (normal.ind_sample(&mut rand::thread_rng()) as T);
+        }
+    }
 
     /// Uses the Process/Math/Macro command to apply functional code to this image/volume.
     /// The function takes eight arguments:
@@ -163,7 +172,9 @@ impl<T> Operator<T> for ImageProcessor<T>
             *i = *i ^ value;
         }
     }
+
 }
+
 
 impl<T> Operator<T> for ImageStack<T>
     where T : Copy 
@@ -181,48 +192,49 @@ impl<T> Operator<T> for ImageStack<T>
 
     fn add(&self, value: Self::Input){
         for i in self.get_data_stack().iter_mut() {
-            i.add(value)
+            i.borrow_mut().add(value);
         }
     }
     fn substract(&self, value: Self::Input){
         for i in self.get_data_stack().iter_mut() {
-            i.substract(value)
+            i.borrow_mut().substract(value);
         }
     }
     fn multiply(&self, value: Self::Input){
         for i in self.get_data_stack().iter_mut() {
-            i.multiply(value)
+            i.borrow_mut().multiply(value);
         }
     }
     fn divide(&self, value: Self::Input){
         for i in self.get_data_stack().iter_mut() {
-            i.divide(value)
+            i.borrow_mut().divide(value);
         }
     }
 
     fn ceil(&self, value: Self::Input){
         for i in self.get_data_stack().iter_mut() {
-            i.ceil(value)
+            i.borrow_mut().ceil(value);
         }
     }
     fn floor(&self, value: Self::Input){
         for i in self.get_data_stack().iter_mut() {
-            i.floor(value)
+            i.borrow_mut().floor(value);
         }
     }
 
     fn and(&self, value: Self::Input){
         for i in self.get_data_stack().iter_mut() {
-            i.and(value)
+            i.borrow_mut().and(value);
         }
     }fn or(&self, value: Self::Input){
         for i in self.get_data_stack().iter_mut() {
-            i.or(value)
+            i.borrow_mut().or(value);
         }
     }fn xor(&self, value: Self::Input){
         for i in self.get_data_stack().iter_mut() {
-            i.xor(value)
+            i.borrow_mut().xor(value);
         }
     }
+
 
 }
