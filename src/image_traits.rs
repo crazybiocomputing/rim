@@ -146,7 +146,7 @@ impl<T> Access<T> for ImageStack<T> where T:Copy{
             panic!("Pixel out of bounds ! x={}, width={}",x,self.get_one_slice().get_width());
         }
         if y >= self.get_one_slice().get_height(){
-            panic!("Pixel out of bounds  ! x={}, height={}",y,self.get_one_slice().get_height());
+            panic!("Pixel out of bounds ! y={}, height={}",y,self.get_one_slice().get_height());
         }
         return self.get_pixel(y*self.get_one_slice().get_width()+x)
     }
@@ -159,9 +159,8 @@ impl<T> Access<T> for ImageStack<T> where T:Copy{
     ///// set 1 Pixel /////
     fn set_pixel(&mut self,index: u32, value: Self::Output){
         if u32::from(index) >= self.get_one_slice().get_width()*self.get_one_slice().get_height(){
-            panic!("Pixel out of bounds  ! index = {}, data length : {}",index ,self.get_one_slice().get_width()*self.get_one_slice().get_height());
+            panic!("Pixel out of bounds ! index = {}, data length : {}",index ,self.get_one_slice().get_width()*self.get_one_slice().get_height());
         }
-        
         self.get_one_slice().get_data()[usize::try_from(index).unwrap()] = value;
     }
     fn set_pixel_at(&mut self,x: u32, y: u32, value: Self::Output){
@@ -169,7 +168,7 @@ impl<T> Access<T> for ImageStack<T> where T:Copy{
             panic!("Pixel out of bounds ! x={}, width={}",x,self.get_one_slice().get_width());
         }
         if y >= self.get_one_slice().get_height(){
-            panic!("Pixel out of bounds  ! x={}, height={}",y,self.get_one_slice().get_height());
+            panic!("Pixel out of bounds ! y={}, height={}",y,self.get_one_slice().get_height());
         }
         self.get_one_slice().set_pixel(y*self.get_one_slice().get_width()+x,value);
     }
@@ -221,6 +220,7 @@ mod test{
     //use super ::super::ImageStack::{*};
     //use super :: super:: ImageProcessor::{*};
     use crate :: image_processor::*;
+    use crate :: image_stack::*;
     /*use crate::image_stack::ImageStack;
     use crate::image_stack::ImageProcessor;
     use crate::image_stack::ByteStack;
@@ -328,7 +328,137 @@ mod test{
         assert_eq!(img.get_pixel(0),10.2);
     }
 
+    #[test]
+    fn test_ImageProcessor_set(){
+        let mut img= ByteProcessor::create_byte_processor(2,2);
+        img.set(0,10);
+        assert_eq!(img.get_pixel(0),10);
+    }
     
+    #[test]
+    fn test_ImageProcessor_get_row(){
+        let mut img= ColorProcessor::create_color_processor(2,2);
+        let vec = vec![(0 as u8,0 as u8,0 as u8); 2 as usize];
+        let row = img.get_row(0,0);
+        assert_eq!(row,vec);
+    }
+
+    #[test]
+    fn test_ImageProcessor_get_column(){
+        let mut img= ByteProcessor::create_byte_processor(2,2);
+        let vec = vec![0 as u8; 2 as usize];
+        let row = img.get_column(0,0);
+        assert_eq!(row,vec);
+    }
+
+    #[test]
+    fn test_ImageProcessor_set_row(){
+        let mut img= ByteProcessor::create_byte_processor(2,2);
+        let vec = vec![1,20];
+        img.set_row(0,0,vec![1,20]);
+        let row = img.get_row(0,0);
+        assert_eq!(row,vec);
+    }
+    
+
+    #[test]
+    fn test_ImageProcessor_set_column(){
+        let mut img= ColorProcessor::create_color_processor(2,2);
+        let vec = vec![(1,1,1),(14,0,20)];
+        img.set_column(0,0,vec![(1,1,1),(14,0,20)]);
+        let row = img.get_column(0,0);
+        assert_eq!(row,vec);
+    }
+
+    #[test]
+    #[should_panic(expected = "You cannot set the slice number for a single image")]
+    fn test_ImageProcessor_set_slice_number(){
+        let mut img= ColorProcessor::create_color_processor(2,2);
+        img.set_slice_number(1);
+    }
+
+    #[test]
+    fn test_ImageStack_get_pixel(){
+        let stack= ByteStack::create_byte_stack(10,15,12);
+        assert_eq!(stack.get_pixel(0),0);
+    }
+
+    #[test]
+    fn test_ImageStack_get_pixel_at(){
+        let stack= ByteStack::create_byte_stack(10,15,12);
+        assert_eq!(stack.get_pixel_at(0,1),0);
+    }
+
+    #[test]
+    #[should_panic(expected = "Pixel out of bounds ! x=20, width=10")]
+    fn test_ImageStack_get_pixel_at_panic_width(){
+        let stack= FloatStack::create_float_stack(10,15,12);
+        stack.get_pixel_at(20,1);
+    }
+
+    #[test]
+    #[should_panic(expected = "Pixel out of bounds ! y=30, height=15")]
+    fn test_ImageStack_get_pixel_at_panic_height(){
+        let stack= ColorStack::create_color_stack(10,15,12);
+        stack.get_pixel_at(0,30);
+    }
+
+    #[test]
+    fn test_ImageStack_get(){
+        let stack= FloatStack::create_float_stack(10,15,12);
+        assert_eq!(stack.get(0),0.0);
+    }
+
+    #[test]
+    fn test_ImageStack_set_pixel(){
+        let mut stack= FloatStack::create_float_stack(10,15,12);
+        stack.set_pixel(0,20.5);
+        assert_eq!(stack.get_pixel(0),20.5);
+    }
+
+    #[test]
+    #[should_panic(expected = "Pixel out of bounds ! index = 300, data length : 150")]
+    fn test_ImageStack_set_pixel_panic(){
+        let mut stack= FloatStack::create_float_stack(10,15,12);
+        stack.set_pixel(300,20.5);
+    }
+
+    #[test]
+    fn test_ImageStack_set_pixel_at(){
+        let mut stack= ColorStack::create_color_stack(10,15,12);
+        stack.set_pixel_at(0,0,(10,50,60));
+        assert_eq!(stack.get_pixel(0),(10,50,60));
+    }
+
+    #[test]
+    #[should_panic(expected = "Pixel out of bounds ! x=10, width=10")]
+    fn test_ImageStack_set_pixel_at_panic_width(){
+        let mut stack= ColorStack::create_color_stack(10,15,12);
+        stack.set_pixel_at(10,0,(10,50,60));
+    }
+
+    #[test]
+    #[should_panic(expected = "Pixel out of bounds ! y=15, height=15")]
+    fn test_ImageStack_set_pixel_at_panic_height(){
+        let mut stack= ByteStack::create_byte_stack(10,15,12);
+        stack.set_pixel_at(0,15,30);
+    }
+
+    #[test]
+    fn test_ImageStack_set(){
+        let mut stack= ByteStack::create_byte_stack(10,15,12);
+        stack.set(0,30);
+        assert_eq!(stack.get_pixel(0),30);
+    }
+
+    #[test]
+    fn test_ImageStack_get_row(){
+        let mut stack= ByteStack::create_byte_stack(2,2,12);
+        let vec = vec![0,0];
+        assert_eq!(stack.get_row(0,0),vec);
+    }
+
+
 }
 /*
 TODO
