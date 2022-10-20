@@ -1,6 +1,6 @@
 //
 //  RIM - Rust Image
-//  Copyright (C) 2022  Jean-Christophe Taveau.
+//  Copyright (C) 2022  Jean-Christophe Taveau, Nicolas Maurice, Bluwen Guidoux.
 //
 //  This file is part of RIM
 //
@@ -30,6 +30,8 @@ pub trait Stats {
     fn get_min_value(&self) -> Self::Output;
     fn get_max_value(&self) -> Self::Output;
     unsafe fn get_mean(&self) -> Self::Output;
+    unsafe fn get_mean_f32(&self) -> Self::Output;
+    //unsafe fn get_mean_rgb(&self) -> Self::Output;
     //fn get standard_deviation(&self) -> Self::Output;
 
     //fn get_histogram(&self) -> HashMap<Self::Output,usize>;
@@ -46,7 +48,8 @@ impl<T> Stats for ImageProcessor<T> where T:Copy
                                     + std::ops::Add<Output=T> 
                                     + std::ops::Div<T> 
                                     + Div<Output = T>
-                                    + std::fmt::Display{  
+                                    + std::fmt::Display
+                                    + std::fmt::Debug{  
     type Output = T;
     
     /// Returns the minimum displayed value in the image
@@ -77,32 +80,70 @@ impl<T> Stats for ImageProcessor<T> where T:Copy
 
    unsafe fn get_mean(&self) -> Self::Output {
         let size = self.get_height() * self.get_width();
-        let size_b= mem::transmute_copy::<u32, T>(&size);
-        let mut average = self.get(usize::try_from(0).unwrap())/size_b;
+        let size_t= mem::transmute_copy::<u32, T>(&size);
+        let mut average = self.get(usize::try_from(0).unwrap())/size_t;
         for i in 1..size {
-            average = average + (self.get(usize::try_from(i).unwrap())/size_b);
+            average = average + (self.get(usize::try_from(i).unwrap())/size_t);
         }
-        
         return average
     }
     
+
+    unsafe fn get_mean_f32(&self) -> Self::Output {
+        let size = self.get_height() * self.get_width();
+        let tmp = size as f32;
+        let size_t= mem::transmute_copy::<f32, T>(&tmp);
+        let mut average = self.get(usize::try_from(0).unwrap())/size_t;
+        for i in 1..size {
+            average = average + (self.get(usize::try_from(i).unwrap())/size_t);
+        }
+        return average
+    }
+ /*  
+    unsafe fn get_mean_rgb(&self) -> Self::Output {
+        let size = self.get_height() * self.get_width();
+        //let tmp = size as f32;
+        let size_t= mem::transmute_copy::<u32, T>(&size);
+        let mut pixel_rgb = self.get(usize::try_from(0).unwrap());
+        let mut r:u8 = pixel_rgb.0/size_t;
+        let mut g:u8 = pixel_rgb.1/size_t;
+        let mut b:u8 = pixel_rgb.2/size_t;
+        //let mut average = self.get(usize::try_from(0).unwrap())/size_t;
+        for i in 1..size {
+            pixel_rgb = self.get(usize::try_from(i).unwrap());
+            r = r + pixel_rgb.0/size_t;
+            g = g + pixel_rgb.1/size_t;
+            b = b + pixel_rgb.2/size_t;
+            //average = average + (self.get(usize::try_from(i).unwrap())/size_t);
+        }
+        return (r,g,b);
+    }*/
+
     
-/*
-    /*
-    fn get_histogram(&self) -> HashMap<Self::Output,usize>{
-        let mut out : HashMap<Self::Output,usize> = HashMap::new();
+   /* fn get_histogram(&self) -> HashMap<Self::Output,usize>{
+        let mut out : HashMap<Self::Output,usize> =HashMap::with_capacity(100);
         // Vecteur vide de taille (max-min),On le remplit lentement ?
         // Dictionnaire, augmente si valeur connue, crée sinon ?
         let limit = self.get_width()*self.get_height();
-        
-        for i in 0..limit {
-            let pixel = self.get(usize::try_from(i).unwrap());
-            out.insert(pixel, 1 + if out.contains_key(&pixel) { out[&pixel] } else { 0 });
-        }
+        let mut pixel = self.get(usize::try_from(0).unwrap());
+        println!("pixel {:?}", pixel);
+        //out.shrink_to(10);
+        out.insert(1,1);
+        println!("out {:?}", out);
+        /*out.insert(pixel,1);
+        for i in 1..limit {
+            pixel = self.get(usize::try_from(i).unwrap());
+            let mut values = 0;
+            if out.contains_key(&pixel) { 
+                values=out[&pixel];
+            } else {
+                values= 0; }
+            out.insert(pixel, 1 + values);//if out.contains_key(&pixel) { out[&pixel] } else { 0 });
+        }*/
         
         return out
-    }
-    */*/
+    }*/
+    
     
 }
 
@@ -176,8 +217,15 @@ mod test{
     fn test_ImageProcessor_get_mean_float(){
         let mut img =FloatProcessor::create_float_processor(2,2);
         img.set_row(0,0,vec![255.0,130.0]);
-        assert_eq!(unsafe{img.get_mean()},96.425);
+        assert_eq!(unsafe{img.get_mean_f32()},96.25);
     }
+/*
+    #[test]
+    fn test_ImageProcessor_get_mean_rgb(){
+        let mut img =ColorProcessor::create_color_processor(2,2);
+        img.set_row(0,0,vec![(255,60,2)]);
+        assert_eq!(img.get_mean_rgb(),255);
+    }*/
 }
 /*
     /// Returns the histogram of the image or ROI.

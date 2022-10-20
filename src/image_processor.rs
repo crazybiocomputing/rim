@@ -1,6 +1,6 @@
 //
 //  RIM - Rust IMage
-//  Copyright (&self,C) 2022  Jean-Christophe Taveau.
+//  Copyright (&self,C) 2022  Jean-Christophe Taveau, Nicolas Maurice, Bluwen Guidoux.
 //
 //  This file is part of RIM
 //
@@ -29,7 +29,10 @@ use std::cell::RefMut;
 #[derive(Clone)]
 #[derive(PartialEq)]
 #[derive(Debug)]
+/// A generic Struct for dedicated Processors:
+/// Byte_Processor, Short_Processor, Float_Processor, Color_Processor, Image_Plus, Image_Stack
 pub struct ImageProcessor<T>{
+    /// The width of the processor in pixel
     width: u32,
     height: u32,
     //size: u32,
@@ -121,8 +124,6 @@ impl<T> ImageProcessor<T> where T: Copy {
 
 #[cfg(test)]
 mod test{
-    //use super ::super::ImageStack::{*};
-    //use super :: super:: ImageProcessor::{*};
     use crate::image_processor::ImageProcessor;
     use crate::image_processor::ByteProcessor;
     use crate::image_processor::FloatProcessor;

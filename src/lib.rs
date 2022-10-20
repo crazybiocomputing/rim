@@ -1,4 +1,5 @@
 pub mod io;
+pub mod color_space;
 
 use std::error::Error;
 

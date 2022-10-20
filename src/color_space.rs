@@ -1,6 +1,6 @@
 //
 //  RIM - Rust Image
-//  Copyright (&self,C) 2022  Jean-Christophe Taveau.
+//  Copyright (&self,C) 2022  Jean-Christophe Taveau, Nicolas Maurice, Bluwen Guidoux.
 //
 //  This file is part of RIM
 //
@@ -16,31 +16,47 @@
 //
 //  You should have received a copy of the GNU General Public License
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
- 
+
+//! Fast and easy queue abstraction.
+//!
+//! Provides an abstraction over a queue.  When the abstraction is used
+//! there are these advantages:
+//! - Fast
+//! - [`Easy`]
+//!
+//! [`Easy`]: http://thatwaseasy.example.com
 
 #![allow(unused)]
 
 #[derive(Clone)]
 #[derive(PartialEq)]
 #[derive(Debug)]
+///Enumerates the possible type of color
 enum Space {
+    /// Color depth 8-bit grayscale
     Gray,
+    /// Color depth 24-bit color
     Rgb
 }
 
 #[derive(Clone)]
 #[derive(PartialEq)]
 #[derive(Debug)]
+/// A generic struct defining a ColorSpace.
 pub struct ColorSpace<T>  {
+    ///The number of channels of the ColorSpace
     nb_channels : u8,
+    ///The bits per color of the ColorSpace
     bits_per_color : u8,
+    ///The ?
     space : Space,
+    ///The minimum value of type T
     min : T,
+    ///The maximum value of type T
     max : T
 }
 
 impl<T> ColorSpace<T> where T: Copy {
-    //// Constructeurs ////
     /// Returns a Gray8 ColorSpace, used by ByteProcessors
     pub fn Gray8() -> ColorSpace<u8> {
         return ColorSpace{
@@ -72,21 +88,49 @@ impl<T> ColorSpace<T> where T: Copy {
         }
     }
 
-    //// Getters ////
+    
     /// Returns the number of channels (1 for grayspaces, 3 for RGB)
+    ///
+    /// # Example
+    /// 
+    /// ```
+    /// let color = ColorSpace::<u8>::Gray8(),color;
+    /// assert_eq!(color.get_nb_channels(),3);
+    /// ```
     pub fn get_nb_channels(&self) -> u8 {
         return self.nb_channels
     }
+
     /// Returns the bit depth, 8, 16, 24 (RGB) or 32.
+    ///
+    /// # Example
+    /// 
+    /// ```
+    /// let color = ColorSpace::<u8>::Gray8();
+    /// color.get_bit_depth(),32);
+    /// ```
     pub fn get_bit_depth(&self) -> u8 {
         return self.bits_per_color * self.get_nb_channels()
     }
 
     /// Returns the minimum value of that color space
+    /// # Example
+    /// 
+    /// ```
+    /// let color = ColorSpace::<u8>::Gray8();
+    /// assert_eq!(color.get_min(),0);
+    /// ```
     pub fn get_min(&self) -> T {
         return self.min
     }
+
     /// Returns the maximum value of that color space
+    /// # Example
+    /// 
+    /// ```
+    /// let color = ColorSpace::<u8>::Gray8();
+    /// assert_eq!(color.get_max(),255);
+    /// ```
     pub fn get_max(&self) -> T {
         return self.max
     }

@@ -1,6 +1,6 @@
 //
 //  RIM - Rust Image
-//  Copyright (&self,C) 2022  Jean-Christophe Taveau.
+//  Copyright (&self,C) 2022  Jean-Christophe Taveau, Nicolas Maurice, Bluwen Guidoux.
 //
 //  This file is part of RIM
 //
