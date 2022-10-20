@@ -1,6 +1,169 @@
 
+/// A structure for the readed image
+pub struct ImageReader {
+    height: u32,
+    width: u32,
+    slice: u32,
+    fi: String,
+    buffer: Vec<u8>
+}
+
+impl ImageReader{
+    /// Return a image with his parameters (Structure qui peut gérer les 8bits, 16bits, 32bits et RGB pour les testes, 16bits pas dans l'API et 32bits en float dan l'API et tuple de u8 pour les row)
+    ///
+    /// # arguments
+    ///
+    /// * `height` - A number u32 for the height of the image
+    /// * `width` - A number u32 for the width of the image
+    /// * `slice` - A number u32 for the number of slices in a stack, 1 for a single image
+    /// * `fi` - String corresponding to the byte type of the image
+    /// * `buffer` - Vector containing the raw data from the image
+    ///
+    pub fn new(height: u32, width: u32, slice: u32, fi: &String, buffer: Vec<u8>) -> Self {
+        ImageReader {
+        height: height,
+        width: width,
+        slice: slice,
+        fi: fi.clone(),
+        buffer: buffer,
+        }
+    }
+
+    /// Return the height of the image
+    pub fn height(&self) -> u32 {
+        self.height
+    }
+
+    /// Return the width of the image
+    pub fn width(&self) -> u32 {
+        self.width
+    }
+
+    /// Return the number of slice of the stack
+    pub fn slice(&self) -> u32 {
+        self.slice
+    }
+
+    /// Return the vector of the raw data
+    pub fn buffer(&self) -> &Vec<u8> {
+        &self.buffer
+    }
+
+    /// Return the type of the image
+    pub fn fi(&self) -> &str {
+        &self.fi
+    }
+
+    /// Return the length of the vector of raw data
+    pub fn len(&self) -> u32 {
+        self.buffer.len() as u32
+    }
+
+    /// Modify the value of a pixel (utilisable que pour une image 8bit)
+    ///
+    /// # arguments
+    ///
+    /// * `index` - The index in the vector of the value to modify
+    /// * `val` - The new value
+    ///
+    pub fn modifyPixel(&mut self, index: usize, val: u8){
+        let newvec = &mut self.buffer().clone();
+        newvec[index] = val;
+        self.buffer = newvec.to_vec();
+    }
+}
+
+fn cut_by_slices(file:&ImageReader) ->Vec<Vec<u8>>
+{
+    //u32::from(file.len());
+    //&file.len().to_u32();
+    
+    let mut nb_pix_per_slice = file.len()/ file.slice();
+    //nb_pix_per_slice as u32;
+    let mut newbuffer:Vec<Vec<u8>> = vec![];
+    for i in (0..file.len()).step_by(nb_pix_per_slice.try_into().unwrap())
+    {
+        let mut temp:Vec<u8> = vec![];
+        for j in i..(nb_pix_per_slice+i)
+        {
+
+            let mut u = (j) as usize;
+            temp.push(file.buffer()[u]);
+        }
+        newbuffer.push(temp);
+    }
+    //file.modifyBufferType(newbuffer);
+    return newbuffer;
+}
+
+fn cut_by_pixels_16(file:&ImageReader, image:Vec<Vec<u8>>) -> Vec<Vec<(u8,u8)>>
+{
+    let mut nb_pix_per_slice = file.len()/ file.slice();
+    let mut buffer:Vec<Vec<(u8,u8)>> = vec![];
+    for i in 0..file.slice()
+    {
+        let mut temp:Vec<(u8, u8)> = vec![];
+        for j in (0..nb_pix_per_slice).step_by(2)
+        {
+            let iu = i as usize;
+            let ju = j as usize;
+            let mut tup = (image[iu][ju], image[iu][ju+1]);
+            temp.push(tup);
+        }
+        buffer.push(temp);
+    }
+    return buffer;
+}
+
+fn cut_by_pixels_32(file:&ImageReader, image:Vec<Vec<u8>>) -> Vec<Vec<(u8,u8, u8, u8)>>
+{
+    let mut nb_pix_per_slice = file.len()/ file.slice();
+    let mut buffer:Vec<Vec<(u8,u8, u8, u8)>> = vec![];
+    for i in 0..file.slice()
+    {
+        let mut temp:Vec<(u8, u8, u8, u8)> = vec![];
+        for j in (0..nb_pix_per_slice).step_by(4)
+        {
+            let iu = i as usize;
+            let ju = j as usize;
+            let mut tup = (image[iu][ju], image[iu][ju+1], image[iu][ju+2], image[iu][ju+3]);
+            temp.push(tup);
+        }
+        buffer.push(temp);
+    }
+    return buffer;
+}
+
+fn cut_by_pixels_rgb(file:&ImageReader, image:Vec<Vec<u8>>) -> Vec<Vec<(u8,u8, u8)>>
+{
+    let mut nb_pix_per_slice = file.len()/ file.slice();
+    let mut buffer:Vec<Vec<(u8,u8, u8)>> = vec![];
+    for i in 0..file.slice()
+    {
+        let mut temp:Vec<(u8, u8, u8)> = vec![];
+        for j in (0..nb_pix_per_slice).step_by(3)
+        {
+            let iu = i as usize;
+            let ju = j as usize;
+            let mut tup = (image[iu][ju], image[iu][ju+1], image[iu][ju+2]);
+            temp.push(tup);
+        }
+        buffer.push(temp);
+    }
+    return buffer;
+}
 
 
+// TODO
+/*
+    Essayer d'utiliser l'API du 1er groupe voir si la sauvegarde fonctionne
+    Tests unitaires
+    Nettoyage fichiers
+
+
+*/
+
+/*
 /** Reads raw 8-bit, 16-bit or 32-bit (float or RGB)
     images from a stream or URL. */
 public class ImageReader {
@@ -1059,4 +1222,5 @@ class ByteVector {
         
 }
 
+*/
 
