@@ -453,11 +453,40 @@ mod test{
 
     #[test]
     fn test_ImageStack_get_row(){
-        let mut stack= ByteStack::create_byte_stack(2,2,12);
+        let stack= ByteStack::create_byte_stack(2,2,12);
         let vec = vec![0,0];
         assert_eq!(stack.get_row(0,0),vec);
     }
 
+    #[test]
+    fn test_ImageStack_get_column(){
+        let stack= ByteStack::create_byte_stack(2,2,12);
+        let vec = vec![0,0];
+        assert_eq!(stack.get_column(0,0),vec);
+    }
+
+    #[test]
+    fn test_ImageStack_set_row(){
+        let mut stack= ColorStack::create_color_stack(10,15,12);
+        let vec = vec![(255,50,8)];
+        stack.set_row(0,0,vec![(255,50,8)]);
+        assert_eq!(stack.get_row(0,0),vec);
+    }
+
+    #[test]
+    fn test_ImageStack_set_column(){
+        let mut stack= ColorStack::create_color_stack(10,15,12);
+        let vec = vec![(255,50,8)];
+        stack.set_row(0,0,vec![(255,50,8)]);
+        assert_eq!(stack.get_column(0,0),vec);
+    }
+
+    #[test]
+    fn test_ImageStack_set_slice_number(){
+        let mut stack= FloatStack::create_float_stack(10,15,12);
+        stack.set_slice_number(11);
+        assert_eq!(stack.get_focus_slice(),11);
+    }
 
 }
 /*
