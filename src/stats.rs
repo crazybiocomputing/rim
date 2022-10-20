@@ -22,12 +22,14 @@ use crate::image_processor::*;
 use crate::image_traits::Access;
 use std::collections::HashMap;
 use std::ops::Div;
+use core::ops::Mul;
+use std::mem;
 
 pub trait Stats {
     type Output;
     fn get_min_value(&self) -> Self::Output;
     fn get_max_value(&self) -> Self::Output;
-    fn get_mean(&self) -> Self::Output;
+    unsafe fn get_mean(&self) -> Self::Output;
     //fn get standard_deviation(&self) -> Self::Output;
 
     //fn get_histogram(&self) -> HashMap<Self::Output,usize>;
@@ -38,12 +40,13 @@ pub trait Stats {
     //get standard deviation
 }
 
-/*
+
 impl<T> Stats for ImageProcessor<T> where T:Copy 
                                     + std::cmp::PartialOrd 
                                     + std::ops::Add<Output=T> 
                                     + std::ops::Div<T> 
-                                    + Div<Output = T>{  
+                                    + Div<Output = T>
+                                    + std::fmt::Display{  
     type Output = T;
     
     /// Returns the minimum displayed value in the image
@@ -72,18 +75,19 @@ impl<T> Stats for ImageProcessor<T> where T:Copy
         return maximum
     }
 
-    fn get_mean(&self) -> Self::Output {
+   unsafe fn get_mean(&self) -> Self::Output {
         let size = self.get_height() * self.get_width();
-        let mut average : T = self.get(usize::try_from(0).unwrap());
+        let size_b= mem::transmute_copy::<u32, T>(&size);
+        let mut average = self.get(usize::try_from(0).unwrap())/size_b;
         for i in 1..size {
-            average = average + self.get(usize::try_from(i).unwrap());
+            average = average + (self.get(usize::try_from(i).unwrap())/size_b);
         }
-        average = average / (size.into());
+        
         return average
     }
     
     
-
+/*
     /*
     fn get_histogram(&self) -> HashMap<Self::Output,usize>{
         let mut out : HashMap<Self::Output,usize> = HashMap::new();
@@ -98,14 +102,83 @@ impl<T> Stats for ImageProcessor<T> where T:Copy
         
         return out
     }
-    */
+    */*/
     
 }
 
-*/
+#[cfg(test)]
+mod test{
+    //use super ::super::ImageStack::{*};
+    //use super :: super:: ImageProcessor::{*};
+    use crate :: image_processor::*;
+    use crate :: image_traits::*;
+    use crate::stats::Stats;
+    /*use crate::image_stack::ImageStack;
+    use crate::image_stack::ImageProcessor;
+    use crate::image_stack::ByteStack;
+    use crate::image_stack::ByteProcessor;
+    use crate::image_stack::FloatProcessor;
+    use crate::image_stack::FloatStack;
+    use crate::color_space::ColorSpace;
+    use crate::image_stack::ColorStack;
+    use crate::image_stack::ColorProcessor;*/
+    use core::cell::RefCell;
+    use core::cell::Cell;
 
+    #[test]
+    fn test_ImageProcessor_get_min_value_byte(){
+        let img =ImageProcessor::<u8>::create_byte_processor(10, 15);
+        assert_eq!(img.get_min_value(),0);
+    }
 
+    #[test]
+    fn test_ImageProcessor_get_min_value_float(){
+        let img =FloatProcessor::create_float_processor(10,20);
+        assert_eq!(img.get_min_value(),0.0);
+    }
+    /*
+    #[test]
+    fn test_ImageProcessor_get_min_value_color(){
+        let img =ColorProcessor::create_color_processor(10,20);
+        assert_eq!(img.get_min_value(),(0,0,0));
+    }
+    */
+    #[test]
+    fn test_ImageProcessor_get_max_value_byte(){
+        let mut img =ImageProcessor::<u8>::create_byte_processor(2, 2);
+        img.set_row(0,0,vec![255,130]);
+        assert_eq!(img.get_max_value(),255);
+    }
 
+    #[test]
+    fn test_ImageProcessor_get_max_value_float(){
+        let mut img =FloatProcessor::create_float_processor(2,2);
+        img.set_row(0,0,vec![3.4028235e38,100.0]);
+        assert_eq!(img.get_max_value(),3.4028235e38);
+    }
+    /*
+    #[test]
+    fn test_ImageProcessor_get_max_value_color(){
+        let mut img =ColorProcessor::create_color_processor(2,2);
+        img.set_row(0,0,vec![(255,60,2)]);
+        assert_eq!(img.get_max_value(),255);
+    }
+    */
+
+    #[test]
+    fn test_ImageProcessor_get_mean_byte(){
+        let mut img =ImageProcessor::<u8>::create_byte_processor(2, 2);
+        img.set_row(0,0,vec![255,130]);
+        assert_eq!(unsafe{img.get_mean()},95);
+    }
+
+    #[test]
+    fn test_ImageProcessor_get_mean_float(){
+        let mut img =FloatProcessor::create_float_processor(2,2);
+        img.set_row(0,0,vec![255.0,130.0]);
+        assert_eq!(unsafe{img.get_mean()},96.425);
+    }
+}
 /*
     /// Returns the histogram of the image or ROI.
     fn i32[] get_histogram() {};
