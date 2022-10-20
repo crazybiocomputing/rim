@@ -124,6 +124,9 @@ pub fn debug_stack(&self){
         return self.get_data_stack()[usize::try_from(self.get_focus_slice()).unwrap()].clone()
     }
 
+    pub fn get_one_slice_copy(&self)-> ImageProcessor<T>{
+        return self.get_data_stack()[usize::try_from(self.get_focus_slice()).unwrap()].clone()
+    }
 
 
 ///Set///
