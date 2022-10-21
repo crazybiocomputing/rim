@@ -91,40 +91,48 @@ pub fn debug_stack(&self){
 
 ///Get///
 
+    /// Returns the size of the s
     pub fn get_size(&self) -> u32 {
         return self.size.get()
     }
 
+    /// Returns the width of the stack
     pub fn get_width_stack(&self) -> u32{
         return self.width
     }
 
+    /// returns the height of the stack
     pub fn get_height_stack(&self) -> u32{
         return self.height
     }
-
+    
+    /// returns the index of the focused slice
     pub fn get_focus_slice(&self) -> u32{
         return self.focus_slice.get()
     }
 
+    /// returns the number of colors
     pub fn get_nb_channels_stacks(&self) -> u8{
         return self.cs.get_nb_channels()
     }
 
+    /// Returns the bit debth of the stack's color space
     pub fn get_bit_depth_stack(&self) -> u8{
         return self.cs.get_bit_depth()
     }
 
-    //retourne le vecteur contenant les vecteurs d'images
+    /// Returns a reference to the array of Image Processor
     pub fn get_data_stack(&self) -> RefMut<Vec<RefCell<ImageProcessor<T>>>>{
         return self.data.borrow_mut()
     }
     /*
+    /// Returns a reference to the current slice (does not work)
     pub fn get_one_slice(&self)-> RefMut<ImageProcessor<T>>{
         return self.get_data_stack()[usize::try_from(self.get_focus_slice()).unwrap()].borrow_mut()
     }
     */
 
+    /// Returns a copy of the focused slice
     pub fn get_one_slice_copy(&self)-> ImageProcessor<T>{
         return self.get_data_stack()[usize::try_from(self.get_focus_slice()).unwrap()].borrow().clone()
     }
@@ -132,11 +140,12 @@ pub fn debug_stack(&self){
 
 ///Set///
 
+    ///Increases the size of the stack by one. Should generally not be called
     pub fn set_size(&self){
         self.size.set(self.size.get()+1);
     }
 
-    ///push data stack
+    ///Adds an image as a slice as the end of the stack
     pub fn set_data_stack(&self,img: ImageProcessor<T>){
         if img.get_width() != self.get_width_stack() {
             panic!("Width out of bounds ! width stack={}, width image={}",self.get_width_stack(),img.get_width());
@@ -147,7 +156,7 @@ pub fn debug_stack(&self){
         self.get_data_stack().push(RefCell::new(img));
         self.set_size();
     }
-    //à modifier pour ne pas débasser le nombre d'image contenue
+    ///Selects the slice to focus on from its index
     pub fn set_slice_number(&self,slice:u32) {
         if (slice>=self.get_size()) & (self.get_size() !=0) {
             panic!("Slice out of bounds ! Slices range from 0 to {} and you asked for slice numbre {}", (self.get_size()-1),slice);
