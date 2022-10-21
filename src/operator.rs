@@ -21,7 +21,7 @@ use rand::Rng;
 use rand::distributions::normal::Normal;
 use rand::distributions::IndependentSample;
 
-use crate::image_processor::ImageProcessor;
+use crate::image_processor::*;
 use crate::image_stack::ImageStack;
 
 pub trait Operator<T> {
@@ -52,59 +52,9 @@ pub trait Operator<T> {
     
     /// Binary exclusive OR of each pixel in the image or ROI with 'value'.
     fn xor(&self, value: Self::Input);
-
-    /*
-    /// If this is a 32-bit or signed 16-bit image, performs an absolute value transform, otherwise does nothing.
-    fn abs(&self);    
-
-    /// Performs a exponential transform on the image or ROI.
-    fn exp(&self);
-
-    /// Performs a square root transform on the image or ROI.
-    fn sqrt(&self);
     
-    /// Does a natural logarithmic (base e) transform of the image or ROI.
-    fn ln(&self);
-
-    /// Does a logarithmic (base 10) transform of the image or ROI.
-    fn log(&self);
-
-    /// Performs gamma correction of the image or ROI.
-    fn gamma​(value: f64);
-
-    
-    
-    
-    static fn set_random_seed​(random_seed: f64);
-
-    /// Adds pseudorandom, Gaussian ("normally") distributed values, 
-    /// with mean 0.0 and the specified standard deviation, to this image or ROI.
-    fn noise(&self,standard_deviation: f64);
-    fn noise(&self,standard_deviation: f64){
-        let normal = Normal::new(0.0, standard_deviation);
-        for i in self.get_data().iter_mut() {
-            
-            *i += (normal.ind_sample(&mut rand::thread_rng()) as T);
-        }
-    }
-
-    /// Uses the Process/Math/Macro command to apply functional code to this image/volume.
-    /// The function takes eight arguments:
-    /// v : current pixel/voxel value.
-    /// x,y,z : XY- or XYZ-coordinates of the pixel/voxel
-    /// w,h: width and height of the processor
-    /// a: angle (polar coordinate)
-    /// d: distance from center (polar coordinate)
-    fn apply_func​(&self, func: F);
-
-    /// Uses the Process/Math/Macro command to apply macro code to this image.
-    /// See apply_func(..)
-    fn apply_macro​(&self, func: F);
-
-    */
 
 }
-
 
 impl<T> Operator<T> for ImageProcessor<T> 
     where T : Copy 
@@ -172,9 +122,7 @@ impl<T> Operator<T> for ImageProcessor<T>
             *i = *i ^ value;
         }
     }
-
 }
-
 
 impl<T> Operator<T> for ImageStack<T>
     where T : Copy 
@@ -238,3 +186,79 @@ impl<T> Operator<T> for ImageStack<T>
 
 
 }
+
+pub trait OperatorSpe<T> {
+    /// Adds pseudorandom, Gaussian ("normally") distributed values, 
+    /// with mean 0.0 and the specified standard deviation, to this image or ROI.
+    fn noise(&self,standard_deviation: f64);
+
+    /// If this is a 32-bit or signed 16-bit image, performs an absolute value transform, otherwise does nothing.
+    fn abs(&self);
+
+    /// Performs a exponential transform on the image or ROI.
+    fn exp(&self);
+    
+    /*
+    
+    
+
+    /// Performs a square root transform on the image or ROI.
+    fn sqrt(&self);
+    
+    /// Does a natural logarithmic (base e) transform of the image or ROI.
+    fn ln(&self);
+
+    /// Does a logarithmic (base 10) transform of the image or ROI.
+    fn log(&self);
+
+    /// Performs gamma correction of the image or ROI.
+    fn gamma​(value: f64);
+
+
+    /// Uses the Process/Math/Macro command to apply functional code to this image/volume.
+    /// The function takes eight arguments:
+    /// v : current pixel/voxel value.
+    /// x,y,z : XY- or XYZ-coordinates of the pixel/voxel
+    /// w,h: width and height of the processor
+    /// a: angle (polar coordinate)
+    /// d: distance from center (polar coordinate)
+    fn apply_func​(&self, func: F);
+
+    /// Uses the Process/Math/Macro command to apply macro code to this image.
+    /// See apply_func(..)
+    fn apply_macro​(&self, func: F);
+
+    */
+
+
+    
+    
+}
+
+impl OperatorSpe<u8> for ImageProcessor<u8> {
+    fn noise(&self,standard_deviation: f64){
+        let normal = Normal::new(0.0, standard_deviation);
+        for i in self.get_data().iter_mut() {
+            let value = normal.ind_sample(&mut rand::thread_rng());
+            //println!("{} : {}/{}", *i, value, value as u8);
+            if value > 0.0 {
+                *i += (value as u8);
+            } else if *i < (-value as u8){
+                *i = 0;
+            } else {
+                *i -= (-value as u8);
+            }
+        }
+    }
+
+    fn abs(&self){}
+
+}
+
+
+
+
+
+
+
+
