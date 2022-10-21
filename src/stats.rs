@@ -19,6 +19,7 @@
 
 
 use crate::image_processor::*;
+use crate::image_stack::*;
 use crate::image_traits::Access;
 use std::collections::HashMap;
 use std::ops::Div;
@@ -42,8 +43,6 @@ pub trait Stats {
     // get histograms specified bins
     // get histograms autobins
     
-    //get mean_value
-    //get standard deviation
 }
 
 impl Stats for ImageProcessor<u8> {
@@ -278,9 +277,257 @@ impl Stats for ImageProcessor<(u8,u8,u8)>{
 }
 
 
+impl Stats for ImageStack<u8> {
+    type Output = u8;
+
+    fn get_min_value(&self) -> Self::Output {
+        let tmp_slice = self.get_focus_slice();
+        let mut minimum = 0;
+        let size = self.get_size();
+        for i in 0..size {
+            self.set_slice_number(i);
+            minimum += self.get_one_slice_copy().get_min_value();
+        }
+        self.set_slice_number(tmp_slice);
+        return minimum
+    }
+
+    fn get_max_value(&self) -> Self::Output {
+        let tmp_slice = self.get_focus_slice();
+        let mut maximum = 0;
+        let size = self.get_size();
+        for i in 0..size {
+            self.set_slice_number(i);
+            maximum += self.get_one_slice_copy().get_max_value();
+        }
+        self.set_slice_number(tmp_slice);
+        return maximum
+    }
+
+    fn get_mean(&self) -> Self::Output {
+        let tmp_slice = self.get_focus_slice();
+        let mut average = 0;
+        let size = self.get_size();
+        for i in 0..size {
+            self.set_slice_number(i);
+            average += self.get_one_slice_copy().get_mean() / (size as u8);
+        }
+        self.set_slice_number(tmp_slice);
+        return average
+    }
+
+    fn get_histogram(&self) -> Histogram{
+        let tmp_slice = self.get_focus_slice();
+        let mut hist = Histogram::new();
+        let size = self.get_size();
+        let limit = self.get_width_stack()*self.get_height_stack();
+        for i in 0..size {
+            self.set_slice_number(i);
+            let mut pixel = (self.get(usize::try_from(0).unwrap())) as u64;
+            hist.increment(pixel);
+            for j in 1..limit {
+                pixel = (self.get(usize::try_from(j).unwrap())) as u64;
+                hist.increment(pixel);
+            }
+        }
+        self.set_slice_number(tmp_slice);
+        return hist
+    }
+
+    fn get_standard_deviation(&self) -> Self::Output{
+        let tmp_slice = self.get_focus_slice();
+        let size = self.get_size();
+        let limit = self.get_width_stack()*self.get_height_stack();
+        let size_f64 = (self.get_height_stack() * self.get_width_stack()) as f64;
+        let mut var:f64 = 0.0;
+        let mean = self.get_mean() as f64;
+        for i in 0..size{
+            self.set_slice_number(i);
+            var = (f64::powf(self.get(usize::try_from(0).unwrap()).into(),2.0)-mean)/size_f64;
+            for i in 1..limit {
+                var = var + (f64::powf(self.get(usize::try_from(i).unwrap()).into(),2.0)-mean)/size_f64;
+            }
+        }
+        self.set_slice_number(tmp_slice);
+        let std = f64::powf(var as f64,0.5);
+        return std as u8
+    }
+}
+
+impl Stats for ImageStack<f32> {
+    type Output = f32;
+
+    fn get_min_value(&self) -> Self::Output {
+        let tmp_slice = self.get_focus_slice();
+        let mut minimum = 0.0 as f32;
+        let size = self.get_size();
+        for i in 0..size {
+            self.set_slice_number(i);
+            minimum += self.get_one_slice_copy().get_min_value();
+        }
+        self.set_slice_number(tmp_slice);
+        return minimum
+    }
+
+    fn get_max_value(&self) -> Self::Output {
+        let tmp_slice = self.get_focus_slice();
+        let mut maximum = 0 as f32;
+        let size = self.get_size();
+        for i in 0..size {
+            self.set_slice_number(i);
+            maximum += self.get_one_slice_copy().get_max_value();
+        }
+        self.set_slice_number(tmp_slice);
+        return maximum
+    }
+
+    fn get_mean(&self) -> Self::Output {
+        let tmp_slice = self.get_focus_slice();
+        let mut average = 0 as f32;
+        let size = self.get_size();
+        for i in 0..size {
+            self.set_slice_number(i);
+            average += self.get_one_slice_copy().get_mean() / (size as f32);
+        }
+        self.set_slice_number(tmp_slice);
+        return average
+    }
+
+    fn get_histogram(&self) -> Histogram{
+        let tmp_slice = self.get_focus_slice();
+        let mut hist = Histogram::new();
+        let size = self.get_size();
+        let limit = self.get_width_stack()*self.get_height_stack();
+        for i in 0..size {
+            self.set_slice_number(i);
+            let mut pixel = (self.get(usize::try_from(0).unwrap())) as u64;
+            hist.increment(pixel);
+            for j in 1..limit {
+                pixel = (self.get(usize::try_from(j).unwrap())) as u64;
+                hist.increment(pixel);
+            }
+        }
+        self.set_slice_number(tmp_slice);
+        return hist
+    }
+
+    fn get_standard_deviation(&self) -> Self::Output{
+        let tmp_slice = self.get_focus_slice();
+        let size = self.get_size();
+        let limit = self.get_width_stack()*self.get_height_stack();
+        let size_f64 = (self.get_height_stack() * self.get_width_stack()) as f64;
+        let mut var:f64 = 0.0;
+        let mean = self.get_mean() as f64;
+        for i in 0..size{
+            self.set_slice_number(i);
+            var = (f64::powf(self.get(usize::try_from(0).unwrap()).into(),2.0)-mean)/size_f64;
+            for i in 1..limit {
+                var = var + (f64::powf(self.get(usize::try_from(i).unwrap()).into(),2.0)-mean)/size_f64;
+            }
+        }
+        self.set_slice_number(tmp_slice);
+        let std = f64::powf(var as f64,0.5);
+        return std as f32
+    }    
+}
+
+
+impl Stats for ImageStack<(u8,u8,u8)> {
+    type Output = (u8,u8,u8);
+
+    fn get_min_value(&self) -> Self::Output {
+        let tmp_slice = self.get_focus_slice();
+        let mut r_min=0;
+        let mut g_min=0;
+        let mut b_min=0;
+        let size = self.get_size();
+        for i in 0..size {
+            self.set_slice_number(i);
+            r_min += self.get_one_slice_copy().get_min_value().0;
+            g_min += self.get_one_slice_copy().get_min_value().1;
+            b_min += self.get_one_slice_copy().get_min_value().2;
+        }
+        self.set_slice_number(tmp_slice);
+        return (r_min,g_min,b_min)
+    }
+
+    fn get_max_value(&self) -> Self::Output {
+        let tmp_slice = self.get_focus_slice();
+        let mut r_max=0;
+        let mut g_max=0;
+        let mut b_max=0;
+        let size = self.get_size();
+        for i in 0..size {
+            self.set_slice_number(i);
+            r_max+= self.get_one_slice_copy().get_max_value().0;
+            g_max+= self.get_one_slice_copy().get_max_value().1;
+            b_max+= self.get_one_slice_copy().get_max_value().2;
+        }
+        self.set_slice_number(tmp_slice);
+        return (r_max,g_max,b_max)
+    }
+
+    fn get_mean(&self) -> Self::Output {
+        let tmp_slice = self.get_focus_slice();
+        let mut average;
+        let mut r_mean=0;
+        let mut g_mean=0;
+        let mut b_mean=0;
+        let size = self.get_size();
+        for i in 0..size {
+            self.set_slice_number(i);
+            average += self.get_one_slice_copy().get_mean() / (size as u8);
+            r_mean += average.0;
+            g_mean += average.1;
+            b_mean += average.2;
+        }
+        self.set_slice_number(tmp_slice);
+        return (r_mean,g_mean,b_mean)
+    }
+
+    fn get_histogram(&self) -> Histogram{
+        let tmp_slice = self.get_focus_slice();
+        let mut hist = Histogram::new();
+        let size = self.get_size();
+        let limit = self.get_width_stack()*self.get_height_stack();
+        for i in 0..size {
+            self.set_slice_number(i);
+            let mut pixel = (self.get(usize::try_from(0).unwrap())) as u64;
+            hist.increment(pixel);
+            for j in 1..limit {
+                pixel = (self.get(usize::try_from(j).unwrap())) as u64;
+                hist.increment(pixel);
+            }
+        }
+        self.set_slice_number(tmp_slice);
+        return hist
+    }
+
+    fn get_standard_deviation(&self) -> Self::Output{
+        let tmp_slice = self.get_focus_slice();
+        let size = self.get_size();
+        let limit = self.get_width_stack()*self.get_height_stack();
+        let size_f64 = (self.get_height_stack() * self.get_width_stack()) as f64;
+        let mut var:f64 = 0.0;
+        let mean = self.get_mean() as f64;
+        for i in 0..size{
+            self.set_slice_number(i);
+            var = (f64::powf(self.get(usize::try_from(0).unwrap()).into(),2.0)-mean)/size_f64;
+            for i in 1..limit {
+                var = var + (f64::powf(self.get(usize::try_from(i).unwrap()).into(),2.0)-mean)/size_f64;
+            }
+        }
+        self.set_slice_number(tmp_slice);
+        let std = f64::powf(var as f64,0.5);
+        return std as f32
+    }    
+}
+
+
 #[cfg(test)]
 mod test{
     use crate :: image_processor::*;
+    use crate :: image_stack::*;
     use crate :: image_traits::*;
     use crate::stats::Stats;
     use core::cell::RefCell;
@@ -398,6 +645,94 @@ mod test{
         img.set_pixel(1,(54,20,1));
         assert_eq!(img.get_standard_deviation(),(119, 29, 0));
     }
+
+    #[test]
+    fn test_ImageStack_get_min_value_byte(){
+        let img =ImageStack::<u8>::create_byte_stack(10, 15, 1);
+        assert_eq!(img.get_min_value(),0);
+    }
+
+    #[test]
+    fn test_ImageStack_get_max_value_byte(){
+        let mut img =ImageStack::<u8>::create_byte_stack(10, 15, 1);
+        img.set_row(0,0,vec![255,130]);
+        assert_eq!(img.get_max_value(),255);
+    }
+
+    #[test]
+    fn test_ImageStack_get_mean_byte(){
+        let mut img =ImageStack::<u8>::create_byte_stack(2, 2, 2);
+        img.set_row(0,0,vec![255,130]);
+        img.set_slice_number(1);
+        img.set_row(0,0,vec![255,130]);
+        assert_eq!(img.get_mean(),94);
+    }
+
+    #[test]
+    fn test_ImageStack_get_histogram_byte(){
+        let mut img =ImageStack::<u8>::create_byte_stack(2, 2, 2);
+        img.set_pixel(1,255);
+        img.set_pixel(0,255);
+        img.set_slice_number(1);
+        img.set_row(0,0,vec![255,130]);
+        let hist = img.get_histogram();
+        assert_eq!(hist.get(255).unwrap(),3);
+    }
+
+    #[test]
+    fn test_ImageStack_get_standard_deviation_byte(){
+        let mut img =ImageStack::<u8>::create_byte_stack(2, 2, 2);
+        img.set_pixel(1,255);
+        img.set_pixel(0,255);
+        img.set_slice_number(1);
+        img.set_row(0,0,vec![255,130]);
+        assert_eq!(img.get_standard_deviation(),142);
+    }
+
+    #[test]
+    fn test_ImageStack_get_min_value_float(){
+        let img =ImageStack::<f32>::create_float_stack(10, 15, 1);
+        assert_eq!(img.get_min_value(),0.0);
+    }
+
+    #[test]
+    fn test_ImageStack_get_max_value_float(){
+        let mut img =ImageStack::<f32>::create_float_stack(10, 15, 1);
+        img.set_row(0,0,vec![255.0,130.78]);
+        assert_eq!(img.get_max_value(),255.0);
+    }
+
+    #[test]
+    fn test_ImageStack_get_mean_float(){
+        let mut img =ImageStack::<f32>::create_float_stack(2, 2, 2);
+        img.set_row(0,0,vec![255.0,130.5]);
+        img.set_slice_number(1);
+        img.set_row(0,0,vec![255.0,130.4]);
+        assert_eq!(img.get_mean(),96.3625);
+    }
+
+    #[test]
+    fn test_ImageStack_get_histogram_float(){
+        let mut img =ImageStack::<f32>::create_float_stack(2, 2, 2);
+        img.set_pixel(1,255.0);
+        img.set_pixel(0,255.0);
+        img.set_slice_number(1);
+        img.set_row(0,0,vec![255.0,130.87]);
+        let hist = img.get_histogram();
+        assert_eq!(hist.get(255).unwrap(),3);
+    }
+
+    #[test]
+    fn test_ImageStack_get_standard_deviation_float(){
+        let mut img =ImageStack::<f32>::create_float_stack(2, 2, 2);
+        img.set_pixel(1,255.0);
+        img.set_pixel(0,255.0);
+        img.set_slice_number(1);
+        img.set_row(0,0,vec![255.0,130.87]);
+        assert_eq!(img.get_standard_deviation(),142.91957);
+    }
+
+
 
 }
 /*
