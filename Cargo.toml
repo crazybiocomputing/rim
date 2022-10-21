@@ -7,3 +7,4 @@ authors = ["me <me@gmail.com>"]
 [dependencies]
 rand = "0.4"
 histogram = "*"
+num = "0.4"

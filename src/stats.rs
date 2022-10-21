@@ -25,6 +25,7 @@ use std::ops::Div;
 use core::ops::Mul;
 use std::mem;
 use histogram::Histogram;
+use std::num::sqrt;
 
 pub trait Stats {
     type Output;
@@ -32,9 +33,8 @@ pub trait Stats {
     fn get_max_value(&self) -> Self::Output;
     fn get_mean(&self) -> Self::Output;
     fn get_histogram(&self) -> Histogram;
-    //fn get standard_deviation(&self) -> Self::Output;
+    fn get_standard_deviation(&self) -> Self::Output;
 
-    //unsafe fn get_histogram(&self) -> Histogram;//<Self::Output>;//where <Self as Stats>::Output: Counter;
     // get histograms specified bins
     // get histograms autobins
     
@@ -70,10 +70,10 @@ impl Stats for ImageProcessor<u8> {
     }
 
     fn get_mean(&self) -> Self::Output {
-        let size = (self.get_height() * self.get_width()) as u8;
-        let mut average = self.get(usize::try_from(0).unwrap())/size;
+        let size = (self.get_height() * self.get_width());
+        let mut average = self.get(usize::try_from(0).unwrap())/(size as u8);
         for i in 1..size {
-            average = average + (self.get(usize::try_from(i).unwrap())/size);
+            average = average + (self.get(usize::try_from(i).unwrap())/(size as u8));
         }
         return average
     }
@@ -88,6 +88,16 @@ impl Stats for ImageProcessor<u8> {
             hist.increment(pixel);
         }
         return hist
+    }
+
+    fn get_standard_deviation(&self) -> Self::Output{
+        let size = (self.get_height() * self.get_width());
+        let mut var = u8::pow(self.get(usize::try_from(0).unwrap()),2)/(size as u8);
+        for i in 1..size {
+            var = var + u8::pow(self.get(usize::try_from(0).unwrap()),2)/(size as u8);
+        }
+        let std =sqrt(var as u8);
+        return std
     }
 
 }
@@ -138,6 +148,16 @@ impl Stats for ImageProcessor<f32> {
             hist.increment(pixel);
         }
         return hist
+    }
+
+    fn get_standard_deviation(&self) -> Self::Output{
+        let size = (self.get_height() * self.get_width());
+        let mut var = f32::pow(self.get(usize::try_from(0).unwrap()),2)/(size as f32);
+        for i in 1..size {
+            var = var + f32::pow(self.get(usize::try_from(0).unwrap()),2)/(size as f32);
+        }
+        let std =sqrt(var as f32);
+        return std
     }
 }
 
@@ -221,6 +241,16 @@ impl Stats for ImageProcessor<(u8,u8,u8)>{
             hist.increment(b.into());
         }
         return hist
+    }
+
+    fn get_standard_deviation(&self) -> Self::Output{
+        let size = (self.get_height() * self.get_width());
+        let mut var = u8::pow(self.get(usize::try_from(0).unwrap()),2)/(size as u8);
+        for i in 1..size {
+            var = var + u8::pow(self.get(usize::try_from(0).unwrap()),2)/(size as u8);
+        }
+        let std =sqrt(var as u8);
+        return std
     }
 
 }
