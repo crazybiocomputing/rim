@@ -494,16 +494,15 @@ impl Stats for ImageStack<(u8,u8,u8)> {
         let limit = self.get_width_stack()*self.get_height_stack();
         for i in 0..size {
             self.set_slice_number(i);
-            let mut pixel = (self.get(usize::try_from(0).unwrap())) as u64;
+            let mut pixel = self.get(usize::try_from(0).unwrap());
             let mut r = pixel.0;
             let mut g = pixel.1;
             let mut b = pixel.2;
             hist.increment(r.into());
             hist.increment(g.into());
             hist.increment(b.into());
-            hist.increment(pixel);
             for j in 1..limit {
-                pixel = (self.get(usize::try_from(j).unwrap())) as u64;
+                pixel = self.get(usize::try_from(j).unwrap());
                 r = pixel.0;
                 g = pixel.1;
                 b = pixel.2;
@@ -522,13 +521,14 @@ impl Stats for ImageStack<(u8,u8,u8)> {
         let limit = self.get_width_stack()*self.get_height_stack();
         let size_f64 = (self.get_height_stack() * self.get_width_stack()) as f64;
         //let mut var:f64 = 0.0;
-        let mut r_var; 
-        let mut g_var;
-        let mut b_var;
-        let mean = self.get_mean() as f64;
+        let mut r_var = 0.0 as f64; 
+        let mut g_var = 0.0 as f64;
+        let mut b_var = 0.0 as f64;
+        let mean = self.get_mean();
         let r_mean = mean.0 as f64;
         let g_mean = mean.1 as f64;
         let b_mean = mean.2 as f64;
+
         for i in 0..size{
             self.set_slice_number(i);
             let mut pixel_rgb = self.get(usize::try_from(0).unwrap());
