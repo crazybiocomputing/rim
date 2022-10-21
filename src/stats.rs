@@ -25,7 +25,11 @@ use std::ops::Div;
 use core::ops::Mul;
 use std::mem;
 use histogram::Histogram;
-use std::num::sqrt;
+//use std::num::sqrt;
+//use num::integer::sqrt;
+use num_traits::Pow;
+
+
 
 pub trait Stats {
     type Output;
@@ -91,13 +95,15 @@ impl Stats for ImageProcessor<u8> {
     }
 
     fn get_standard_deviation(&self) -> Self::Output{
-        let size = (self.get_height() * self.get_width());
-        let mut var = u8::pow(self.get(usize::try_from(0).unwrap()),2)/(size as u8);
-        for i in 1..size {
-            var = var + u8::pow(self.get(usize::try_from(0).unwrap()),2)/(size as u8);
+        let size = (self.get_height() * self.get_width()) as f64;
+        let sizes = (self.get_height() * self.get_width());
+        let mean = self.get_mean() as f64;
+        let mut var = (f64::powf(self.get(usize::try_from(0).unwrap()).into(),2.0)-mean)/size;
+        for i in 1..sizes {
+            var = var + (f64::powf(self.get(usize::try_from(i).unwrap()).into(),2.0)-mean)/size;
         }
-        let std =sqrt(var as u8);
-        return std
+        let std = f64::powf(var as f64,0.5);
+        return std as u8
     }
 
 }
@@ -151,13 +157,16 @@ impl Stats for ImageProcessor<f32> {
     }
 
     fn get_standard_deviation(&self) -> Self::Output{
-        let size = (self.get_height() * self.get_width());
+        let size = (self.get_height() * self.get_width()) as f64;
+        let sizes = (self.get_height() * self.get_width());
         let mut var = f32::pow(self.get(usize::try_from(0).unwrap()),2)/(size as f32);
-        for i in 1..size {
-            var = var + f32::pow(self.get(usize::try_from(0).unwrap()),2)/(size as f32);
+        let mean = self.get_mean() as f64;
+        let mut var = (f64::powf(self.get(usize::try_from(0).unwrap()).into(),2.0)-mean)/size;
+        for i in 1..sizes {
+            var = var + (f64::powf(self.get(usize::try_from(i).unwrap()).into(),2.0)-mean)/size;
         }
-        let std =sqrt(var as f32);
-        return std
+        let std = f64::powf(var as f64,0.5);
+        return std as f32
     }
 }
 
@@ -244,13 +253,26 @@ impl Stats for ImageProcessor<(u8,u8,u8)>{
     }
 
     fn get_standard_deviation(&self) -> Self::Output{
-        let size = (self.get_height() * self.get_width());
-        let mut var = u8::pow(self.get(usize::try_from(0).unwrap()),2)/(size as u8);
-        for i in 1..size {
-            var = var + u8::pow(self.get(usize::try_from(0).unwrap()),2)/(size as u8);
+        let size = (self.get_height() * self.get_width()) as f64;
+        let sizes = (self.get_height() * self.get_width());
+        let mean = self.get_mean();
+        let r_mean = mean.0 as f64;
+        let g_mean = mean.1 as f64;
+        let b_mean = mean.2 as f64;
+        let mut pixel_rgb = self.get(usize::try_from(0).unwrap());
+        let mut r_var = (f64::powf(pixel_rgb.0.into(),2.0)-r_mean)/size;
+        let mut g_var = (f64::powf(pixel_rgb.1.into(),2.0)-g_mean)/size;
+        let mut b_var = (f64::powf(pixel_rgb.2.into(),2.0)-b_mean)/size;
+        for i in 1..sizes {
+            pixel_rgb = self.get(usize::try_from(0).unwrap());
+            r_var = r_var + (f64::powf(pixel_rgb.0.into(),2.0)-r_mean)/size;
+            g_var = g_var + (f64::powf(pixel_rgb.1.into(),2.0)-g_mean)/size;
+            b_var = b_var + (f64::powf(pixel_rgb.2.into(),2.0)-b_mean)/size;
         }
-        let std =sqrt(var as u8);
-        return std
+        let r_std = f64::powf(r_var as f64,0.5);
+        let g_std = f64::powf(g_var as f64,0.5);
+        let b_std = f64::powf(b_var as f64,0.5);
+        return (r_std as u8,g_std as u8,b_std as u8)
     }
 
 }
@@ -351,6 +373,30 @@ mod test{
         img.set_pixel(1,(120,150,5));
         let hist = img.get_histogram();
         assert_eq!(hist.get(5).unwrap(),2);
+    }
+
+    #[test]
+    fn test_ImageProcessor_get_standard_deviation_byte(){
+        let mut img =ImageProcessor::<u8>::create_byte_processor(2, 2);
+        img.set_pixel(0,255);
+        img.set_pixel(1,255);
+        assert_eq!(img.get_standard_deviation(),179);
+    }
+
+    #[test]
+    fn test_ImageProcessor_get_standard_deviation_float(){
+        let mut img =FloatProcessor::create_float_processor(2,2);
+        img.set_pixel(0,255.0);
+        img.set_pixel(1,25.4);
+        assert_eq!(img.get_standard_deviation(),127.85711);
+    }
+
+    #[test]
+    fn test_ImageProcessor_get_standard_deviation_rgb(){
+        let mut img =ColorProcessor::create_color_processor(2,2);
+        img.set_pixel(0,(120,30,0));
+        img.set_pixel(1,(54,20,1));
+        assert_eq!(img.get_standard_deviation(),(119, 29, 0));
     }
 
 }

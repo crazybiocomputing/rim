@@ -34,8 +34,9 @@ use std::cell::RefMut;
 pub struct ImageProcessor<T>{
     /// The width of the processor in pixel
     width: u32,
+    /// The height of the processor in pixel
     height: u32,
-    //size: u32,
+    /// The 
     data: RefCell<Vec<T>>,
     // meta: MetaData, // Contains all the file info + lut : [u8; 256 * 3], etc.
     cs : ColorSpace<T>
