@@ -27,6 +27,7 @@
 //! [`Easy`]: http://thatwaseasy.example.com
 
 #![allow(unused)]
+#![allow(non_snake_case)]
 
 #[derive(Clone)]
 #[derive(PartialEq)]
@@ -94,7 +95,8 @@ impl<T> ColorSpace<T> where T: Copy {
     /// # Example
     /// 
     /// ```
-    /// let color = ColorSpace::<u8>::Gray8(),color;
+    /// use rim::color_space::ColorSpace;
+    /// let color = ColorSpace::<(u8,u8,u8)>::Rgb24();
     /// assert_eq!(color.get_nb_channels(),3);
     /// ```
     pub fn get_nb_channels(&self) -> u8 {
@@ -106,8 +108,9 @@ impl<T> ColorSpace<T> where T: Copy {
     /// # Example
     /// 
     /// ```
+    /// use rim::color_space::ColorSpace;
     /// let color = ColorSpace::<u8>::Gray8();
-    /// color.get_bit_depth(),32);
+    /// assert_eq!(color.get_bit_depth(),8);
     /// ```
     pub fn get_bit_depth(&self) -> u8 {
         return self.bits_per_color * self.get_nb_channels()
@@ -117,6 +120,7 @@ impl<T> ColorSpace<T> where T: Copy {
     /// # Example
     /// 
     /// ```
+    /// use rim::color_space::ColorSpace;
     /// let color = ColorSpace::<u8>::Gray8();
     /// assert_eq!(color.get_min(),0);
     /// ```
@@ -128,6 +132,7 @@ impl<T> ColorSpace<T> where T: Copy {
     /// # Example
     /// 
     /// ```
+    /// use rim::color_space::ColorSpace;
     /// let color = ColorSpace::<u8>::Gray8();
     /// assert_eq!(color.get_max(),255);
     /// ```
@@ -142,6 +147,7 @@ mod test{
     use crate::color_space::Space;
     use core::cell::RefCell;
     use core::cell::Cell;
+
 
     #[test]
     fn test_Gray8(){
