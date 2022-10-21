@@ -188,6 +188,7 @@ impl<T> Operator<T> for ImageStack<T>
 }
 
 pub trait OperatorSpe<T> {
+
     /// Adds pseudorandom, Gaussian ("normally") distributed values, 
     /// with mean 0.0 and the specified standard deviation, to this image or ROI.
     fn noise(&self,standard_deviation: f64);
@@ -195,16 +196,13 @@ pub trait OperatorSpe<T> {
     /// If this is a 32-bit or signed 16-bit image, performs an absolute value transform, otherwise does nothing.
     fn abs(&self);
 
+    
     /// Performs a exponential transform on the image or ROI.
     fn exp(&self);
-    
-    /*
-    
-    
 
     /// Performs a square root transform on the image or ROI.
     fn sqrt(&self);
-    
+
     /// Does a natural logarithmic (base e) transform of the image or ROI.
     fn ln(&self);
 
@@ -212,7 +210,11 @@ pub trait OperatorSpe<T> {
     fn log(&self);
 
     /// Performs gamma correction of the image or ROI.
-    fn gamma​(value: f64);
+    fn gamma(&self, value: f64);
+
+    /*
+
+    
 
 
     /// Uses the Process/Math/Macro command to apply functional code to this image/volume.
@@ -235,6 +237,7 @@ pub trait OperatorSpe<T> {
     
 }
 
+
 impl OperatorSpe<u8> for ImageProcessor<u8> {
     fn noise(&self,standard_deviation: f64){
         let normal = Normal::new(0.0, standard_deviation);
@@ -250,15 +253,76 @@ impl OperatorSpe<u8> for ImageProcessor<u8> {
             }
         }
     }
-
     fn abs(&self){}
-
+    fn exp(&self){
+        for i in self.get_data().iter_mut() {
+            *i = f64::powf(std::f64::consts::E, (*i).into()) as u8;
+        }
+    }
+    fn sqrt(&self){
+        for i in self.get_data().iter_mut() {
+            *i = f32::powf((*i).into(),0.5 ) as u8;
+        }
+    }
+    fn ln(&self){
+        for i in self.get_data().iter_mut() {
+            *i = (*i as f32).ln() as u8; 
+        }
+    }
+    fn log(&self){
+        for i in self.get_data().iter_mut() {
+            *i = (*i as f32).log(10.0) as u8; 
+        }
+    }
+    fn gamma(&self, value: f64){
+        let max = self.get_max_possible();
+        for i in self.get_data().iter_mut() {
+            *i = (f64::powf((*i/max).into(), value) * (max as f64)) as u8 ;
+        }
+    }
 }
 
+impl OperatorSpe<f32> for ImageProcessor<f32> {
+    fn noise(&self,standard_deviation: f64){
+        let normal = Normal::new(0.0, standard_deviation);
+        for i in self.get_data().iter_mut() {
+            let value = normal.ind_sample(&mut rand::thread_rng());
 
 
+            *i += (value as f32);
+        }
 
-
-
-
+    }
+    fn abs(&self){
+        for i in self.get_data().iter_mut() {
+            *i = *i * -1.0;
+        }
+    }
+    fn exp(&self){
+        for i in self.get_data().iter_mut() {
+            *i = f64::powf(std::f64::consts::E, (*i).into()) as f32;
+        }
+    }
+    fn sqrt(&self){
+        for i in self.get_data().iter_mut() {
+            *i = f32::powf((*i).into(),0.5 ) as f32;
+        }
+    }
+    fn ln(&self){
+        for i in self.get_data().iter_mut() {
+            *i = (*i as f32).ln() as f32;
+        }
+    }
+    fn log(&self){
+        for i in self.get_data().iter_mut() {
+            *i = (*i as f32).log(10.0) as f32;
+        }
+    }
+    fn gamma(&self, value: f64){
+        let max = self.get_max_possible();
+        for i in self.get_data().iter_mut() {
+            *i = (f64::powf((*i/max).into(), value) * (max as f64)) as f32;
+        }
+    }
+}   
 
