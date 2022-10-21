@@ -24,17 +24,17 @@ use std::collections::HashMap;
 use std::ops::Div;
 use core::ops::Mul;
 use std::mem;
+use histogram::Histogram;
 
 pub trait Stats {
     type Output;
     fn get_min_value(&self) -> Self::Output;
     fn get_max_value(&self) -> Self::Output;
-    unsafe fn get_mean(&self) -> Self::Output;
-    unsafe fn get_mean_f32(&self) -> Self::Output;
-    //unsafe fn get_mean_rgb(&self) -> Self::Output;
+    fn get_mean(&self) -> Self::Output;
+    fn get_histogram(&self) -> Histogram;
     //fn get standard_deviation(&self) -> Self::Output;
 
-    //fn get_histogram(&self) -> HashMap<Self::Output,usize>;
+    //unsafe fn get_histogram(&self) -> Histogram;//<Self::Output>;//where <Self as Stats>::Output: Counter;
     // get histograms specified bins
     // get histograms autobins
     
@@ -42,17 +42,9 @@ pub trait Stats {
     //get standard deviation
 }
 
+impl Stats for ImageProcessor<u8> {
+    type Output = u8;
 
-impl<T> Stats for ImageProcessor<T> where T:Copy 
-                                    + std::cmp::PartialOrd 
-                                    + std::ops::Add<Output=T> 
-                                    + std::ops::Div<T> 
-                                    + Div<Output = T>
-                                    + std::fmt::Display
-                                    + std::fmt::Debug{  
-    type Output = T;
-    
-    /// Returns the minimum displayed value in the image
     fn get_min_value(&self) -> Self::Output {
         let size = self.get_height() * self.get_width();
         let mut minimum = self.get(usize::try_from(0).unwrap());
@@ -64,8 +56,7 @@ impl<T> Stats for ImageProcessor<T> where T:Copy
         }
         return minimum
     }
-    
-    /// Returns the maximum displayed value in the image
+
     fn get_max_value(&self) -> Self::Output {
         let size = self.get_height() * self.get_width();
         let mut maximum = self.get(usize::try_from(0).unwrap());
@@ -78,91 +69,168 @@ impl<T> Stats for ImageProcessor<T> where T:Copy
         return maximum
     }
 
-   unsafe fn get_mean(&self) -> Self::Output {
-        let size = self.get_height() * self.get_width();
-        let size_t= mem::transmute_copy::<u32, T>(&size);
-        let mut average = self.get(usize::try_from(0).unwrap())/size_t;
+    fn get_mean(&self) -> Self::Output {
+        let size = (self.get_height() * self.get_width()) as u8;
+        let mut average = self.get(usize::try_from(0).unwrap())/size;
         for i in 1..size {
-            average = average + (self.get(usize::try_from(i).unwrap())/size_t);
+            average = average + (self.get(usize::try_from(i).unwrap())/size);
         }
         return average
     }
-    
 
-    unsafe fn get_mean_f32(&self) -> Self::Output {
+    fn get_histogram(&self) -> Histogram{
+        let mut hist = Histogram::new();
+        let limit = self.get_width()*self.get_height();
+        let mut pixel = (self.get(usize::try_from(0).unwrap())) as u64;
+        hist.increment(pixel);
+        for i in 1..limit{
+            pixel = (self.get(usize::try_from(i).unwrap())) as u64;
+            hist.increment(pixel);
+        }
+        return hist
+    }
+
+}
+
+impl Stats for ImageProcessor<f32> {
+    type Output = f32;
+
+    fn get_min_value(&self) -> Self::Output {
         let size = self.get_height() * self.get_width();
-        let tmp = size as f32;
-        let size_t= mem::transmute_copy::<f32, T>(&tmp);
-        let mut average = self.get(usize::try_from(0).unwrap())/size_t;
+        let mut minimum = self.get(usize::try_from(0).unwrap());
         for i in 1..size {
-            average = average + (self.get(usize::try_from(i).unwrap())/size_t);
+            let tmp = self.get(usize::try_from(i).unwrap());
+            if tmp < minimum {
+                minimum = tmp;
+            }
+        }
+        return minimum
+    }
+
+    fn get_max_value(&self) -> Self::Output {
+        let size = self.get_height() * self.get_width();
+        let mut maximum = self.get(usize::try_from(0).unwrap());
+        for i in 1..size {
+            let tmp = self.get(usize::try_from(i).unwrap());
+            if tmp > maximum {
+                maximum = tmp;
+            }
+        }
+        return maximum
+    }
+
+    fn get_mean(&self) -> Self::Output {
+        let size = (self.get_height() * self.get_width());
+        let mut average = self.get(usize::try_from(0).unwrap())/(size as f32);
+        for i in 1..size {
+            average = average + (self.get(usize::try_from(i).unwrap())/(size as f32));
         }
         return average
     }
- /*  
-    unsafe fn get_mean_rgb(&self) -> Self::Output {
+
+    fn get_histogram(&self) -> Histogram{
+        let mut hist = Histogram::new();
+        let limit = self.get_width()*self.get_height();
+        let mut pixel = (self.get(usize::try_from(0).unwrap())) as u64;
+        hist.increment(pixel);
+        for i in 1..limit{
+            pixel = (self.get(usize::try_from(i).unwrap())) as u64;
+            hist.increment(pixel);
+        }
+        return hist
+    }
+}
+
+impl Stats for ImageProcessor<(u8,u8,u8)>{
+    type Output = (u8,u8,u8);
+
+    fn get_min_value(&self) -> Self::Output {
         let size = self.get_height() * self.get_width();
-        //let tmp = size as f32;
-        let size_t= mem::transmute_copy::<u32, T>(&size);
+        let minimum = self.get(usize::try_from(0).unwrap());
+        let mut r_min = minimum.0;
+        let mut g_min = minimum.1;
+        let mut b_min = minimum.2;
+        for i in 1..size {
+            let tmp = self.get(usize::try_from(i).unwrap());
+            if tmp.0 < r_min {
+                r_min = tmp.0;
+            }
+            if tmp.1 < g_min {
+                g_min = tmp.1;
+            }
+            if tmp.2 < b_min {
+                b_min = tmp.2;
+            }
+        }
+        return (r_min,g_min,b_min)
+    }
+
+    fn get_max_value(&self) -> Self::Output {
+        let size = self.get_height() * self.get_width();
+        let maximum = self.get(usize::try_from(0).unwrap());
+        let mut r_max = maximum.0;
+        let mut g_max = maximum.1;
+        let mut b_max = maximum.2;
+        for i in 1..size {
+            let tmp = self.get(usize::try_from(i).unwrap());
+            if tmp.0 > r_max {
+                r_max = tmp.0;
+            }
+            if tmp.1 > g_max {
+                g_max = tmp.1;
+            }
+            if tmp.2 > b_max {
+                b_max = tmp.2;
+            }
+        }
+        return (r_max,g_max,b_max)
+    }
+
+    fn get_mean(&self) -> Self::Output {
+        let size = (self.get_height() * self.get_width())as u8;
         let mut pixel_rgb = self.get(usize::try_from(0).unwrap());
-        let mut r:u8 = pixel_rgb.0/size_t;
-        let mut g:u8 = pixel_rgb.1/size_t;
-        let mut b:u8 = pixel_rgb.2/size_t;
-        //let mut average = self.get(usize::try_from(0).unwrap())/size_t;
+        let mut r = pixel_rgb.0/size;
+        let mut g = pixel_rgb.1/size;
+        let mut b = pixel_rgb.2/size;
         for i in 1..size {
             pixel_rgb = self.get(usize::try_from(i).unwrap());
-            r = r + pixel_rgb.0/size_t;
-            g = g + pixel_rgb.1/size_t;
-            b = b + pixel_rgb.2/size_t;
-            //average = average + (self.get(usize::try_from(i).unwrap())/size_t);
+            r = r + pixel_rgb.0/size;
+            g = g + pixel_rgb.1/size;
+            b = b + pixel_rgb.2/size;
         }
         return (r,g,b);
-    }*/
-
+    }
     
-   /* fn get_histogram(&self) -> HashMap<Self::Output,usize>{
-        let mut out : HashMap<Self::Output,usize> =HashMap::with_capacity(100);
-        // Vecteur vide de taille (max-min),On le remplit lentement ?
-        // Dictionnaire, augmente si valeur connue, crée sinon ?
+    fn get_histogram(&self) -> Histogram{
+        let mut hist = Histogram::new();
         let limit = self.get_width()*self.get_height();
-        let mut pixel = self.get(usize::try_from(0).unwrap());
-        println!("pixel {:?}", pixel);
-        //out.shrink_to(10);
-        out.insert(1,1);
-        println!("out {:?}", out);
-        /*out.insert(pixel,1);
-        for i in 1..limit {
-            pixel = self.get(usize::try_from(i).unwrap());
-            let mut values = 0;
-            if out.contains_key(&pixel) { 
-                values=out[&pixel];
-            } else {
-                values= 0; }
-            out.insert(pixel, 1 + values);//if out.contains_key(&pixel) { out[&pixel] } else { 0 });
-        }*/
-        
-        return out
-    }*/
-    
-    
+        let mut pixel = (self.get(usize::try_from(0).unwrap()));
+        let mut r = pixel.0;
+        let mut g = pixel.1;
+        let mut b = pixel.2;
+        hist.increment(r.into());
+        hist.increment(g.into());
+        hist.increment(b.into());
+        for i in 1..limit{
+            pixel = (self.get(usize::try_from(i).unwrap()));
+            r = pixel.0;
+            g = pixel.1;
+            b = pixel.2;
+            hist.increment(r.into());
+            hist.increment(g.into());
+            hist.increment(b.into());
+        }
+        return hist
+    }
+
 }
+
 
 #[cfg(test)]
 mod test{
-    //use super ::super::ImageStack::{*};
-    //use super :: super:: ImageProcessor::{*};
     use crate :: image_processor::*;
     use crate :: image_traits::*;
     use crate::stats::Stats;
-    /*use crate::image_stack::ImageStack;
-    use crate::image_stack::ImageProcessor;
-    use crate::image_stack::ByteStack;
-    use crate::image_stack::ByteProcessor;
-    use crate::image_stack::FloatProcessor;
-    use crate::image_stack::FloatStack;
-    use crate::color_space::ColorSpace;
-    use crate::image_stack::ColorStack;
-    use crate::image_stack::ColorProcessor;*/
     use core::cell::RefCell;
     use core::cell::Cell;
 
@@ -177,13 +245,13 @@ mod test{
         let img =FloatProcessor::create_float_processor(10,20);
         assert_eq!(img.get_min_value(),0.0);
     }
-    /*
+    
     #[test]
     fn test_ImageProcessor_get_min_value_color(){
         let img =ColorProcessor::create_color_processor(10,20);
         assert_eq!(img.get_min_value(),(0,0,0));
     }
-    */
+    
     #[test]
     fn test_ImageProcessor_get_max_value_byte(){
         let mut img =ImageProcessor::<u8>::create_byte_processor(2, 2);
@@ -197,35 +265,64 @@ mod test{
         img.set_row(0,0,vec![3.4028235e38,100.0]);
         assert_eq!(img.get_max_value(),3.4028235e38);
     }
-    /*
+    
     #[test]
     fn test_ImageProcessor_get_max_value_color(){
         let mut img =ColorProcessor::create_color_processor(2,2);
         img.set_row(0,0,vec![(255,60,2)]);
-        assert_eq!(img.get_max_value(),255);
+        assert_eq!(img.get_max_value(),(255,60,2));
     }
-    */
+    
 
     #[test]
     fn test_ImageProcessor_get_mean_byte(){
         let mut img =ImageProcessor::<u8>::create_byte_processor(2, 2);
         img.set_row(0,0,vec![255,130]);
-        assert_eq!(unsafe{img.get_mean()},95);
+        assert_eq!(img.get_mean(),95);
     }
 
     #[test]
     fn test_ImageProcessor_get_mean_float(){
         let mut img =FloatProcessor::create_float_processor(2,2);
         img.set_row(0,0,vec![255.0,130.0]);
-        assert_eq!(unsafe{img.get_mean_f32()},96.25);
+        assert_eq!(img.get_mean(),96.25);
     }
-/*
+
     #[test]
     fn test_ImageProcessor_get_mean_rgb(){
         let mut img =ColorProcessor::create_color_processor(2,2);
         img.set_row(0,0,vec![(255,60,2)]);
-        assert_eq!(img.get_mean_rgb(),255);
-    }*/
+        assert_eq!(img.get_mean(),(63, 15, 0));
+    }
+
+    #[test]
+    fn test_ImageProcessor_get_histogram_byte(){
+        let mut img =ImageProcessor::<u8>::create_byte_processor(2, 2);
+        img.set_pixel(0,255);
+        img.set_pixel(1,255);
+        let hist = img.get_histogram();
+        assert_eq!(hist.get(255).unwrap(),2);
+    }
+
+    #[test]
+    fn test_ImageProcessor_get_histogram_float(){
+        let mut img =FloatProcessor::create_float_processor(2,2);
+        img.set_pixel(0,255.0);
+        img.set_pixel(1,25.4);
+        let hist = img.get_histogram();
+        assert_eq!(hist.get(25).unwrap(),1);
+    }
+
+    #[test]
+    fn test_ImageProcessor_get_histogram_rgb(){
+        let mut img =ColorProcessor::create_color_processor(2,2);
+        img.set_row(0,0,vec![(255,60,2)]);
+        img.set_pixel(0,(255,5,60));
+        img.set_pixel(1,(120,150,5));
+        let hist = img.get_histogram();
+        assert_eq!(hist.get(5).unwrap(),2);
+    }
+
 }
 /*
     /// Returns the histogram of the image or ROI.
