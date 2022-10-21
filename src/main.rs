@@ -6,41 +6,29 @@ mod color_space;
 mod image_traits;
 mod image_stack;
 mod stats;
-
+pub mod io;
 
 fn main() {
-    use image_processor::ImageProcessor;
-    use color_space::ColorSpace;
-    use image_traits::Access;
-    use image_stack::ImageStack;
-    use stats::Stats;
+    use image_processor::*;
+    use color_space::*;
+    use image_traits::*;
+    use image_stack::*;
+    use stats::*;
+    use rim::io::raw_reader::*;
+    use rim::io::image_reader::*;
+    use std::env;
 
 
-    let mut img = ImageProcessor::<f32>::create_float_processor(10,10);
-    img.debug();
-
-    let mut pixel = img.get_pixel_at(0,0);
-    println!("Pixel in position x=1, y=1 : {}", pixel);
-
-    img.set(0,10.0);
-    img.set(1,10.0);
-    img.set(8,10.0);
-    img.set(0,20.0);
-
-    pixel = img.get_pixel_at(0,0);
-    println!("Pixel in position x=1, y=1 : {}", pixel);
-
-    println!("Min Possible {}", img.get_min_possible());
-    println!("Max Possible {}", img.get_max_possible());
-    println!("");
-    println!("Min {}", img.get_min_value());
-    println!("Max {}", img.get_max_value());
-    //println!("Average {}", img.get_average_value());
+    let args: Vec<String> = env::args().collect();
+    let filename = &args[1].to_string();
+    let filename = &args[2].to_string();
 
 
-    //println!("Histogram {:?}", img.get_histogram());
+    let stack = read_byte_stack(2,2,2,&filename);
+    let name = "name".to_string();
+    save_byte_stack(stack,&name);
 
-
-    
-
+    let stack_2 = read_color_stack(2,2,2,&filename);
+    let name_2 = "name_2".to_string();
+    save_color_stack(stack,&name);
 }

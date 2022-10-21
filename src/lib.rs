@@ -1,4 +1,9 @@
 pub mod io;
+mod image_processor;
+mod color_space;
+mod image_traits;
+mod image_stack;
+mod stats;
 
 use std::error::Error;
 
