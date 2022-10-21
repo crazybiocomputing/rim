@@ -52,23 +52,36 @@ pub trait Operator<T> {
     
     /// Binary exclusive OR of each pixel in the image or ROI with 'value'.
     fn xor(&self, value: Self::Input);
+
+    /// Adds pseudorandom, Gaussian ("normally") distributed values, 
+    /// with mean 0.0 and the specified standard deviation, to this image or ROI.
+    fn noise(&self,standard_deviation: f64);
+
+    /// If this is a 32-bit or signed 16-bit image, performs an absolute value transform, otherwise does nothing.
+    fn abs(&self);
+
+    
+    /// Performs a exponential transform on the image or ROI.
+    fn exp(&self);
+
+    /// Performs a square root transform on the image or ROI.
+    fn sqrt(&self);
+
+    /// Does a natural logarithmic (base e) transform of the image or ROI.
+    fn ln(&self);
+
+    /// Does a logarithmic (base 10) transform of the image or ROI.
+    fn log(&self);
+
+    /// Performs gamma correction of the image or ROI.
+    fn gamma(&self, value: f64);
     
 
 }
 
-impl<T> Operator<T> for ImageProcessor<T> 
-    where T : Copy 
-        + std::ops::AddAssign 
-        + std::ops::SubAssign 
-        + std::ops::MulAssign
-        + std::ops::DivAssign
-        + std::cmp::PartialOrd
-        + std::ops::BitAnd<Output=T>
-        + std::ops::BitOr<Output=T>
-        + std::ops::BitXor<Output=T>
-    {
+impl Operator<u8> for ImageProcessor<u8> {
 
-    type Input = T;
+    type Input = u8;
 
     fn add(&self, value: Self::Input){
         for i in self.get_data().iter_mut() {
@@ -96,7 +109,6 @@ impl<T> Operator<T> for ImageProcessor<T>
             if *i > value {
                 *i = value;
             }
-    
         }
     }
     fn floor(&self, value: Self::Input){
@@ -122,123 +134,7 @@ impl<T> Operator<T> for ImageProcessor<T>
             *i = *i ^ value;
         }
     }
-}
 
-impl<T> Operator<T> for ImageStack<T>
-    where T : Copy 
-        + std::ops::AddAssign 
-        + std::ops::SubAssign 
-        + std::ops::MulAssign
-        + std::ops::DivAssign
-        + std::cmp::PartialOrd
-        + std::ops::BitAnd<Output=T>
-        + std::ops::BitOr<Output=T>
-        + std::ops::BitXor<Output=T>
-    {
-
-    type Input = T;
-
-    fn add(&self, value: Self::Input){
-        for i in self.get_data_stack().iter_mut() {
-            i.borrow_mut().add(value);
-        }
-    }
-    fn substract(&self, value: Self::Input){
-        for i in self.get_data_stack().iter_mut() {
-            i.borrow_mut().substract(value);
-        }
-    }
-    fn multiply(&self, value: Self::Input){
-        for i in self.get_data_stack().iter_mut() {
-            i.borrow_mut().multiply(value);
-        }
-    }
-    fn divide(&self, value: Self::Input){
-        for i in self.get_data_stack().iter_mut() {
-            i.borrow_mut().divide(value);
-        }
-    }
-
-    fn ceil(&self, value: Self::Input){
-        for i in self.get_data_stack().iter_mut() {
-            i.borrow_mut().ceil(value);
-        }
-    }
-    fn floor(&self, value: Self::Input){
-        for i in self.get_data_stack().iter_mut() {
-            i.borrow_mut().floor(value);
-        }
-    }
-
-    fn and(&self, value: Self::Input){
-        for i in self.get_data_stack().iter_mut() {
-            i.borrow_mut().and(value);
-        }
-    }fn or(&self, value: Self::Input){
-        for i in self.get_data_stack().iter_mut() {
-            i.borrow_mut().or(value);
-        }
-    }fn xor(&self, value: Self::Input){
-        for i in self.get_data_stack().iter_mut() {
-            i.borrow_mut().xor(value);
-        }
-    }
-
-
-}
-
-pub trait OperatorSpe<T> {
-
-    /// Adds pseudorandom, Gaussian ("normally") distributed values, 
-    /// with mean 0.0 and the specified standard deviation, to this image or ROI.
-    fn noise(&self,standard_deviation: f64);
-
-    /// If this is a 32-bit or signed 16-bit image, performs an absolute value transform, otherwise does nothing.
-    fn abs(&self);
-
-    
-    /// Performs a exponential transform on the image or ROI.
-    fn exp(&self);
-
-    /// Performs a square root transform on the image or ROI.
-    fn sqrt(&self);
-
-    /// Does a natural logarithmic (base e) transform of the image or ROI.
-    fn ln(&self);
-
-    /// Does a logarithmic (base 10) transform of the image or ROI.
-    fn log(&self);
-
-    /// Performs gamma correction of the image or ROI.
-    fn gamma(&self, value: f64);
-
-    /*
-
-    
-
-
-    /// Uses the Process/Math/Macro command to apply functional code to this image/volume.
-    /// The function takes eight arguments:
-    /// v : current pixel/voxel value.
-    /// x,y,z : XY- or XYZ-coordinates of the pixel/voxel
-    /// w,h: width and height of the processor
-    /// a: angle (polar coordinate)
-    /// d: distance from center (polar coordinate)
-    fn apply_func​(&self, func: F);
-
-    /// Uses the Process/Math/Macro command to apply macro code to this image.
-    /// See apply_func(..)
-    fn apply_macro​(&self, func: F);
-
-    */
-
-
-    
-    
-}
-
-
-impl OperatorSpe<u8> for ImageProcessor<u8> {
     fn noise(&self,standard_deviation: f64){
         let normal = Normal::new(0.0, standard_deviation);
         for i in self.get_data().iter_mut() {
@@ -282,7 +178,57 @@ impl OperatorSpe<u8> for ImageProcessor<u8> {
     }
 }
 
-impl OperatorSpe<f32> for ImageProcessor<f32> {
+impl Operator<f32> for ImageProcessor<f32> {
+
+    type Input = f32;
+
+    fn add(&self, value: Self::Input){
+        for i in self.get_data().iter_mut() {
+            *i += value;
+        }
+    }
+    fn substract(&self, value: Self::Input){
+        for i in self.get_data().iter_mut() {
+            *i -= value;
+        }
+    }
+    fn multiply(&self, value: Self::Input){
+        for i in self.get_data().iter_mut() {
+            *i *= value;
+        }
+    }
+    fn divide(&self, value: Self::Input){
+        for i in self.get_data().iter_mut() {
+            *i /= value;
+        }
+    }
+
+    fn ceil(&self, value: Self::Input){
+        for i in self.get_data().iter_mut() {
+            if *i > value {
+                *i = value;
+            }
+        }
+    }
+    fn floor(&self, value: Self::Input){
+        for i in self.get_data().iter_mut() {
+            if *i < value {
+                *i = value;
+            }
+        }
+    }
+
+    fn and(&self,value: Self::Input){
+        !panic!("Cannot do bit operations on float processors !");
+    }
+    fn or(&self,value: Self::Input){
+        !panic!("Cannot do bit operations on float processors !");
+    }
+    fn xor(&self,value: Self::Input){
+        !panic!("Cannot do bit operations on float processors !");
+    }
+
+
     fn noise(&self,standard_deviation: f64){
         let normal = Normal::new(0.0, standard_deviation);
         for i in self.get_data().iter_mut() {
@@ -324,5 +270,200 @@ impl OperatorSpe<f32> for ImageProcessor<f32> {
             *i = (f64::powf((*i/max).into(), value) * (max as f64)) as f32;
         }
     }
-}   
+}
+
+
+impl Operator<u8> for ImageStack<u8>{
+
+    type Input = u8;
+
+    fn add(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().add(value);
+        }
+    }
+    fn substract(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().substract(value);
+        }
+    }
+    fn multiply(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().multiply(value);
+        }
+    }
+    fn divide(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().divide(value);
+        }
+    }
+
+    fn ceil(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().ceil(value);
+        }
+    }
+    fn floor(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().floor(value);
+        }
+    }
+
+    fn and(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().and(value);
+        }
+    }
+    fn or(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().or(value);
+        }
+    }
+    fn xor(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().xor(value);
+        }
+    }
+
+    fn noise(&self,standard_deviation: f64){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().noise(standard_deviation);
+        }
+    }
+
+    fn abs(&self){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().abs();
+        }
+    }
+
+    fn exp(&self){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().exp();
+        }
+    }
+
+    fn sqrt(&self){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().sqrt();
+        }
+    }
+
+    fn ln(&self){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().ln();
+        }
+    }
+
+    fn log(&self){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().log();
+        }
+    }
+
+    fn gamma(&self, value: f64){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().gamma(value);
+        }
+    }
+
+}
+
+impl Operator<f32> for ImageStack<f32>{
+
+    type Input = f32;
+
+    fn add(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().add(value);
+        }
+    }
+    fn substract(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().substract(value);
+        }
+    }
+    fn multiply(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().multiply(value);
+        }
+    }
+    fn divide(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().divide(value);
+        }
+    }
+
+    fn ceil(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().ceil(value);
+        }
+    }
+    fn floor(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().floor(value);
+        }
+    }
+
+    fn and(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().and(value);
+        }
+    }
+    fn or(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().or(value);
+        }
+    }
+    fn xor(&self, value: Self::Input){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().xor(value);
+        }
+    }
+
+    fn noise(&self,standard_deviation: f64){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().noise(standard_deviation);
+        }
+    }
+
+    fn abs(&self){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().abs();
+        }
+    }
+
+    fn exp(&self){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().exp();
+        }
+    }
+
+    fn sqrt(&self){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().sqrt();
+        }
+    }
+
+    fn ln(&self){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().ln();
+        }
+    }
+
+    fn log(&self){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().log();
+        }
+    }
+
+    fn gamma(&self, value: f64){
+        for i in self.get_data_stack().iter_mut() {
+            i.borrow_mut().gamma(value);
+        }
+    }
+
+}
+
+
 
