@@ -34,14 +34,16 @@ use num_traits::Pow;
 
 pub trait Stats {
     type Output;
-    fn get_min_value(&self) -> Self::Output;
-    fn get_max_value(&self) -> Self::Output;
-    fn get_mean(&self) -> Self::Output;
-    fn get_histogram(&self) -> Histogram;
-    fn get_standard_deviation(&self) -> Self::Output;
-
-    // get histograms specified bins
-    // get histograms autobins
+///Returns the minimum value in the image or stack. For rgb, separate minimum for red, blue and green
+fn get_min_value(&self) -> Self::Output;
+///Returns the maximum value in the image or stack. For rgb, separate minimum for red, blue and green
+fn get_max_value(&self) -> Self::Output;
+///Returns the average value in the image or stack. For rgb, separate averages for red, blue and green
+fn get_mean(&self) -> Self::Output;
+///Returns the histogram of the values in the image or stack. Even for rgb, one histogram
+fn get_histogram(&self) -> Histogram;
+///Returns the standard deviation of the values in the image or stack. For rgb, separate standard deviations for red, blue and green
+fn get_standard_deviation(&self) -> Self::Output;
     
 }
 
