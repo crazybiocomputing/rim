@@ -59,10 +59,6 @@ fn main() {
     let mut img2 =FloatProcessor::create_float_processor(2,2);
     img2.set_row(0,0,vec![255.0,130.30]);
     let max=img2.get_max_value();
-    unsafe{
-    let a = img2.get_mean_f32();
-    println!("voici {} et la moy : {}",max,a);
-    }
 
     let test = (0.0/4.0)+(0.0/4.0)+(255.0/4.0)+(130.0/4.0);
     println!("{}",test);    
