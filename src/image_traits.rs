@@ -23,25 +23,31 @@ use crate::image_stack::*;
 
 pub trait Access<T> {
     type Output;
-    // Get 1 pixel
+    /// Get 1 pixel at a specific index
     fn get_pixel(&self, index: u32) -> Self::Output;
+    /// Get 1 pixel at a specific x y position
     fn get_pixel_at(&self,x: u32, y: u32) -> Self::Output;
+    /// Get 1 pixel at a specific index, without check
     fn get(&self,index: usize) -> Self::Output;
 
-    // Set 1 pixel
+    /// Set 1 pixel at a specific index
     fn set_pixel(&mut self,index: u32, value: Self::Output);
+    /// Set 1 pixel at a specific x y position
     fn set_pixel_at(&mut self,x: u32, y: u32, value: Self::Output);
+    /// Set 1 pixel at a specific index, without check
     fn set(&mut self,index: u32, value: Self::Output);  
 
-    // Get multiple pixels
+    /// Get a row of pixel, starting from a specific x y position
     fn get_row(&self,x: u32, y: u32) -> Vec<Self::Output>;
+    /// Get a column of pixel, starting from a specific x y position
     fn get_column(&self,x: u32, y: u32) -> Vec<Self::Output>;
 
-    // Set multiple pixels
+    /// Fill a row of pixel, starting from a specific x y position, with a vector of pixels. 
     fn set_row(&mut self,x: u32, y: u32, data: Vec<Self::Output>);
+    /// Fill a column of pixel, starting from a specific x y position, with a vector of pixels. 
     fn set_column(&mut self,x: u32, y: u32, data: Vec<Self::Output>);
 
-    //Set slice number
+    /// Set the slice number of a stack 
     fn set_slice_number(&self,slice: u32);
 }
 
