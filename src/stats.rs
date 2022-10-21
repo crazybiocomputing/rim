@@ -263,7 +263,7 @@ impl Stats for ImageProcessor<(u8,u8,u8)>{
         let mut g_var = (f64::powf(pixel_rgb.1.into(),2.0)-g_mean)/size;
         let mut b_var = (f64::powf(pixel_rgb.2.into(),2.0)-b_mean)/size;
         for i in 1..sizes {
-            pixel_rgb = self.get(usize::try_from(0).unwrap());
+            pixel_rgb = self.get(usize::try_from(i).unwrap());
             r_var = r_var + (f64::powf(pixel_rgb.0.into(),2.0)-r_mean)/size;
             g_var = g_var + (f64::powf(pixel_rgb.1.into(),2.0)-g_mean)/size;
             b_var = b_var + (f64::powf(pixel_rgb.2.into(),2.0)-b_mean)/size;
@@ -476,7 +476,7 @@ impl Stats for ImageStack<(u8,u8,u8)> {
         let size = self.get_size();
         for i in 0..size {
             self.set_slice_number(i);
-            average += self.get_one_slice_copy().get_mean() / (size as u8);
+            average = self.get_one_slice_copy().get_mean();
             r_mean += average.0;
             g_mean += average.1;
             b_mean += average.2;
@@ -493,10 +493,21 @@ impl Stats for ImageStack<(u8,u8,u8)> {
         for i in 0..size {
             self.set_slice_number(i);
             let mut pixel = (self.get(usize::try_from(0).unwrap())) as u64;
+            let mut r = pixel.0;
+            let mut g = pixel.1;
+            let mut b = pixel.2;
+            hist.increment(r.into());
+            hist.increment(g.into());
+            hist.increment(b.into());
             hist.increment(pixel);
             for j in 1..limit {
                 pixel = (self.get(usize::try_from(j).unwrap())) as u64;
-                hist.increment(pixel);
+                r = pixel.0;
+                g = pixel.1;
+                b = pixel.2;
+                hist.increment(r.into());
+                hist.increment(g.into());
+                hist.increment(b.into());
             }
         }
         self.set_slice_number(tmp_slice);
@@ -508,18 +519,33 @@ impl Stats for ImageStack<(u8,u8,u8)> {
         let size = self.get_size();
         let limit = self.get_width_stack()*self.get_height_stack();
         let size_f64 = (self.get_height_stack() * self.get_width_stack()) as f64;
-        let mut var:f64 = 0.0;
+        //let mut var:f64 = 0.0;
+        let mut r_var; 
+        let mut g_var;
+        let mut b_var;
         let mean = self.get_mean() as f64;
+        let r_mean = mean.0 as f64;
+        let g_mean = mean.1 as f64;
+        let b_mean = mean.2 as f64;
         for i in 0..size{
             self.set_slice_number(i);
-            var = (f64::powf(self.get(usize::try_from(0).unwrap()).into(),2.0)-mean)/size_f64;
+            let mut pixel_rgb = self.get(usize::try_from(0).unwrap());
+            //var = (f64::powf(self.get(usize::try_from(0).unwrap()).into(),2.0)-mean)/size_f64;
+            r_var = (f64::powf(pixel_rgb.0.into(),2.0)-r_mean)/size_f64;
+            g_var = (f64::powf(pixel_rgb.1.into(),2.0)-g_mean)/size_f64;
+            b_var = (f64::powf(pixel_rgb.2.into(),2.0)-b_mean)/size_f64;
             for i in 1..limit {
-                var = var + (f64::powf(self.get(usize::try_from(i).unwrap()).into(),2.0)-mean)/size_f64;
+                pixel_rgb = self.get(usize::try_from(i).unwrap());
+                r_var = r_var + (f64::powf(pixel_rgb.0.into(),2.0)-r_mean)/size_f64;
+                g_var = g_var + (f64::powf(pixel_rgb.1.into(),2.0)-g_mean)/size_f64;
+                b_var = b_var + (f64::powf(pixel_rgb.2.into(),2.0)-b_mean)/size_f64;
             }
         }
         self.set_slice_number(tmp_slice);
-        let std = f64::powf(var as f64,0.5);
-        return std as f32
+        let r_std = f64::powf(r_var as f64,0.5);
+        let g_std = f64::powf(g_var as f64,0.5);
+        let b_std = f64::powf(b_var as f64,0.5);
+        return (r_std as u8,g_std as u8,b_std as u8)
     }    
 }
 
