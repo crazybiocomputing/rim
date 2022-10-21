@@ -1,5 +1,7 @@
 use std::fs::File;
 use std::io::Read;
+use std::fs::metadata;
+use std::io::Write;
 
 /// Return a vector u8 containing the raw data of the image
 ///
@@ -16,20 +18,20 @@ fn get_file_as_byte_vec(filename: &String) -> Vec<u8> {
     buffer
 }
 
-fn save_raw_file(name: &String){ // A voir si ca tourne bien en fonction
+fn save_raw_file(name: &String, buffer: Vec<u8>){ // A voir si ca tourne bien en fonction
     let filename = format!("{}.raw", name);
     let file = File::create(filename);
-    file.expect("REASON").write_all(&cc.buffer());
+    file.expect("REASON").write_all(&buffer);
 }
 
-// TODO
+// TODO 
 /* 
     essayer de read file en vecteur de float
     read image depuis url (API ImageJ)
     save sous format TIF
 
 
-/*
+
     /** Opens the image at 'filePath' using the format specified by 'fi'. */
     public static ImagePlus open(String filePath, FileInfo fi) {
         File f = new File(filePath);
