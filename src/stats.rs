@@ -671,7 +671,7 @@ mod test{
         let mut img =ColorProcessor::create_color_processor(2,2);
         img.set_pixel(0,(120,30,0));
         img.set_pixel(1,(54,20,1));
-        assert_eq!(img.get_standard_deviation(),(119, 29, 0));
+        assert_eq!(img.get_standard_deviation(),(65, 17, 0));
     }
 
     #[test]
@@ -760,8 +760,46 @@ mod test{
         assert_eq!(img.get_standard_deviation(),142.91957);
     }
 
+    #[test]
+    fn test_ImageStack_get_min_value_rgb(){
+        let img =ColorStack::create_color_stack(10,15,12);
+        assert_eq!(img.get_min_value(),(0,0,0));
+    }
 
+    #[test]
+    fn test_ImageStack_get_max_value_rgb(){
+        let mut img =ColorStack::create_color_stack(10,15,12);
+        img.set_row(0,0,vec![(255,130,239)]);
+        assert_eq!(img.get_max_value(),(255,130,239));
+    }
 
+    #[test]
+    fn test_ImageStack_get_mean_rgb(){
+        let mut img =ColorStack::create_color_stack(2,2,2);
+        img.set_row(0,0,vec![(255,130,239)]);
+        img.set_slice_number(1);
+        img.set_row(0,0,vec![(25,141,99)]);
+        assert_eq!(img.get_mean(),(69, 67, 83));
+    }
+
+    #[test]
+    fn test_ImageStack_get_histogram_rgb(){
+        let mut img =ColorStack::create_color_stack(2,2,2);
+        img.set_row(0,0,vec![(255,130,130)]);
+        img.set_slice_number(1);
+        img.set_row(0,0,vec![(25,130,99)]);
+        let hist = img.get_histogram();
+        assert_eq!(hist.get(130).unwrap(),3)
+    }
+
+    #[test]
+    fn test_ImageStack_get_standard_deviation_rgb(){
+        let mut img =ColorStack::create_color_stack(2,2,2);
+        img.set_row(0,0,vec![(255,130,130)]);
+        img.set_slice_number(1);
+        img.set_row(0,0,vec![(25,130,99)]);
+        assert_eq!(img.get_standard_deviation(),(9, 64, 48));
+    }
 }
 /*
     /// Returns the histogram of the image or ROI.
