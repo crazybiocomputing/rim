@@ -89,11 +89,11 @@ impl<T> ColorSpace<T> where T: Copy {
         }
     }
 
-    
+
     /// Returns the number of channels (1 for grayspaces, 3 for RGB)
     ///
     /// # Example
-    /// 
+    ///
     /// ```
     /// use rim::color_space::ColorSpace;
     /// let color = ColorSpace::<(u8,u8,u8)>::Rgb24();
@@ -106,7 +106,7 @@ impl<T> ColorSpace<T> where T: Copy {
     /// Returns the bit depth, 8, 16, 24 (RGB) or 32.
     ///
     /// # Example
-    /// 
+    ///
     /// ```
     /// use rim::color_space::ColorSpace;
     /// let color = ColorSpace::<u8>::Gray8();
@@ -118,7 +118,7 @@ impl<T> ColorSpace<T> where T: Copy {
 
     /// Returns the minimum value of that color space
     /// # Example
-    /// 
+    ///
     /// ```
     /// use rim::color_space::ColorSpace;
     /// let color = ColorSpace::<u8>::Gray8();
@@ -130,7 +130,7 @@ impl<T> ColorSpace<T> where T: Copy {
 
     /// Returns the maximum value of that color space
     /// # Example
-    /// 
+    ///
     /// ```
     /// use rim::color_space::ColorSpace;
     /// let color = ColorSpace::<u8>::Gray8();
@@ -280,7 +280,7 @@ mod test{
         };
         assert_eq!(color.get_max(),(255,255,255));
     }
-    
+
 }
 /*
 Old Code

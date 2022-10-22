@@ -23,31 +23,25 @@ use crate::image_stack::*;
 
 pub trait Access<T> {
     type Output;
-    /// Get 1 pixel at a specific index
+    // Get 1 pixel
     fn get_pixel(&self, index: u32) -> Self::Output;
-    /// Get 1 pixel at a specific x y position
     fn get_pixel_at(&self,x: u32, y: u32) -> Self::Output;
-    /// Get 1 pixel at a specific index, without check
     fn get(&self,index: usize) -> Self::Output;
 
-    /// Set 1 pixel at a specific index
+    // Set 1 pixel
     fn set_pixel(&mut self,index: u32, value: Self::Output);
-    /// Set 1 pixel at a specific x y position
     fn set_pixel_at(&mut self,x: u32, y: u32, value: Self::Output);
-    /// Set 1 pixel at a specific index, without check
-    fn set(&mut self,index: u32, value: Self::Output);  
+    fn set(&mut self,index: u32, value: Self::Output);
 
-    /// Get a row of pixel, starting from a specific x y position
+    // Get multiple pixels
     fn get_row(&self,x: u32, y: u32) -> Vec<Self::Output>;
-    /// Get a column of pixel, starting from a specific x y position
     fn get_column(&self,x: u32, y: u32) -> Vec<Self::Output>;
 
-    /// Fill a row of pixel, starting from a specific x y position, with a vector of pixels. 
+    // Set multiple pixels
     fn set_row(&mut self,x: u32, y: u32, data: Vec<Self::Output>);
-    /// Fill a column of pixel, starting from a specific x y position, with a vector of pixels. 
     fn set_column(&mut self,x: u32, y: u32, data: Vec<Self::Output>);
 
-    /// Set the slice number of a stack 
+    //Set slice number
     fn set_slice_number(&self,slice: u32);
 }
 
@@ -60,10 +54,10 @@ impl<T> Access<T> for ImageProcessor<T> where T:Copy{
     fn get_pixel(&self, index: u32) -> Self::Output{
         if u32::from(index) >= self.get_width()*self.get_height(){
             panic!("Pixel out of bounds ! index = {}, data length : {}",index ,self.get_width()*self.get_height());
-        } 
-        return self.get_data()[usize::try_from(index).unwrap()]; 
+        }
+        return self.get_data()[usize::try_from(index).unwrap()];
     }
-    
+
     fn get_pixel_at(&self,x: u32, y: u32) -> Self::Output{
         if x >= self.get_width(){
             panic!("Pixel out of bounds ! x={}, width={}",x,self.get_width());
@@ -78,13 +72,13 @@ impl<T> Access<T> for ImageProcessor<T> where T:Copy{
         return self.get_data()[index];
     }
 
-    
+
     ///// set 1 Pixel /////
     fn set_pixel(&mut self,index: u32, value: Self::Output){
         if u32::from(index) >= self.get_width()*self.get_height(){
             panic!("Pixel out of bounds ! index = {}, data length : {}",index ,self.get_width()*self.get_height());
         }
-        
+
         self.get_data()[usize::try_from(index).unwrap()] = value;
     }
     fn set_pixel_at(&mut self,x: u32, y: u32, value: Self::Output){
@@ -100,7 +94,7 @@ impl<T> Access<T> for ImageProcessor<T> where T:Copy{
     fn set(&mut self,index: u32, value: Self::Output){
         self.get_data()[usize::try_from(index).unwrap()] = value;
     }
-    
+
     fn get_row(&self,x: u32, y: u32) -> Vec<Self::Output>{
         let mut out : Vec<Self::Output> = Vec::new();
         let width = self.get_width();
@@ -108,7 +102,7 @@ impl<T> Access<T> for ImageProcessor<T> where T:Copy{
             out.push(self.get(usize::try_from(y*width+local_x).unwrap()));
         }
         return out;
-    } 
+    }
     fn get_column(&self,x: u32, y: u32) -> Vec<Self::Output>{
         let mut out : Vec<Self::Output> = Vec::new();
         let width = self.get_width();
@@ -147,7 +141,7 @@ impl<T> Access<T> for ImageStack<T> where T:Copy{
     fn get_pixel(&self, index: u32) -> Self::Output{
         return self.get_data_stack()[usize::try_from(self.get_focus_slice()).unwrap()].borrow_mut().get_pixel(index)
     }
-    
+
     fn get_pixel_at(&self,x: u32, y: u32) -> Self::Output{
         if x >= self.get_width_stack(){
             panic!("Pixel out of bounds ! x={}, width={}",x,self.get_width_stack());
@@ -162,13 +156,13 @@ impl<T> Access<T> for ImageStack<T> where T:Copy{
         return self.get_data_stack()[usize::try_from(self.get_focus_slice()).unwrap()].borrow_mut().get_data()[index];
     }
 
-    
+
     ///// set 1 Pixel /////
     fn set_pixel(&mut self,index: u32, value: Self::Output){
         if u32::from(index) >= self.get_width_stack()*self.get_height_stack(){
             panic!("Pixel out of bounds ! index = {}, data length : {}",index ,self.get_width_stack()*self.get_height_stack());
         }
-        
+
         self.get_data_stack()[usize::try_from(self.get_focus_slice()).unwrap()].borrow_mut().get_data()[usize::try_from(index).unwrap()] = value;
     }
     fn set_pixel_at(&mut self,x: u32, y: u32, value: Self::Output){
@@ -184,7 +178,7 @@ impl<T> Access<T> for ImageStack<T> where T:Copy{
     fn set(&mut self,index: u32, value: Self::Output){
         self.get_data_stack()[usize::try_from(self.get_focus_slice()).unwrap()].borrow_mut().get_data()[usize::try_from(index).unwrap()] = value;
     }
-    
+
     fn get_row(&self,x: u32, y: u32) -> Vec<Self::Output>{
         let mut out : Vec<Self::Output> = Vec::new();
         let width = self.get_width_stack();
@@ -192,7 +186,7 @@ impl<T> Access<T> for ImageStack<T> where T:Copy{
             out.push(self.get_data_stack()[usize::try_from(self.get_focus_slice()).unwrap()].borrow_mut().get(usize::try_from(y*width+local_x).unwrap()));
         }
         return out;
-    } 
+    }
     fn get_column(&self,x: u32, y: u32) -> Vec<Self::Output>{
         let mut out : Vec<Self::Output> = Vec::new();
         let width = self.get_width_stack();
@@ -228,7 +222,7 @@ mod test{
     use crate::image_stack::FloatProcessor;
     use crate::image_stack::FloatStack;*/
     use crate::color_space::ColorSpace;
-    
+
     use crate::image_traits::Access;
     use core::cell::RefCell;
     use core::cell::Cell;
@@ -458,7 +452,7 @@ mod test{
 }
 /*
 TODO
-    
+
     /// Plug_In_Filter_Runner uses this method to set the slice number.
     fn set_slice_number​(&self,i32 slice);
 */

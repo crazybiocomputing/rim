@@ -1,3 +1,23 @@
+//
+//  RIM - Rust IMage
+//  Copyright (&self,C) 2022  Jean-Christophe Taveau, Allain Anaelle, Texier Louis.
+//
+//  This file is part of RIM
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (&self,at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
+
+
 #![allow(non_snake_case)]
 #![allow(unused)]
 
@@ -21,16 +41,15 @@ pub fn get_file_as_byte_vec(filename: &String) -> Vec<u8> {
     buffer
 }
 
+/// Write the raw data in a raw file
+///
+/// # arguments
+///
+/// * `name` - Name of the final file
+/// * `buffer` - Vector of data for writting in the file
+///
 pub fn save_raw_file(name: &String, buffer: Vec<u8>){
     let filename = format!("{}.raw", name);
     let file = File::create(filename);
     file.expect("REASON").write_all(&buffer);
 }
-
-// TODO
-/*
-    essayer de read file en vecteur de float -> pas possible metadata seulement en u8
-    read image depuis url (API ImageJ) -> format compliqué
-    save sous format TIF -> trop compliqué à cause du format
-
-*/

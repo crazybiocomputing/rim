@@ -1,3 +1,23 @@
+//
+//  RIM - Rust IMage
+//  Copyright (&self,C) 2022  Jean-Christophe Taveau, Allain Anaelle, Texier Louis.
+//
+//  This file is part of RIM
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (&self,at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
+
+
 #![allow(non_snake_case)]
 #![allow(unused)]
 
@@ -6,81 +26,6 @@ use crate::image_stack::*;
 use crate::image_traits::*;
 use crate::image_processor::*;
 
-
-/// A structure for the readed image
-pub struct ImageReader {
-    height: u32,
-    width: u32,
-    slice: u32,
-    fi: String,
-    buffer: Vec<u8>
-}
-
-impl ImageReader{
-    /// Return a image with his parameters (Structure qui peut gérer les 8bits, 16bits, 32bits et RGB pour les testes, 16bits pas dans l'API et 32bits en float dan l'API et tuple de u8 pour les row)
-    ///
-    /// # arguments
-    ///
-    /// * `height` - A number u32 for the height of the image
-    /// * `width` - A number u32 for the width of the image
-    /// * `slice` - A number u32 for the number of slices in a stack, 1 for a single image
-    /// * `fi` - String corresponding to the byte type of the image
-    /// * `buffer` - Vector containing the raw data from the image
-    ///
-    pub fn new(height: u32, width: u32, slice: u32, fi: &String, buffer: Vec<u8>) -> Self {
-        ImageReader {
-        height: height,
-        width: width,
-        slice: slice,
-        fi: fi.clone(),
-        buffer: buffer,
-        }
-    }
-
-    /// Return the height of the image
-    pub fn height(&self) -> u32 {
-        self.height
-    }
-
-    /// Return the width of the image
-    pub fn width(&self) -> u32 {
-        self.width
-    }
-
-    /// Return the number of slice of the stack
-    pub fn slice(&self) -> u32 {
-        self.slice
-    }
-
-    /// Return the vector of the raw data
-    pub fn buffer(&self) -> &Vec<u8> {
-        &self.buffer
-    }
-
-    /// Return the type of the image
-    pub fn fi(&self) -> &str {
-        &self.fi
-    }
-
-    /// Return the length of the vector of raw data
-    pub fn len(&self) -> u32 {
-        self.buffer.len() as u32
-    }
-
-    /// Modify the value of a pixel (utilisable que pour une image 8bit)
-    ///
-    /// # arguments
-    ///
-    /// * `index` - The index in the vector of the value to modify
-    /// * `val` - The new value
-    ///
-    pub fn modifyPixel(&mut self, index: usize, val: u8){
-        let newvec = &mut self.buffer().clone();
-        newvec[index] = val;
-        self.buffer = newvec.to_vec();
-    }
-}
-
 /// Restructure to separate the different slices
     ///
     /// # arguments
@@ -88,7 +33,7 @@ impl ImageReader{
     /// * `data` - The vector of raw data
     /// * `nb_slice` - The number of images in the stack
     ///
-pub fn cut_by_slices(data:Vec<u8>, nb_slice:u32) ->Vec<Vec<u8>>
+pub fn separate_slices(data:Vec<u8>, nb_slice:u32) ->Vec<Vec<u8>>
 {
     let mut nb_pix_per_slice = data.len()/ nb_slice as usize;
     let mut newbuffer:Vec<Vec<u8>> = vec![];
@@ -103,65 +48,8 @@ pub fn cut_by_slices(data:Vec<u8>, nb_slice:u32) ->Vec<Vec<u8>>
         }
         newbuffer.push(temp);
     }
-    //file.modifyBufferType(newbuffer);
     return newbuffer;
 }
-
-/*
-/// Modify the value of a pixel (utilisable que pour une image 8bit)
-    ///
-    /// # arguments
-    ///
-    /// * `index` - The index in the vector of the value to modify
-    /// * `val` - The new value
-    ///
-fn cut_by_pixels_16(file:&ImageReader, image:Vec<Vec<u8>>) -> Vec<Vec<(u8,u8)>>
-{
-    let mut nb_pix_per_slice = file.len()/ file.slice();
-    let mut buffer:Vec<Vec<(u8,u8)>> = vec![];
-    for i in 0..file.slice()
-    {
-        let mut temp:Vec<(u8, u8)> = vec![];
-        for j in (0..nb_pix_per_slice).step_by(2)
-        {
-            let iu = i as usize;
-            let ju = j as usize;
-            let mut tup = (image[iu][ju], image[iu][ju+1]);
-            temp.push(tup);
-        }
-        buffer.push(temp);
-    }
-    return buffer;
-}
-
-/// Modify the value of a pixel (utilisable que pour une image 8bit)
-    ///
-    /// # arguments
-    ///
-    /// * `index` - The index in the vector of the value to modify
-    /// * `val` - The new value
-    ///
-fn cut_by_pixels_32(file:&ImageReader, image:Vec<Vec<u8>>) -> Vec<Vec<(u8,u8, u8, u8)>>
-{
-    let mut nb_pix_per_slice = file.len()/ file.slice();
-    let mut buffer:Vec<Vec<(u8,u8, u8, u8)>> = vec![];
-    for i in 0..file.slice()
-    {
-        let mut temp:Vec<(u8, u8, u8, u8)> = vec![];
-        for j in (0..nb_pix_per_slice).step_by(4)
-        {
-            let iu = i as usize;
-            let ju = j as usize;
-            let mut tup = (image[iu][ju], image[iu][ju+1], image[iu][ju+2], image[iu][ju+3]);
-            temp.push(tup);
-        }
-        buffer.push(temp);
-    }
-    return buffer;
-}
-
-*/
-
 
 /// Restructure the vector into a vector of tuple (u8,u8,u8)
     ///
@@ -203,7 +91,7 @@ fn slice_rgb(nb_slice:u32, image:Vec<Vec<u8>>) -> Vec<Vec<(u8,u8, u8)>>
     ///
 pub fn read_byte_stack(height:u32,width:u32,slice:u32,filename:&String) -> ByteStack{
   let buffer = get_file_as_byte_vec(filename);
-  let data = cut_by_slices(buffer,slice);
+  let data = separate_slices(buffer,slice);
 
   let mut stack = ByteStack::create_byte_stack(height,width,slice);
 
@@ -227,7 +115,7 @@ pub fn read_byte_stack(height:u32,width:u32,slice:u32,filename:&String) -> ByteS
     ///
 pub fn read_stack_RGB(height:u32,width:u32,slice:u32,filename:&String) -> ColorStack{
   let buffer = get_file_as_byte_vec(filename);
-  let data = cut_by_slices(buffer,slice);
+  let data = separate_slices(buffer,slice);
   let data_cut = slice_rgb(slice,data);
 
   let mut stack = ColorStack::create_color_stack(height,width,slice);
@@ -266,6 +154,7 @@ pub fn save_byte_stack(stack:ByteStack, filename:&String){
 
 }
 
+
 /// Save the data of an image stack of RGB into raw file
     ///
     /// # arguments
@@ -273,7 +162,7 @@ pub fn save_byte_stack(stack:ByteStack, filename:&String){
     /// * `stack` - The ByteStack containing the data
     /// * `filename` - Name of the created file
     ///
-    pub fn save_color_stack(stack:ByteStack, filename:&String){
+    pub fn save_color_stack(stack:ColorStack, filename:&String){
         let mut raw_data:Vec<u8> = vec![];
       
         let slices = stack.get_data_stack();
@@ -291,10 +180,3 @@ pub fn save_byte_stack(stack:ByteStack, filename:&String){
         save_raw_file(filename, raw_data);
       
       }
-
-// TODO
-/*
-    Tests unitaires
-    Préparer pour les 16bits et 32bits avec notre propre API
-
-*/

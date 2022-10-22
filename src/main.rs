@@ -21,14 +21,16 @@ fn main() {
 
     let args: Vec<String> = env::args().collect();
     let filename = &args[1].to_string();
-    let filename = &args[2].to_string();
+    let filename_2 = &args[2].to_string();
 
 
     let stack = read_byte_stack(2,2,2,&filename);
     let name = "name".to_string();
     save_byte_stack(stack,&name);
 
-    let stack_2 = read_color_stack(2,2,2,&filename);
+    
+    let stack_2 = read_stack_RGB(2,2,2,&filename_2);
     let name_2 = "name_2".to_string();
-    save_color_stack(stack,&name);
+    save_color_stack(stack_2,&name_2);
+    
 }
