@@ -49,7 +49,7 @@ pub struct ColorSpace<T>  {
     nb_channels : u8,
     ///The bits per color of the ColorSpace
     bits_per_color : u8,
-    ///The ?
+    ///The color depth
     space : Space,
     ///The minimum value of type T
     min : T,
