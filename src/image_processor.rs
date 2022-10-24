@@ -18,6 +18,58 @@
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
  
  
+use crate::pixel::PixelType;
+use crate::color_space::ColorSpace;
+
+///
+/// ImageProcessor
+///
+pub struct ImageProcessor<T: PixelType, C: ColorSpace> {
+    pub width: u32,
+    pub height: u32,
+    pub depth: u32,
+    pub data: Vec<T>,
+    pub cs: C, // metadata: MetaData
+}
+
+impl<T: PixelType, C: ColorSpace> ImageProcessor<T, C> {
+    // Constructor
+    pub fn new(w: u32, h: u32, pixels: Vec<T>, cs: C) -> Self {
+        ImageProcessor {
+            width: w,
+            height: h,
+            depth: 1,
+            data: pixels,
+            cs: cs,
+        }
+    }
+    pub fn with_pixels(w: u32, h: u32, pixels: Vec<T>) -> Self {
+        ImageProcessor {
+            width: w,
+            height: h,
+            depth: 1,
+            data: pixels,
+            cs: C::new(),
+        }
+    }
+    // Accessors
+    pub fn get_width(&self) -> u32 {
+        self.width
+    }
+    pub fn get_height(&self) -> u32 {
+        self.height
+    }
+    pub fn data(&self) -> &Vec<T> {
+        &self.data
+    }
+    pub fn get_size(&self) -> usize {
+        (self.width * self.height) as usize
+    }
+}
+
+ 
+/*
+ 
 use crate::color_space::ColorSpace;
 use crate::image_traits::Access;
 use std::cell::RefCell;
@@ -122,7 +174,9 @@ impl<T> ImageProcessor<T> where T: Copy {
     } 
       
 }
+*/
 
+/*
 #[cfg(test)]
 mod test{
     use crate::image_processor::ImageProcessor;
@@ -262,7 +316,7 @@ mod test{
 
 
 
-/*
+
   pub fn with_pixels(w: u32, h: u32, px: Vec<T>, cm: C) -> Self {};
   
 

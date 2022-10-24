@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 #![allow(unused)]
+/*
 
 mod image_processor;
 mod color_space;
@@ -76,4 +77,9 @@ fn main() {
     println!("rgb {:?}",pixel);
     println!("r {}, g {} et b {}",pixel.0,pixel.1,pixel.2);
 
+}
+*/
+
+fn main() {
+  println!("Hello rim!!");
 }

@@ -1,10 +1,17 @@
 pub mod io;
+pub mod pixel;
 pub mod color_space;
-
+pub mod grayscale;
 pub mod image_processor;
-pub mod image_stack;
+pub mod gray_processor;
+
+// ImageProcessor compatible with ImageJ
+
+pub mod byte_processor;
+pub mod float_processor;
+// pub mod image_stack;
 pub mod image_traits;
-pub mod stats;
+// pub mod stats;
 pub mod operator;
 
 use std::error::Error;

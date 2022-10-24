@@ -22,11 +22,13 @@
 /// Pixel
 ///
 
-trait PixelType {
+
+pub trait PixelType {
     type COMPONENT;
     fn zero() -> Self;
     fn to_f32(&self) -> f32;
-    fn to_t(&self) -> Self;
+    fn to_value(&self) -> Self;
+    fn clamp_pixel(v: f32) -> Self;
 }
 
 // u8
@@ -38,9 +40,41 @@ impl PixelType for u8 {
     fn to_f32(&self) -> f32 {
         *self as f32
     }
-    fn to_t(&self) -> u8 {
+    fn to_value(&self) -> u8 {
         *self
+    }
+    fn clamp_pixel(v: f32) -> u8 {
+        if v < u8::min_value() as f32 {
+            u8::min_value()
+        } else if v > u8::max_value() as f32 {
+            u8::max_value()
+        } else {
+            v as u8
+        }
     }
 }
 
-// TODO u16,u32,f32,f64
+// TODO u16,u32
+
+
+// f32
+impl PixelType for f32 {
+    type COMPONENT = f32;
+    fn zero() -> f32 {
+        0.0
+    }
+    fn to_f32(&self) -> f32 {
+        *self
+    }
+    fn to_value(&self) -> f32 {
+        *self
+    }
+    fn clamp_pixel(v: f32) -> f32 {
+        // No clamping is done, TODO?
+        v
+    }
+}
+
+
+// TODO f64
+

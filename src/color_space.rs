@@ -1,6 +1,6 @@
 //
 //  RIM - Rust Image
-//  Copyright (&self,C) 2022  Jean-Christophe Taveau, Nicolas Maurice, Bluwen Guidoux.
+//  Copyright (&self,C) 2022  Jean-Christophe Taveau.
 //
 //  This file is part of RIM
 //
@@ -17,6 +17,32 @@
 //  You should have received a copy of the GNU General Public License
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
 
+/// Authors: , Nicolas Maurice, Bluwen Guidoux.
+
+use crate::pixel::PixelType;
+
+//
+/// ColorSpace
+///
+pub trait ColorSpace {
+    fn new() -> Self;
+    // Accessors
+    fn channels(&self) -> u8;
+    fn stride(&self) -> u32;
+    fn pack(&self) -> bool;
+    fn channel_names(&self) -> Vec<&str>;
+}
+
+pub struct Space<T: PixelType> {
+    pub component: T,
+    pub channels: u8,
+    pub stride: u32,
+    pub pack: bool,
+}
+
+
+
+/*
 #![allow(unused)]
 #![allow(non_snake_case)]
 
@@ -273,7 +299,9 @@ mod test{
     }
     
 }
-/*
+
+================================================
+
 Old Code
 enum Space {
     Gray, // Grayscale

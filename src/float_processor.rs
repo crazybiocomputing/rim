@@ -1,7 +1,32 @@
+//
+//  RIM - Rust Image
+//  Copyright (C) 2022  Jean-Christophe Taveau.
+//
+//  This file is part of RIM
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
+
+
+use crate::color_space::ColorSpace;
+use crate::grayscale::Gray;
+use crate::image_processor::ImageProcessor;
+use crate::gray_processor::*;
 
 // Alias 
 type FloatProcessor = ImageProcessor<f32,Gray<f32>>;
 
+/*
 // ... or hard-coded class from trait...
 struct FloatProcessor {
     /// Field Summary
@@ -46,7 +71,7 @@ struct FloatProcessor {
     protected f64 histogram_Min  
     protected i32 histogram_Size  
     protected java.awt.image.Buffered_Image image  
-    protected java.awt.Image img  
+    protected java.awt.Image ip  
     protected bool i32erpolate  
     protected i32 i32erpolation_Method  
     protected bool inversion_Tested  
@@ -155,3 +180,134 @@ impl Operator for FloatProcessor {
     };
 }
 
+*/
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    use crate::image_processor::*;
+    use crate::image_traits::Access;
+    use crate::operator::Operator;
+
+    
+    #[test]
+    fn get_pixel_at_xy() {
+        let ip = FloatProcessor::new(3,3,vec![0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9],Gray::<f32>::new() );
+        let px = ip.get_pixel_at(1,1).unwrap();
+        assert_eq!(px, 0.5);
+    }
+    
+    #[test]
+    fn get_pixel_rgb_from_index() {
+        let ip = FloatProcessor::new(3,3,vec![0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9],Gray::<f32>::new() );
+        let px = ip.get_pixel(7).unwrap();
+        assert_eq!(px, 0.7);
+    }
+
+    
+    #[test]
+    fn float_processor_add(){
+        let mut ip = FloatProcessor::new(3,3,vec![0.0;9],Gray::<f32>::new() );
+        ip.add(4.5);
+        assert_eq!(ip.get(3),4.5);
+    }
+
+   
+    #[test]
+    fn float_processor_substract(){
+        let mut ip = FloatProcessor::new(3,3,vec![0.0;9],Gray::<f32>::new() );
+        ip.add(20.0);
+        ip.subtract(4.0);
+        assert_eq!(ip.get(3),16.0);
+    }
+
+
+    #[test]
+    fn float_processor_multiply(){
+        let mut ip = FloatProcessor::new(3,3,vec![0.0;9],Gray::<f32>::new() );
+        ip.add(4.0);
+        ip.multiply(3.0);
+        assert_eq!(ip.get(3),12.0);
+    }
+
+   
+    #[test]
+    fn float_processor_divide(){
+        let mut ip = FloatProcessor::new(3,3,vec![0.0;9],Gray::<f32>::new() );
+        ip.add(20.0);
+        ip.divide(5.0);
+        assert_eq!(ip.get(3),4.0);
+    }
+
+  
+    #[test]
+    fn float_processor_floor(){
+        let mut ip = FloatProcessor::new(3,3,vec![0.54321;9],Gray::<f32>::new() );
+        ip.floor(4.0);
+        assert_eq!(ip.get(3),4.0);
+    }
+
+
+    #[test]
+    fn float_processor_ceil(){
+        let mut ip = FloatProcessor::new(3,3,vec![0.54321;9],Gray::<f32>::new() );
+        ip.add(20.0);
+        ip.ceil(4.0);
+        assert_eq!(ip.get(3),4.0);
+    }
+
+    #[test]
+    #[ignore] //Aléatoire, échoue parfois, réussi parfois
+    fn float_processor_noise(){
+        let mut ip = FloatProcessor::new(3,3,vec![0.54321;9],Gray::<f32>::new() );
+        ip.noise(2.0);
+        assert_ne!(ip.get(3),0.0);
+    }
+
+    #[test]
+    fn float_processor_abs(){
+        let mut ip = FloatProcessor::new(3,3,vec![0.54321;9],Gray::<f32>::new() );
+        ip.add(100.0);
+        ip.abs();
+        assert_eq!(ip.get(3),-100.0);
+    }
+
+    #[test]
+    fn float_processor_exp(){
+        let mut ip = FloatProcessor::new(3,3,vec![0.54321;9],Gray::<f32>::new() );
+        ip.add(3.0);
+        ip.exp();
+        assert_eq!(ip.get(3),20.085537);
+    }
+
+    #[test]
+    fn float_processor_sqrt(){
+        let mut ip = FloatProcessor::new(3,3,vec![0.54321;9],Gray::<f32>::new() );
+        ip.add(9.0);
+        ip.sqrt();
+        assert_eq!(ip.get(3),3.0);
+    }
+
+    #[test]
+    fn float_processor_ln(){
+        let mut ip = FloatProcessor::new(3,3,vec![0.54321;9],Gray::<f32>::new() );
+        ip.add(29.0);
+        ip.ln();
+        assert_eq!(ip.get(3),3.3672957);
+    }
+
+    #[test]
+    fn float_processor_log(){
+        let mut ip = FloatProcessor::new(3,3,vec![0.54321;9],Gray::<f32>::new() );
+        ip.add(29.0);
+        ip.log();
+        assert_eq!(ip.get(3),1.4623979);
+    }
+
+
+    //gamma
+
+    
+}
