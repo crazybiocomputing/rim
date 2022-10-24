@@ -1,6 +1,6 @@
 //
 //  RIM - Rust IMage
-//  Copyright (&self,C) 2022  Jean-Christophe Taveau.
+//  Copyright (&self,C) 2022  Jean-Christophe Taveau, Nicolas Maurice, Bluwen Guidoux.
 //
 //  This file is part of RIM
 //
@@ -18,49 +18,251 @@
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
  
  
+use crate::color_space::ColorSpace;
+use crate::image_traits::Access;
+use std::cell::RefCell;
+use std::cell::RefMut;
 
-
-/// ImageProcessor
-/// Generic Struct for dedicated Processors:
+// ImageProcessor
+// Generic Struct for dedicated Processors:
+// Byte_Processor, Short_Processor, Float_Processor, Color_Processor, Image_Plus, Image_Stack
+#[derive(Clone)]
+#[derive(PartialEq)]
+#[derive(Debug)]
+/// A generic Struct for dedicated Processors:
 /// Byte_Processor, Short_Processor, Float_Processor, Color_Processor, Image_Plus, Image_Stack
-
-struct ImageProcessor<T,C> {
+pub struct ImageProcessor<T>{
+    /// The width of the processor in pixel
     width: u32,
+    /// The height of the processor in pixel
     height: u32,
-    data: Vec<T>,
+    /// The 
+    data: RefCell<Vec<T>>,
     // meta: MetaData, // Contains all the file info + lut : [u8; 256 * 3], etc.
-    cs: C
+    cs : ColorSpace<T>
 }
 
-impl<T,C> ImageProcessor<T,C> {
-    // Constructors -TODO
-    /// Returns a new, blank processor with the specified width and height.
-    // fn create_processor​(&self, width: i32, height: i32) -> Self {}
 
-   // Accessors
-    fn get_width(&self) -> u32 {
-      self.width
+pub type ByteProcessor = ImageProcessor<u8>;
+pub type FloatProcessor = ImageProcessor<f32>;
+pub type ColorProcessor = ImageProcessor<(u8,u8,u8)>;
+
+
+impl<T> ImageProcessor<T> where T: Copy {
+    //// Constructeur générique ////
+    /// creates an image processor of dimentions width x height, containing an array and a color space of type T
+    pub fn create_processor(width: u32, height: u32, data : RefCell<Vec<T>>, cs : ColorSpace<T>) -> ImageProcessor<T> {
+        return ImageProcessor{
+            width : width,
+            height : height,
+            data : data,
+            cs : cs,
+        }
     }
-    fn get_height(&self) -> u32 {
-      self.height
+
+    //// Constructeurs spécialisés ////
+    /// creates a byte processor of dimentions width x height
+    pub fn create_byte_processor(width: u32, height: u32) -> ByteProcessor {
+        let cs : ColorSpace<u8> = ColorSpace::<u8>::Gray8();
+        let data = RefCell::new(vec![0 as u8; (width*height) as usize]);
+        return ImageProcessor::<u8>::create_processor(width, height, data, cs )
     }
-    fn data(&self) -> &Vec<T> {
-      &self.data
-    }   
+    /// creates a float processor of dimentions width x height
+    pub fn create_float_processor(width: u32, height: u32) -> FloatProcessor {
+        let cs : ColorSpace<f32> = ColorSpace::<f32>::Grayf32();
+        let data = RefCell::new(vec![0 as f32; (width*height) as usize]);
+        return ImageProcessor::<f32>::create_processor(width, height, data, cs )
+    }
+    /// creates a color processor of dimentions width x height
+    pub fn create_color_processor(width: u32, height: u32) -> ColorProcessor {
+        let cs : ColorSpace<(u8,u8,u8)> = ColorSpace::<(u8,u8,u8)>::Rgb24();
+        let data = RefCell::new(vec![(0 as u8,0 as u8,0 as u8) ; (width*height) as usize]);
+        return ImageProcessor::<(u8,u8,u8)>::create_processor(width, height, data, cs )
+    }
+
+
+    //// Affichage ////
+    /// Shows some basic information about the image processor
+    pub fn debug(&self){
+        println!("ImageProcessor : Dimensions : {}x{} px, Bit depth : {}, data length : {}", self.get_width(), self.get_height(), self.get_bit_depth(), self.get_data().len());
+    }
+    
+    //// Getters ////
+    /// returns the width of the processor
+    pub fn get_width(&self) -> u32 {
+        return self.width
+    }
+    /// returns the height of the processor
+    pub fn get_height(&self) -> u32 {
+        return self.height
+    }
+    /// returns the data of the processor
+    pub fn get_data(&self) -> RefMut<Vec<T>> {
+        return self.data.borrow_mut()
+    }  
+    
     /// Returns the bit depth, 8, 16, 24 (RGB) or 32.
-    fn get_bit_depth(&self) -> i32 {
-      cs.get_bit_depth()
+    pub fn get_bit_depth(&self) -> u8 {
+        return self.cs.get_bit_depth();
+    }
+    
+    /// Returns the number of color channels in the image (1 for grayscale)
+    pub fn get_nb_channels(&self) -> u8 {
+        return self.cs.get_nb_channels();
     }
 
-    /// Returns the number of color channels in the image.
-    /// Returns 1 for a grayscale image.
-    fn get_nchannels(&self) -> i32 {
-      cs.channels();
+    /// returns the mimimum possible value
+    pub fn get_min_possible(&self) -> T{
+        return self.cs.get_min()
+    }
+
+    /// returns the maximum possible value
+    pub fn get_max_possible(&self) -> T{
+        return self.cs.get_max()
+    } 
+      
 }
+
+#[cfg(test)]
+mod test{
+    use crate::image_processor::ImageProcessor;
+    use crate::image_processor::ByteProcessor;
+    use crate::image_processor::FloatProcessor;
+    use crate::color_space::ColorSpace;
+    use crate::image_processor::ColorProcessor;
+    use core::cell::RefCell;
+    use core::cell::Cell;
+
+    #[test]
+    fn test_create_byte_processor(){
+        let img = ByteProcessor{
+            width : 10,
+            height : 20,
+            data : RefCell::new(vec![0 as u8; (10*20) as usize]),
+            cs : ColorSpace::<u8>::Gray8(),
+        };
+        assert_eq!(ByteProcessor::create_byte_processor(10,20), img);
+    }
+
+    #[test]
+    fn test_create_float_processor(){
+        let img = FloatProcessor{
+            width : 10,
+            height : 20,
+            data : RefCell::new(vec![0 as f32; (10*20) as usize]),
+            cs : ColorSpace::<f32>::Grayf32(),
+        };
+        assert_eq!(FloatProcessor::create_float_processor(10,20), img);
+    }
+
+    #[test]
+    fn test_create_color_processor(){
+        let img = ColorProcessor{
+            width : 10,
+            height : 20,
+            data : RefCell::new(vec![(0 as u8,0 as u8,0 as u8); (10*20) as usize]),
+            cs : ColorSpace::<(u8,u8,u8)>::Rgb24(),
+        };
+        assert_eq!(ColorProcessor::create_color_processor(10,20), img);
+    }
+
+    #[test]
+    fn test_debug(){
+        let img = ColorProcessor{
+            width : 10,
+            height : 20,
+            data : RefCell::new(vec![(0 as u8,0 as u8,0 as u8); (10*20) as usize]),
+            cs : ColorSpace::<(u8,u8,u8)>::Rgb24(),
+        };
+        assert_eq!(img.debug(), println!("ImageProcessor : Dimensions : 10x20 px, Bit depth : 8, data length : 200)"));
+    }
+
+    #[test]
+    fn test_get_width(){
+        let img = ColorProcessor{
+            width : 10,
+            height : 20,
+            data : RefCell::new(vec![(0 as u8,0 as u8,0 as u8); (10*20) as usize]),
+            cs : ColorSpace::<(u8,u8,u8)>::Rgb24(),
+        };
+        assert_eq!(img.get_width(),10);
+    }
+
+    #[test]
+    fn test_get_height(){
+        let img = ColorProcessor{
+            width : 10,
+            height : 20,
+            data : RefCell::new(vec![(0 as u8,0 as u8,0 as u8); (10*20) as usize]),
+            cs : ColorSpace::<(u8,u8,u8)>::Rgb24(),
+        };
+        assert_eq!(img.get_height(),20);
+    }
+/*
+    #[test]
+    fn test_get_data(){
+        let img = ColorProcessor{
+            width : 10,
+            height : 20,
+            data : RefCell::new(vec![(0 as u8,0 as u8,0 as u8); (10*20) as usize]),
+            cs : ColorSpace::<(u8,u8,u8)>::Rgb24(),
+        };
+        let vec =RefCell::new(vec![(0 as u8,0 as u8,0 as u8); (10*20) as usize]);
+        assert_eq!(img.get_data(),vec);
+    }
+*/
+
+    #[test]
+    fn test_get_bit_depth(){
+        let img = ColorProcessor{
+            width : 10,
+            height : 20,
+            data : RefCell::new(vec![(0 as u8,0 as u8,0 as u8); (10*20) as usize]),
+            cs : ColorSpace::<(u8,u8,u8)>::Rgb24(),
+        };
+        assert_eq!(img.get_bit_depth(),24);
+    }
+
+
+    #[test]
+    fn test_get_nb_channels(){
+        let img = ColorProcessor{
+            width : 10,
+            height : 20,
+            data : RefCell::new(vec![(0 as u8,0 as u8,0 as u8); (10*20) as usize]),
+            cs : ColorSpace::<(u8,u8,u8)>::Rgb24(),
+        };
+        assert_eq!(img.get_nb_channels(),3);
+    }
+    
+    #[test]
+    fn test_get_min_possible(){
+        let img = ColorProcessor{
+            width : 10,
+            height : 20,
+            data : RefCell::new(vec![(0 as u8,0 as u8,0 as u8); (10*20) as usize]),
+            cs : ColorSpace::<(u8,u8,u8)>::Rgb24(),
+        };
+        assert_eq!(img.get_min_possible(),(0,0,0));
+    }
+
+    #[test]
+    fn test_get_max_possible(){
+        let img = ColorProcessor{
+            width : 10,
+            height : 20,
+            data : RefCell::new(vec![(0 as u8,0 as u8,0 as u8); (10*20) as usize]),
+            cs : ColorSpace::<(u8,u8,u8)>::Rgb24(),
+        };
+        assert_eq!(img.get_max_possible(),(255,255,255));
+    }
+
+}
+
+
 
 
 /*
-
   pub fn with_pixels(w: u32, h: u32, px: Vec<T>, cm: C) -> Self {};
   
 
@@ -268,7 +470,7 @@ impl<T,C> ImageProcessor<T,C> {
 
 
 }
-*/
+
 
 
 impl fmt::Display for ImageProcessor {
@@ -281,4 +483,5 @@ impl fmt::Display for ImageProcessor {
         write!(f, "ImageProcessor {}x{}x{}", self.width, self.height, self.depth)
     }
 }
+*/
 

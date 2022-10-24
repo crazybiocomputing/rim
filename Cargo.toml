@@ -5,3 +5,7 @@ edition = "2021"
 authors = ["me <me@gmail.com>"]
 
 [dependencies]
+rand = "0.4"
+histogram = "*"
+num = "0.4"
+num-traits = "0.2"
