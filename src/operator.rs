@@ -17,7 +17,6 @@
 //  You should have received a copy of the GNU General Public License
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /*
 use std::ops::Add;
 use rand::Rng;
@@ -31,14 +30,12 @@ use crate::image_stack::ImageStack;
 
 use crate::pixel::PixelType;
 
-
-pub trait Operator<T:PixelType> {
+pub trait Operator<T: PixelType> {
     type Output;
     fn macro_op(&mut self, f: fn(T, f32, f32, f32, u32, u32, f32, f32) -> T);
     ///
     /// Generic operation to modify a processor by a scalar value
     fn macro_scalar(&mut self, scalar: T, f: fn(T, f32) -> T);
-    
 
     /// Adds 'value' to each pixel in the image or ROI.
     fn add(&mut self, value: T);
@@ -63,13 +60,13 @@ pub trait Operator<T:PixelType> {
 
     /// Binary OR of each pixel in the image or ROI with 'value'.
     fn or(&mut self, value: T);
-    
+
     /// Binary exclusive OR of each pixel in the image or ROI with 'value'.
     fn xor(&mut self, value: T);
 
-    /// Adds pseudorandom, Gaussian ("normally") distributed values, 
+    /// Adds pseudorandom, Gaussian ("normally") distributed values,
     /// with mean 0.0 and the specified standard deviation, to this image or ROI.
-    fn noise(&mut self,standard_deviation: f64);
+    fn noise(&mut self, standard_deviation: f64);
 
     /// If this is a 32-bit or signed 16-bit image, performs an absolute value transform, otherwise does nothing.
     fn abs(&mut self);
@@ -88,7 +85,6 @@ pub trait Operator<T:PixelType> {
 
     /// Performs gamma correction of the image or ROI.
     fn gamma(&mut self, value: T);
-    
 
     // Private functions
     // Only for internal use
@@ -124,8 +120,6 @@ pub trait Operator<T:PixelType> {
         // TODO
         <T as PixelType>::clamp_pixel(v.to_f32() + scalar)
     }
-
-
 }
 
 /*
@@ -145,7 +139,7 @@ impl Operator<u8> for ImageProcessor<u8> {
             } else {
                 *i -= value;
             }
-            
+
         }
     }
     fn multiply(&mut self, value: T){
@@ -217,12 +211,12 @@ impl Operator<u8> for ImageProcessor<u8> {
     }
     fn ln(&mut self){
         for i in self.get_data().iter_mut() {
-            *i = (*i as f32).ln() as u8; 
+            *i = (*i as f32).ln() as u8;
         }
     }
     fn log(&mut self){
         for i in self.get_data().iter_mut() {
-            *i = (*i as f32).log(10.0) as u8; 
+            *i = (*i as f32).log(10.0) as u8;
         }
     }
     fn gamma(&mut self, value: f64){
@@ -284,7 +278,7 @@ impl Operator<f32> for ImageProcessor<f32> {
         !panic!("Cannot do bit operations on float processors !");
     }
 
-    
+
     fn noise(&mut self,standard_deviation: f64){
         let normal = Normal::new(0.0, standard_deviation);
         for i in self.get_data().iter_mut() {
@@ -520,6 +514,3 @@ impl Operator<f32> for ImageStack<f32>{
 }
 
 */
-
-
-

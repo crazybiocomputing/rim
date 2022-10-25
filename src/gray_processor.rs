@@ -1,6 +1,6 @@
 //
 //  RIM - Rust Image
-//  Copyright (&self,C) 2022  Jean-Christophe Taveau.
+//  Copyright (C) 2022  Jean-Christophe Taveau.
 //
 //  This file is part of RIM
 //
@@ -16,15 +16,14 @@
 //
 //  You should have received a copy of the GNU General Public License
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
- 
 
-use crate::pixel::PixelType;
 use crate::grayscale::Gray;
 use crate::image_processor::ImageProcessor;
 use crate::image_traits::Access;
 use crate::operator::Operator;
+use crate::pixel::PixelType;
 
-/// 
+///
 /// Gray-Level Image Processor
 ///
 
@@ -58,15 +57,15 @@ impl<T: PixelType + std::clone::Clone> Access<T> for ImageProcessor<T, Gray<T>> 
     fn set_pixel(&mut self, index: usize, v: T) {
         self.data[index] = v;
     }
-    
+
     // TODO must add check
     fn set_pixel_at(&mut self, x: u32, y: u32, v: T) {
         let w = self.get_width();
         self.data[(x + w * y) as usize] = v;
     }
-    
+
     /// Set 1 pixel at a specific index, without check
-    fn set(&mut self,index: usize, value: T) {
+    fn set(&mut self, index: usize, value: T) {
         self.data[index] = value;
     }
 
@@ -77,27 +76,26 @@ impl<T: PixelType + std::clone::Clone> Access<T> for ImageProcessor<T, Gray<T>> 
     }
 
     /// Get a row of pixel, starting from a specific x y position
-    fn get_row(&self,x: u32, y: u32) -> Vec<T> {
-      // TODO
-      let start = x + self.get_width() * y;
-      let end = start + (self.get_width() - start);
-      self.data[start as usize..end as usize].to_vec()
+    fn get_row(&self, x: u32, y: u32) -> Vec<T> {
+        // TODO
+        let start = x + self.get_width() * y;
+        let end = start + (self.get_width() - start);
+        self.data[start as usize..end as usize].to_vec()
     }
     /// Get a column of pixel, starting from a specific x y position
-    fn get_column(&self,x: u32, y: u32) -> Vec<T> {
-      // TODO
-      self.data()[0..2].to_vec()
+    fn get_column(&self, x: u32, y: u32) -> Vec<T> {
+        // TODO
+        self.data()[0..2].to_vec()
     }
 
-    /// Fill a row of pixel, starting from a specific x y position, with a vector of pixels. 
-    fn set_row(&mut self,x: u32, y: u32, data: Vec<T>) {
-      // TODO
+    /// Fill a row of pixel, starting from a specific x y position, with a vector of pixels.
+    fn set_row(&mut self, x: u32, y: u32, data: Vec<T>) {
+        // TODO
     }
-    /// Fill a column of pixel, starting from a specific x y position, with a vector of pixels. 
-    fn set_column(&mut self,x: u32, y: u32, data: Vec<T>) {
-      // TODO
+    /// Fill a column of pixel, starting from a specific x y position, with a vector of pixels.
+    fn set_column(&mut self, x: u32, y: u32, data: Vec<T>) {
+        // TODO
     }
-
 }
 
 //
@@ -121,7 +119,16 @@ impl<T: PixelType> Operator<T> for ImageProcessor<T, Gray<T>> {
                 let cy = (self.get_height() as f32 / 2.0).floor();
                 let d = ((x - cx) * (x - cx) + (y - cy) * (y - cy)).sqrt();
                 // Call f(..)
-                f(v.to_value(), x, y, z, self.get_width(), self.get_height(), a, d)
+                f(
+                    v.to_value(),
+                    x,
+                    y,
+                    z,
+                    self.get_width(),
+                    self.get_height(),
+                    a,
+                    d,
+                )
             })
             .collect();
     }
@@ -137,26 +144,44 @@ impl<T: PixelType> Operator<T> for ImageProcessor<T, Gray<T>> {
     }
 
     fn add(&mut self, scalar: T) {
-        self.macro_scalar(scalar, <ImageProcessor<T, Gray<T>> as Operator<T>>::add_func);
+        self.macro_scalar(
+            scalar,
+            <ImageProcessor<T, Gray<T>> as Operator<T>>::add_func,
+        );
     }
-    
+
     fn subtract(&mut self, scalar: T) {
-        self.macro_scalar(scalar, <ImageProcessor<T, Gray<T>> as Operator<T>>::sub_func);
+        self.macro_scalar(
+            scalar,
+            <ImageProcessor<T, Gray<T>> as Operator<T>>::sub_func,
+        );
     }
-    
+
     fn multiply(&mut self, scalar: T) {
-        self.macro_scalar(scalar, <ImageProcessor<T, Gray<T>> as Operator<T>>::mul_func);
+        self.macro_scalar(
+            scalar,
+            <ImageProcessor<T, Gray<T>> as Operator<T>>::mul_func,
+        );
     }
-    
+
     fn divide(&mut self, scalar: T) {
-        self.macro_scalar(scalar, <ImageProcessor<T, Gray<T>> as Operator<T>>::div_func);
+        self.macro_scalar(
+            scalar,
+            <ImageProcessor<T, Gray<T>> as Operator<T>>::div_func,
+        );
     }
-    
+
     fn ceil(&mut self, scalar: T) {
         self.data = self
             .data
             .iter()
-            .map(|v| if v.to_f32() > scalar.to_f32() {scalar.to_value()} else  {v.to_value()} )
+            .map(|v| {
+                if v.to_f32() > scalar.to_f32() {
+                    scalar.to_value()
+                } else {
+                    v.to_value()
+                }
+            })
             .collect();
     }
 
@@ -164,73 +189,76 @@ impl<T: PixelType> Operator<T> for ImageProcessor<T, Gray<T>> {
         self.data = self
             .data
             .iter()
-            .map(|v| if v.to_f32() < scalar.to_f32() {scalar.to_value()} else {v.to_value()} )
+            .map(|v| {
+                if v.to_f32() < scalar.to_f32() {
+                    scalar.to_value()
+                } else {
+                    v.to_value()
+                }
+            })
             .collect();
     }
 
-
     fn and(&mut self, scalar: T) {
-        self.macro_scalar(scalar, <ImageProcessor<T, Gray<T>> as Operator<T>>::and_func);
+        self.macro_scalar(
+            scalar,
+            <ImageProcessor<T, Gray<T>> as Operator<T>>::and_func,
+        );
     }
-
 
     fn or(&mut self, scalar: T) {
         self.macro_scalar(scalar, <ImageProcessor<T, Gray<T>> as Operator<T>>::or_func);
     }
-    
 
     fn xor(&mut self, scalar: T) {
-        self.macro_scalar(scalar, <ImageProcessor<T, Gray<T>> as Operator<T>>::xor_func);
+        self.macro_scalar(
+            scalar,
+            <ImageProcessor<T, Gray<T>> as Operator<T>>::xor_func,
+        );
     }
 
-
-    fn noise(&mut self,standard_deviation: f64) {
+    fn noise(&mut self, standard_deviation: f64) {
         // self.macro_scalar(scalar, <ImageProcessor<T, Gray<T>> as Operator<T>>::noise_func);
         // TODO
     }
-
 
     fn abs(&mut self) {
         self.data = self
             .data
             .iter()
-            .map(|v| <T as PixelType>::clamp_pixel(v.to_f32().abs()) )
+            .map(|v| <T as PixelType>::clamp_pixel(v.to_f32().abs()))
             .collect();
     }
 
-    
     fn exp(&mut self) {
         self.data = self
             .data
             .iter()
-            .map(|v| <T as PixelType>::clamp_pixel(v.to_f32().exp()) )
+            .map(|v| <T as PixelType>::clamp_pixel(v.to_f32().exp()))
             .collect();
     }
-
 
     fn sqrt(&mut self) {
         self.data = self
             .data
             .iter()
-            .map(|v| <T as PixelType>::clamp_pixel(v.to_f32().sqrt()) )
+            .map(|v| <T as PixelType>::clamp_pixel(v.to_f32().sqrt()))
             .collect();
     }
-
 
     fn ln(&mut self) {
         self.data = self
             .data
             .iter()
-            .map(|v| <T as PixelType>::clamp_pixel(v.to_f32().log(2.0)) )
+            .map(|v| <T as PixelType>::clamp_pixel(v.to_f32().log(2.0)))
             .collect();
     }
-
 
     fn log(&mut self) {
         self.data = self
             .data
             .iter()
-            .map(|v| <T as PixelType>::clamp_pixel(v.to_f32().log(10.0)) )
+            .map(|v| <T as PixelType>::clamp_pixel(v.to_f32().log(10.0)))
             .collect();
     }
 
@@ -238,6 +266,4 @@ impl<T: PixelType> Operator<T> for ImageProcessor<T, Gray<T>> {
     fn gamma(&mut self, scalar: T) {
         //self.macro_scalar(scalar, <ImageProcessor<T, Gray<T>> as Operator<T>>::gamma_func);
     }
-
 }
-

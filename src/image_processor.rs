@@ -16,10 +16,9 @@
 //
 //  You should have received a copy of the GNU General Public License
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
- 
- 
-use crate::pixel::PixelType;
+
 use crate::color_space::ColorSpace;
+use crate::pixel::PixelType;
 
 ///
 /// ImageProcessor
@@ -67,9 +66,8 @@ impl<T: PixelType, C: ColorSpace> ImageProcessor<T, C> {
     }
 }
 
- 
 /*
- 
+
 use crate::color_space::ColorSpace;
 use crate::image_traits::Access;
 use std::cell::RefCell;
@@ -88,7 +86,7 @@ pub struct ImageProcessor<T>{
     width: u32,
     /// The height of the processor in pixel
     height: u32,
-    /// The 
+    /// The
     data: RefCell<Vec<T>>,
     // meta: MetaData, // Contains all the file info + lut : [u8; 256 * 3], etc.
     cs : ColorSpace<T>
@@ -138,7 +136,7 @@ impl<T> ImageProcessor<T> where T: Copy {
     pub fn debug(&self){
         println!("ImageProcessor : Dimensions : {}x{} px, Bit depth : {}, data length : {}", self.get_width(), self.get_height(), self.get_bit_depth(), self.get_data().len());
     }
-    
+
     //// Getters ////
     /// returns the width of the processor
     pub fn get_width(&self) -> u32 {
@@ -151,13 +149,13 @@ impl<T> ImageProcessor<T> where T: Copy {
     /// returns the data of the processor
     pub fn get_data(&self) -> RefMut<Vec<T>> {
         return self.data.borrow_mut()
-    }  
-    
+    }
+
     /// Returns the bit depth, 8, 16, 24 (RGB) or 32.
     pub fn get_bit_depth(&self) -> u8 {
         return self.cs.get_bit_depth();
     }
-    
+
     /// Returns the number of color channels in the image (1 for grayscale)
     pub fn get_nb_channels(&self) -> u8 {
         return self.cs.get_nb_channels();
@@ -171,8 +169,8 @@ impl<T> ImageProcessor<T> where T: Copy {
     /// returns the maximum possible value
     pub fn get_max_possible(&self) -> T{
         return self.cs.get_max()
-    } 
-      
+    }
+
 }
 */
 
@@ -288,7 +286,7 @@ mod test{
         };
         assert_eq!(img.get_nb_channels(),3);
     }
-    
+
     #[test]
     fn test_get_min_possible(){
         let img = ColorProcessor{
@@ -318,14 +316,14 @@ mod test{
 
 
   pub fn with_pixels(w: u32, h: u32, px: Vec<T>, cm: C) -> Self {};
-  
+
 
     /// Transforms the image or ROI using a lookup table.
     fn apply_table​(&self,i32[] lut) {}
 
     /// Returns a shallow copy of this Image_Processor, where this image and the copy share pixel data.
     java.lang.Object clone(&self,) {}
-    
+
     /// Image_Processor convert_To_Byte​(&self,bool do_Scaling) {}
     /// Returns an 8-bit version of this image as a Byte_Processor.
     /// Byte_Processor convert_To_Byte_Processor(&self,) {}
@@ -371,8 +369,8 @@ mod test{
     java.awt.image.Index_Color_Model get_default_color_model(&self,) {}
 
     /// Returns the value of the pixel at index `index` as a float.
-    fn  get​(&self,i32 index) -> T {} 
-    
+    fn  get​(&self,i32 index) -> T {}
+
     /// Returns the value of the pixel at (&self,x,y) as a float.
     fn get_at(&self,i32 x, i32 y)  -> T {}
 
@@ -390,7 +388,7 @@ mod test{
     i32[][] get_i32_array(&self,) {}
 
 
-    /// LUT get_Lut(&self,)  
+    /// LUT get_Lut(&self,)
 
     /// Returns the LUT update mode, which can be RED_LUT, BLACK_AND_WHITE_LUT, OVER_UNDER_LUT or NO_LUT_UPDATE.
     /// Image_Processor get_Mask(&self,) {}
@@ -401,7 +399,7 @@ mod test{
     byte[] get_mask_array(&self,) {}
 
     /// Experimental
-    /// Overlay get_Overlay(&self,)  
+    /// Overlay get_Overlay(&self,)
 
     /// Returns the value of the pixel at (&self,x,y).
     fn i32 get_pixel​(&self,i32 x, i32 y) {}
@@ -422,7 +420,7 @@ mod test{
     /// Returns the value of the pixel at (&self,x,y).
     fn float get_pixel_value​(&self,i32 x, i32 y) {}
 
-    protected i32 get_progress_increment​(&self,i32 w, i32 h)  
+    protected i32 get_progress_increment​(&self,i32 w, i32 h)
 
     /// Returns the pixel values along the horizontal line starting at (&self,x,y).
     float[] get_row​(&self,i32 x, i32 y, float[] data, i32 length) {}
@@ -430,10 +428,10 @@ mod test{
     /// Returns the pixel values along the horizontal line starting at (&self,x,y).
     fn get_row​(&self,i32 x, i32 y, i32[] data, i32 length) {}
 
-    fn get_slice_number(&self,) -> i32 {} 
+    fn get_slice_number(&self,) -> i32 {}
 
 
-    /// Returns the value of the pixel at (&self,x,y), a calibrated value from 8-bit and 16-bit images, 
+    /// Returns the value of the pixel at (&self,x,y), a calibrated value from 8-bit and 16-bit images,
     /// an intensity value from RGB images and a f64 value from 32-bit images.
     pub fn get_value​(&self,i32 x, i32 y) -> f64 {}
 
@@ -466,7 +464,7 @@ mod test{
     /// Returns 'true' if this is a signed 16-bit image.
     bool is_signed16bit(&self,) {}
 
-   // protected java.lang.String mask_Size_Error​(&self,Image_Processor mask)  
+   // protected java.lang.String mask_Size_Error​(&self,Image_Processor mask)
 
 
     /// Restores the pixel data from the snapshot (&self,undo) buffer.
@@ -478,11 +476,11 @@ mod test{
     /// For short and float images, recalculates the min and max image values needed to correctly display the image.
     fn reset_Min_And_Max(&self,) {}
 
- 
+
 
     /// Sets the pixel at (&self,x,y) to the current fill/draw value.
     /// This is a faster version of put_Pixel(&self,) that does not clip out of range values and does not do bounds checking.
-    abstract fn set​(&self,i32 index, i32 value)  
+    abstract fn set​(&self,i32 index, i32 value)
 
     /// Sets the pixel at (&self,x,y) to the current fill/draw value.
     /// This is a faster version of put_Pixel(&self,) that does not clip out of range values and does not do bounds checking.
@@ -493,7 +491,7 @@ mod test{
 
 
 
-    fn set_lut​(&self,LUT lut)  
+    fn set_lut​(&self,LUT lut)
     fn set_lut_animation​(&self,bool lut_Animation) {}
     /// For 16 and 32 bit processors, set 'lut_Animation' true to have create_Image(&self,) use the cached 8-bit version of the image.
 
@@ -518,7 +516,7 @@ mod test{
     /// Returns a Float_Processor with the image or one color channel thereof.
     fn  to_float​(&self,i32 channel_Number, Float_Processor fp) -> FloatProcessor {}
 
- 
+
     /// This method is used by Composite_Image.update_Image(&self,) to create RGB images (&self,for display) of a multi-channel composite images.
     fn update_composite​(&self,i32[] rgb_Pixels, i32 mode) {}
 
@@ -538,4 +536,3 @@ impl fmt::Display for ImageProcessor {
     }
 }
 */
-

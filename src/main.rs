@@ -33,15 +33,15 @@ fn main() {
     img.add(1);
     println!("Pixel in position x=0, y=0 : {}", img.get_pixel_at(0,0));
     println!("Pixel in position x=1, y=1 : {}", img.get_pixel_at(1,1));
-    
+
     img.ceil(8);
     println!("Pixel in position x=0, y=0 : {}", img.get_pixel_at(0,0));
     println!("Pixel in position x=1, y=1 : {}", img.get_pixel_at(1,1));
-    
+
     img.floor(2);
     println!("Pixel in position x=0, y=0 : {}", img.get_pixel_at(0,0));
     println!("Pixel in position x=1, y=1 : {}", img.get_pixel_at(1,1));
-    
+
     img.multiply(2);
     println!("Pixel in position x=0, y=0 : {}", img.get_pixel_at(0,0));
     println!("Pixel in position x=1, y=1 : {}", img.get_pixel_at(1,1));
@@ -62,7 +62,7 @@ fn main() {
     let max=img2.get_max_value();
 
     let test = (0.0/4.0)+(0.0/4.0)+(255.0/4.0)+(130.0/4.0);
-    println!("{}",test);    
+    println!("{}",test);
 
     let bon :u32 = 4;
     let ban = bon as f32;
@@ -81,5 +81,5 @@ fn main() {
 */
 
 fn main() {
-  println!("Hello rim!!");
+    println!("Hello rim!!");
 }

@@ -17,10 +17,16 @@
 //  You should have received a copy of the GNU General Public License
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
  
- 
-pub trait Transform {
 
-    static f64 cubic​( x: f64) {}
+enum InterpolationMode {
+  Nearest,
+  Bilinear,
+  Bicubic
+}
+
+pub trait Transform<T: PixelType> {
+
+    static fn cubic​( x: f64) -> f64;
     
     /// Flips the image or ROI horizontally.
     fn flip_horizontal(&self);
@@ -33,16 +39,16 @@ pub trait Transform {
     fn f64 get_bicubic_interpolated_pixel​(f64 x0, f64 y0, Image_Processor ip2) {}
 
     /// Returns the value of the interpolate field.
-    fn bool get_interpolate();
+    fn  get_interpolate() -> bool;
 
-    /// Uses the current i32erpolation method (bilinear or bicubic) to find the pixel value at real coordinates (x,y).
-    fn f64 get_interpolated_pixel​(f64 x, f64 y);
+    /// Uses the current interpolation method (bilinear or bicubic) to find the pixel value at real coordinates (x,y).
+    fn  get_interpolated_pixel​(f64 x, f64 y) -> f64;
 
     /// Uses the current interpolation method to find the pixel value at real coordinates (x,y).
-    fn i32 get_Pixel_interpolated​(f64 x, f64 y) {}
+    fn get_Pixel_interpolated​(f64 x, f64 y) -> i32;
 
     /// Uses bilinear i32erpolation to find the pixel value at real coordinates (x,y).
-    fn f64 geti32erpolated_Value​(f64 x, f64 y);
+    fn get_interpolated_value​(f64 x, f64 y) -> f64;
 
     /// Returns the current i32erpolation method (NONE, BILINEAR or BICUBIC).
     fn i32 get_interpolation_method();
@@ -52,17 +58,17 @@ pub trait Transform {
     /// Returns a new Image_Processor containing a scaled copy of this image or ROI.
     /// Image_Processor resize​(i32 dst_Width, i32 dst_Height, bool use_Averging) {}
     /// Returns a new Image_Processor containing a scaled copy of this image or ROI.
-    fn resize​(i32 dst_Width, i32 dst_Height) -> Image_Processor;
+    fn resize​(i32 dst_width, i32 dst_height) -> ImageProcessor<T,C>;
 
     /// Use linear interpolation to resize images that have a width or height of one.
-    fn Image_Processor resize_linearly​(i32 width2, i32 height2);
+    fn resize_linearly​( width2: i32, height2: i32) -> ImageProcessor<T,C>;
 
     /// Rotates the image or selection 'angle' degrees clockwise.
     /// Image_Processor rotate_Left() {}
     /// Rotates the entire image 90 degrees counter-clockwise.
     /// Image_Processor rotate_Right() {}
     /// Rotates the entire image 90 degrees clockwise.
-    fn rotate​(&self,f64 angle);
+    fn rotate​(&self, angle: f64);
 
     /// Scales the image by the specified factors.
     ///n scale_And_Set_Threshold​(f64 lower, f64 upper, i32 lut_Update) {}
@@ -71,10 +77,7 @@ pub trait Transform {
     /// Assigns 'value' to each pixel in the image or ROI.
     fn scale​(&self,f64 x_Scale, f64 y_Scale);
 
-    fn set_interpolate​(bool interpolate);
-    /// This method has been replaced by seti32erpolation_Method().
-
-    fn set_interpolation_method​(i32 method);;
+    fn set_interpolation_method​( method: InterpolationMode);
     /// Use this method to set the i32erpolation method (NONE, BILINEAR or BICUBIC) used by scale(), resize() and rotate().
 
     static fn set_use_bicubic​(bool b);

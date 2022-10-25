@@ -1,6 +1,6 @@
 //
 //  RIM - Rust Image
-//  Copyright (&self,C) 2022  Jean-Christophe Taveau.
+//  Copyright (C) 2022  Jean-Christophe Taveau.
 //
 //  This file is part of RIM
 //
@@ -16,14 +16,22 @@
 //
 //  You should have received a copy of the GNU General Public License
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
+//
+//
+// Authors:  Nicolas Maurice, Bluwen Guidoux
 
 
-/// Authors:  Nicolas Maurice, Bluwen Guidoux
-
-use crate::pixel::PixelType;
 use crate::color_space::*;
+use crate::pixel::PixelType;
 
 pub type Gray<T> = Space<T>;
+
+/// Convenient aliases
+pub type Gray8 = Gray<u8>;
+pub type Gray16 = Gray<u16>;
+pub type Gray32 = Gray<f32>;
+pub type Grayu32 = Gray<u32>;
+pub type Grayf64 = Gray<f64>;
 
 impl<T: PixelType> ColorSpace for Gray<T> {
     fn new() -> Self {
