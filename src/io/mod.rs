@@ -1,6 +1,5 @@
 pub mod file_info;
 
-
 ///
 /// Example of tabular data in STAR format
 ///

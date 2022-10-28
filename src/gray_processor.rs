@@ -267,3 +267,60 @@ impl<T: PixelType> Operator<T> for ImageProcessor<T, Gray<T>> {
         //self.macro_scalar(scalar, <ImageProcessor<T, Gray<T>> as Operator<T>>::gamma_func);
     }
 }
+
+
+/*
+TODO
+impl RawStats<T> for GrayProcessor<T> {
+
+    /// Returns the histogram as an array of doubles.
+    fn histogram(&self) -> &Vec<f64> {
+        double[] hist = vec![0.0f64;histogram.length];
+        for (int i=0; i < hist.length; i++) {
+            if (longHistogram!=null)
+                hist[i] = longHistogram[i];
+            else
+                hist[i] = histogram[i];
+        }
+        return hist;
+    }
+
+    fn get_raw_statistics(&self,min_threshold : i32, max_threshold: i32) {
+        let mut count : u32 = 0;
+        let mut value: f64 = 0.0;
+        let mut sum : f64 = 0.0;
+        let mut sum2 : f64 = 0.0;
+        
+        for i in min_threshold..max_threshold {
+            count = self.metadata.get_histogram()[i];
+            long_pixel_count += count;
+            sum += i*count;
+            value = i;
+            sum2 += (value*value) * count;
+            if (count > max_count) {
+                max_count = count;
+                mode = i;
+            }
+        }
+        pixel_count = long_pixel_count;
+        area = long_pixel_count * pw * ph;
+        mean = sum/long_pixel_count;
+        umean = mean;
+        dmode = mode;
+        calculate_std_dev(long_pixel_count, sum, sum2);
+        hist_min = 0.0;
+        hist_max = 255.0;
+    }
+    
+    fn calculate_std_dev(&self,n: f64, sum: f64, sum2: f64) {
+        if (n>0.0) {
+            stdDev = (n*sum2-sum*sum)/n;
+            if (stdDev>0.0)
+                stdDev = stdDev/(n-1.0)).sqrt();
+            else
+                stdDev = 0.0;
+        } else
+            stdDev = 0.0;
+    }
+}
+*/

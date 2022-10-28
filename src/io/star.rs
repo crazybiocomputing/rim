@@ -17,8 +17,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
 //
-// Authors: 
-
+// Authors:
 
 use std::fmt;
 
@@ -202,7 +201,6 @@ impl Table {
     }
 }
 
-
 ///
 /// This class allows the storage of one row in tabular data.
 ///
@@ -224,7 +222,6 @@ impl Row {
         self.cells.push(item);
     }
 }
-
 
 ///
 /// The value stored in an Attribute may be a Number (f64) or a Text (String depending of the context)

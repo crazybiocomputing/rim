@@ -18,6 +18,7 @@
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
 
 use crate::color_space::ColorSpace;
+use crate::meta_data::MetaData;
 use crate::pixel::PixelType;
 
 ///
@@ -28,7 +29,8 @@ pub struct ImageProcessor<T: PixelType, C: ColorSpace> {
     pub height: u32,
     pub depth: u32,
     pub data: Vec<T>,
-    pub cs: C, // metadata: MetaData
+    pub cs: C,
+    pub metadata: MetaData,
 }
 
 impl<T: PixelType, C: ColorSpace> ImageProcessor<T, C> {
@@ -40,6 +42,7 @@ impl<T: PixelType, C: ColorSpace> ImageProcessor<T, C> {
             depth: 1,
             data: pixels,
             cs: cs,
+            metadata: MetaData::new(w, h),
         }
     }
     pub fn with_pixels(w: u32, h: u32, pixels: Vec<T>) -> Self {
@@ -49,6 +52,7 @@ impl<T: PixelType, C: ColorSpace> ImageProcessor<T, C> {
             depth: 1,
             data: pixels,
             cs: C::new(),
+            metadata: MetaData::new(w, h),
         }
     }
     // Accessors

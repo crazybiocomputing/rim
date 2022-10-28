@@ -20,7 +20,6 @@
 //
 // Authors:  Nicolas Maurice, Bluwen Guidoux
 
-
 use crate::color_space::*;
 use crate::pixel::PixelType;
 

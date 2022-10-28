@@ -41,7 +41,6 @@ pub struct ImageStack<T: PixelType, C: ColorSpace> {
     pub cs: C, // metadata: MetaData
 }
 
-
 impl<T: PixelType + std::clone::Clone, C: ColorSpace> ImageStack<T, C> {
     // Constructors
     pub fn new(w: u32, h: u32, pixel_stack: Vec<Vec<T>>, cs: C) -> Self {
@@ -81,35 +80,47 @@ impl<T: PixelType + std::clone::Clone, C: ColorSpace> ImageStack<T, C> {
     }
 
     ///
-    /// Returns the label of the specified slice, where 1<=n<=nslices. 
-    /// Returns null if the slice does not have a label or 'n'; is out of range. 
+    /// Returns the label of the specified slice, where 1<=n<=nslices.
+    ///
+    /// Returns an Error "Out of range" if the slice does not have a label or 'n'; is out of range.
+    ///
     /// For DICOM and FITS stacks, labels may contain header information.
     ///
-    pub fn get_slice_label(&self,n: usize) -> Result<String, &str> {
-      match n {
-        x if x > 0 && x <= self.n_slices() as usize => Ok(self.labels[n-1].clone()),
-        _ => Err("Out of range")
-      }
+    pub fn get_slice_label(&self, n: usize) -> Result<String, &str> {
+        match n {
+            x if x > 0 && x <= self.n_slices() as usize => Ok(self.labels[n - 1].clone()),
+            _ => Err("Out of range"),
+        }
     }
 
-    /// 
+    ///
     /// Sets the label of the specified slice, where 1<=n<=nslices.
     ///
     pub fn set_slice_label(&mut self, label: String, n: usize) {
-        // TODO 
+        // TODO
         // Check that the slice exists in data and n is correct.
-        self.labels[n-1] = label;
+        self.labels[n - 1] = label;
     }
-
 
     // Manipulating slices
 
+    ///
+    /// Add a slice at the end of the ImageStack
+    ///
+    /// # Arguments
+    ///
+    /// * `slice_label` - A _String_ label describing the slice.
+    /// * `ip` - An _ImageProcessor_.
+    ///
     pub fn add_slice(&mut self, slice_label: String, ip: &ImageProcessor<T, C>) {
         self.data.push(ip.data.to_vec());
         self.labels.push(slice_label);
     }
 }
 
+///
+/// Macro to create a stack
+///
 macro_rules! stack_fill_with {
     // This macro takes expressions of type `expr`
     ($v:expr, $pixel:ty, $w:expr, $h:expr, $d:expr) => {
@@ -392,9 +403,8 @@ mod test {
     #[test]
     fn slice_set_get_label() {
         let mut stack = stack_fill_with!(45, u8, 2, 3, 4);
-        stack.set_slice_label(String::from("New Label"),3);
-       assert_eq!(stack.get_slice_label(3).unwrap(), "New Label".to_string());
-
+        stack.set_slice_label(String::from("New Label"), 3);
+        assert_eq!(stack.get_slice_label(3).unwrap(), "New Label".to_string());
     }
 
     #[test]
