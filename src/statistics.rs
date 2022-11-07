@@ -19,6 +19,9 @@
 //
 // Authors:  Nicolas Maurice, Bluwen Guidoux.
 
+#![allow(non_camel_case_types)]
+#![allow(unused)]
+
 use crate::pixel::PixelType;
 
 pub trait Statistics<T: PixelType> {

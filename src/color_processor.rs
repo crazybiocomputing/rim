@@ -17,10 +17,10 @@
 //  You should have received a copy of the GNU General Public License
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
  
- 
- // Aliases compatible with ImageJ
+#![allow(non_camel_case_types)]
+#![allow(unused)]
 
-
+// Aliases compatible with ImageJ
 type ColorProcessor = IP<u8,Rgb24>;
 
 impl Access<u8> for  IP<u8,Rgb24> {

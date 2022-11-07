@@ -17,6 +17,9 @@
 //  You should have received a copy of the GNU General Public License
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
 
+#![allow(non_camel_case_types)]
+#![allow(unused)]
+
 pub struct Roi {
     x: u32,
     y: u32,

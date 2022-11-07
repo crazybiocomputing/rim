@@ -51,3 +51,5 @@ pub mod file_info;
 pub mod star;
 pub mod star_parser;
 pub mod star_reader;
+pub mod image_reader;
+pub mod raw_reader;

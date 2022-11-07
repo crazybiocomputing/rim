@@ -1,3 +1,6 @@
+
+
+
 #![allow(non_snake_case)]
 #![allow(unused)]
 /*
@@ -81,5 +84,19 @@ fn main() {
 */
 
 fn main() {
-    println!("Hello rim!!");
+    use rim::io::image_reader::*;
+    use rim::image_processor::*;
+    use rim::color_space::*;
+    use rim::grayscale::Gray8;
+    use rim::statistics::Statistics;
+    
+    // Byte Processor
+    let filename = "blobs.raw".to_string();
+    let mut stack = read_byte_stack(254,256,1,&filename);
+    let mut image = ImageProcessor::new(256, 254, stack.data()[0].clone(), Gray8::new());
+
+    image.update_stats();
+    println!("{:?}",image.histogram());
+
+    // Histogramme théoriquement implémenté pour Float, pas eu le temps de tester
 }

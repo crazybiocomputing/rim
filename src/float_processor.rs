@@ -17,13 +17,75 @@
 //  You should have received a copy of the GNU General Public License
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
 
+#![allow(non_camel_case_types)]
+#![allow(unused)]
+
 use crate::color_space::ColorSpace;
 use crate::gray_processor::*;
 use crate::grayscale::Gray;
 use crate::image_processor::ImageProcessor;
+use crate::image_traits::Access;
+use crate::statistics::Statistics;
 
 // Alias
 type FloatProcessor = ImageProcessor<f32, Gray<f32>>;
+
+
+impl Statistics<f32> for FloatProcessor {
+    type Output = u16;
+    type Output_f32 = f32;
+
+    fn update_stats(&mut self) {
+        if self.metadata.stats.is_dirty() {
+            let mut sum : f64 = 0.0;
+            let mut sum2 : f64 = 0.0;
+            let mut hist = vec![0u32; 255];
+            let start = (self.metadata.roi.y() * self.width + self.metadata.roi.x()) as usize;
+            let mut mi: f64 = self.data[start] as f64;
+            let mut mx = mi;
+            let mut count: u32 = 0;
+            for y in self.metadata.roi.y()..(self.metadata.roi.y() + self.metadata.roi.height()) {
+                let mut i = y * self.width + self.metadata.roi.x();
+                for x in self.metadata.roi.x()..(self.metadata.roi.x() + self.metadata.roi.width())
+                {
+                    let v : f64 = self.getf(i as usize) as f64;
+                    let index: usize = self.get(i as usize) as usize;
+                    sum += v as f64;
+                    sum2 += (v * v) as f64;
+                    i += 1;
+                    hist[(((v as f32)/f32::MAX)*(255 as f32)) as usize] += 1;
+                    mi = if v < mi { v } else { mi };
+                    mx = if v > mx { v } else { mx };
+                    count += 1;
+                }
+            }
+            let mut std_dev = (count as f64 * sum2 - sum * sum) / count as f64;
+            std_dev = if std_dev > 0.0 { (std_dev/(count as f64 - 1.0_f64)).sqrt()} else {0.0};
+            self.metadata.set_stats(&hist,mi,mx,sum/(count as f64), std_dev);
+        }
+    }
+
+    fn histogram(&self) -> &Vec<u32> {
+        self.metadata.get_histogram()
+    }
+
+    fn min_value(&self) -> f64 {
+        self.metadata.get_min()
+    }
+
+    fn max_value(&self) -> f64 {
+        self.metadata.get_max()
+    }
+
+    fn mean(&self) -> f64 {
+        self.metadata.get_mean()
+    }
+    fn standard_deviation(&self) -> f64 {
+        self.metadata.get_std_dev()
+    }
+}
+
+
 
 /*
 // ... or hard-coded class from trait...

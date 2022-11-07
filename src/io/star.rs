@@ -19,6 +19,9 @@
 //
 // Authors:
 
+#![allow(non_camel_case_types)]
+#![allow(unused)]
+
 use std::fmt;
 
 ///
