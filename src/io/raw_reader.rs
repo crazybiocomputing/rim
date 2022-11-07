@@ -1,58 +1,109 @@
+v//
+//  RIM - Rust IMage
+//  Copyright (&self,C) 2022  Jean-Christophe Taveau, Allain Anaelle, Texier Louis.
+//
+//  This file is part of RIM
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (&self,at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
+
+
+#![allow(non_snake_case)]
+#![allow(unused)]
+
 use std::fs::File;
 use std::io::Read;
+use std::fs::metadata;
+use std::io::Write;
 
-fn get_file_as_byte_vec(filename: &String) -> Vec<u8> {
+/// Return a vector u8 containing the raw data of the image
+///
+/// # arguments
+///
+/// * `filename` - String containing the name of the raw file
+///
+pub fn get_file_as_byte_vec(filename: &String) -> Vec<u8> {
     let mut f = File::open(&filename).expect("no file found");
-    let metadata = fs::metadata(&filename).expect("unable to read metadata");
+    let metadata = metadata(&filename).expect("unable to read metadata");
     let mut buffer = vec![0; metadata.len() as usize];
     f.read(&mut buffer).expect("buffer overflow");
 
     buffer
 }
 
+/// Write the raw data in a raw file
+///
+/// # arguments
+///
+/// * `name` - Name of the final file
+/// * `buffer` - Vector of data for writting in the file
+///
+pub fn save_raw_file(name: &String, buffer: Vec<u8>){
+    let filename = format!("{}.raw", name);
+    let file = File::create(filename);
+    file.expect("REASON").write_all(&buffer);
+}//
+//  RIM - Rust IMage
+//  Copyright (&self,C) 2022  Jean-Christophe Taveau, Allain Anaelle, Texier Louis.
+//
+//  This file is part of RIM
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (&self,at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
 
-    /** Opens the image at 'filePath' using the format specified by 'fi'. */
-    public static ImagePlus open(String filePath, FileInfo fi) {
-        File f = new File(filePath);
-        String parent = f.getParent();
-        if (parent!=null)
-            fi.directory = parent+ "/";
-        fi.fileName = f.getName();
-        return (new FileOpener(fi)).open(false);
-    }   
 
+#![allow(non_snake_case)]
+#![allow(unused)]
 
-    /** Opens all the images in the specified directory as a stack,
-        using the format specified by 'fi'. */
-    public static ImagePlus openAll(String directory, FileInfo fi) {
-        ImagePlus imp = openAllVirtual(directory,fi);
-        if (imp!=null)
-            return imp.duplicate();
-        else
-            return null;
-    }   
+use std::fs::File;
+use std::io::Read;
+use std::fs::metadata;
+use std::io::Write;
 
-    /** Opens all the images in the specified directory as a virtual stack,
-        using the format specified by 'fi'. */
-    public static ImagePlus openAllVirtual(String directory, FileInfo fi) {
-        String[] list = new File(directory).list();
-        if (list==null)
-            return null;
-        FolderOpener fo = new FolderOpener();
-        list = fo.trimFileList(list);
-        list = fo.sortFileList(list);
-        if (list==null)
-            return null;
-        directory = IJ.addSeparator(directory);
-        FileInfo[] info = new FileInfo[list.length];
-        for (int i=0; i<list.length; i++) {
-            info[i] = (FileInfo)fi.clone();
-            info[i].directory = directory;
-            info[i].fileName = list[i];
-        }
-        VirtualStack stack = new FileInfoVirtualStack(info);
-        ImagePlus imp = new ImagePlus(directory, stack);
-        return imp;
-    }   
-    
+/// Return a vector u8 containing the raw data of the image
+///
+/// # arguments
+///
+/// * `filename` - String containing the name of the raw file
+///
+pub fn get_file_as_byte_vec(filename: &String) -> Vec<u8> {
+    let mut f = File::open(&filename).expect("no file found");
+    let metadata = metadata(&filename).expect("unable to read metadata");
+    let mut buffer = vec![0; metadata.len() as usize];
+    f.read(&mut buffer).expect("buffer overflow");
+
+    buffer
+}
+
+/// Write the raw data in a raw file
+///
+/// # arguments
+///
+/// * `name` - Name of the final file
+/// * `buffer` - Vector of data for writting in the file
+///
+pub fn save_raw_file(name: &String, buffer: Vec<u8>){
+    let filename = format!("{}.raw", name);
+    let file = File::create(filename);
+    file.expect("REASON").write_all(&buffer);
 }
