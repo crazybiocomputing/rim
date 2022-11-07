@@ -104,6 +104,78 @@ pub fn read_byte_stack(height:u32,width:u32,slice:u32,filename:&String) -> ByteS
   return stack;
 }
 
+/// Read a raw file and put he data into an image stack of 16bit (16bit not implemented)
+    ///
+    /// # arguments
+    ///
+    /// * `height` - The height of the images
+    /// * `width` - The width of the images
+    /// * `slice` - The number of images in the stack
+    /// * `filename` - The name of the raw file
+    ///
+    pub fn read_16_stack(height:u32,width:u32,slice:u32,filename:&String){
+      let buffer = get_file_as_byte_vec(filename);
+      let mut new_buffer:Vec<Vec<u16>> = vec![];
+      let data = separate_slices(buffer,slice);
+      for j in 0..data.len(){
+        let mut slide:Vec<u16> = vec![];
+        for i in (0..data[j].len()).step_by(2){
+          let short = u16::from_be_bytes([data[j][i],data[j][i+1]]);
+          slide.push(short);
+        }
+        new_buffer.push(slide);
+      }
+      println!("{:?}",new_buffer);
+
+      /*
+      let mut stack = ByteStack::create_byte_stack(height,width,slice);
+    
+      for i in 0..data.len() {
+        stack.set_slice_number(i.try_into().unwrap());
+        for j in 0..data[i].len() {
+          stack.set(j.try_into().unwrap(),data[i][j]);
+        }
+      }
+      return stack;
+      */
+    }
+
+/// Read a raw file and put he data into an image stack of 32bit
+    ///
+    /// # arguments
+    ///
+    /// * `height` - The height of the images
+    /// * `width` - The width of the images
+    /// * `slice` - The number of images in the stack
+    /// * `filename` - The name of the raw file
+    ///
+    pub fn read_float_stack(height:u32,width:u32,slice:u32,filename:&String) -> FloatStack{
+      let buffer = get_file_as_byte_vec(filename);
+      let mut new_buffer:Vec<Vec<f32>> = vec![];
+      let data = separate_slices(buffer,slice);
+      for j in 0..data.len(){
+        let mut slide:Vec<f32> = vec![];
+        for i in (0..data[j].len()).step_by(4){
+          let short = f32::from_be_bytes([data[j][i],data[j][i+1],data[j][i+2],data[j][i+3]]);
+          slide.push(short);
+        }
+        new_buffer.push(slide);
+      }
+
+      
+
+    
+      let mut stack = FloatStack::create_float_stack(height,width,slice);
+      
+      for i in 0..new_buffer.len() {
+        stack.set_slice_number(i.try_into().unwrap());
+        for j in 0..new_buffer[i].len() {
+          stack.set(j.try_into().unwrap(),new_buffer[i][j]);
+        }
+      }
+      return stack;
+    }
+
 /// Read a raw file and put he data into an image stack of RGB
     ///
     /// # arguments
@@ -141,7 +213,6 @@ pub fn save_byte_stack(stack:ByteStack, filename:&String){
   let mut raw_data:Vec<u8> = vec![];
 
   let slices = stack.get_data_stack();
-  println!("{:?}",slices);
 
   for i in 0..slices.len() {
     let mut image_data = slices[i].borrow();
@@ -153,6 +224,32 @@ pub fn save_byte_stack(stack:ByteStack, filename:&String){
   save_raw_file(filename, raw_data);
 
 }
+
+/// Save the data of an image stack of 32bit into raw file
+    ///
+    /// # arguments
+    ///
+    /// * `stack` - The ByteStack containing the data
+    /// * `filename` - Name of the created file
+    ///
+    pub fn save_float_stack(stack:FloatStack, filename:&String){
+      let mut raw_data:Vec<u8> = vec![];
+    
+      let slices = stack.get_data_stack();
+    
+      for i in 0..slices.len() {
+        let mut image_data = slices[i].borrow();
+        let image_data_borrow = image_data.get_data();
+        for j in 0..image_data_borrow.len() {
+          let long = image_data_borrow[j].to_be_bytes();
+          for k in 0..long.len(){
+          raw_data.push(long[k]);
+          }
+        }
+      }
+      save_raw_file(filename, raw_data);
+    
+    }
 
 
 /// Save the data of an image stack of RGB into raw file
@@ -166,7 +263,6 @@ pub fn save_byte_stack(stack:ByteStack, filename:&String){
         let mut raw_data:Vec<u8> = vec![];
       
         let slices = stack.get_data_stack();
-        println!("{:?}",slices);
       
         for i in 0..slices.len() {
           let mut image_data = slices[i].borrow();
