@@ -68,12 +68,10 @@ impl Statistics<u16> for ShortProcessor {
     }
 
     fn min_value(&self) -> f64 {
-        //return T::from_u64(self.histogram().minimum().unwrap())
         self.metadata.get_min()
     }
 
     fn max_value(&self) -> f64 {
-        //return T::from_u64(self.histogram().maximum().unwrap())
         self.metadata.get_max()
     }
 
