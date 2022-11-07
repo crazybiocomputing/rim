@@ -93,7 +93,7 @@ pub fn read_byte_stack(height:u32,width:u32,slice:u32,filename:&String) -> ByteS
   let buffer = get_file_as_byte_vec(filename);
   let data = separate_slices(buffer,slice);
 
-  let mut stack = ImageStack::new(width,height,data,C);
+  let mut stack = ImageStack::new(width,height,data,Gray8::new());
   return stack;
 }
 
