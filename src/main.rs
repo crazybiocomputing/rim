@@ -1,9 +1,12 @@
 use std::fs::File;
 use std::io::Read;
+use std::ptr;
+#[derive(Debug, Clone)]
 struct Category {
     name: String,
     attributes: Vec<Attribute>
   }
+  #[derive(Debug, Clone)]
   struct Attribute {
     key: String,
     values: String
@@ -50,8 +53,8 @@ fn parse_star(txt: String)
 }
 
 fn sort_file(txt:Vec<String>){
-    let mut categorie_word:String;
-    let mut attribute_word:String;
+    let mut categorie_word=String::from("");
+    let mut attribute_word=String::from("");
     let mut multiline=false;
     let mut categories:Vec<Category>=Vec::new();
     for i in txt{
@@ -63,7 +66,7 @@ fn sort_file(txt:Vec<String>){
                 categorie_word=second_decoupe[0].to_string();
                 attribute_word=second_decoupe[1].to_string();
                 if espace.len()>=2{ 
-                    not_multiline(&categories,espace,categorie_word,attribute_word);
+                    not_multiline(&mut categories,espace,&categorie_word,&attribute_word);
                 }
                 else{
                     multiline=true;
@@ -71,21 +74,27 @@ fn sort_file(txt:Vec<String>){
             }
         }
         else{
-            let mut valeur:String;
+            let mut valeur=String::from("");
             if i.chars().last().unwrap().to_string()!=";"{
                 valeur+= &i;
             }
             else{
-                let mut results =rechercher_categorie(categorie_word,&categories);
-                if results.0{
-                    let mut attribute_found=category_exist(valeur, attribute_word);
-                    results.1.attributes.push(attribute_found);
+                let mut cat_word=categorie_word.clone();
+                let mut results =rechercher_categorie(&cat_word,&categories);
+                match results{
+                    Some(result) => {
+                        let mut attribute_found=category_exist(&valeur, &attribute_word);
+                        let mut resultat:Category=result.clone();
+                        resultat.attributes.push(attribute_found);
+
+                    }
+                    None => {
+                        let mut new_cat=category_dont_exist(valeur, &categorie_word, &attribute_word);
+                        categories.push(new_cat);
+                    }
                 }
-                    
-                else{
-                    let mut new_cat=category_dont_exist(valeur, categorie_word, attribute_word);
-                    categories.push(new_cat);
-                }
+                
+                
                 
             }
         }
@@ -93,56 +102,55 @@ fn sort_file(txt:Vec<String>){
 }
 
 
-fn not_multiline(categories:&Vec<Category>,espace:Vec<&str>,categorie_word:String,attribute_word:String){
+fn not_multiline(categories:&mut Vec<Category>,espace:Vec<&str>,categorie_word:&String,attribute_word:&String){
     let mut valeur:String;
     for i in espace{
         valeur= i.to_string();
         
     }
-    let mut results =rechercher_categorie(categorie_word,categories);
-        if results.0{
-            let mut attribute_found=category_exist(valeur,attribute_word);
-            results.1.attributes.push(attribute_found);
+    let results =rechercher_categorie(&categorie_word,categories);
+    match results{
+        Some(result) => {
+            let mut attribute_found=category_exist(&valeur, &attribute_word);
+            let mut resultat:Category=result.clone();
+            resultat.attributes.push(attribute_found);
+
         }
-            
-        else{
-            let mut new_cat=category_dont_exist(valeur, categorie_word, attribute_word);
+        None => {
+            let mut new_cat=category_dont_exist(valeur, &categorie_word, &attribute_word);
             categories.push(new_cat);
         }
     }
-
-
-fn rechercher_categorie(categorie:String, veccategorie:&Vec<Category>)->(bool,&Category){
-    let mut result=true;
-    let mut cat:Category; 
-    for i in veccategorie{
-        if categorie==i.name{
-            result=true;
-            cat=i.to_vec();
-        }
-        else{
-            result=false
-        }
     }
-    return (result,&cat)
+
+
+    fn rechercher_categorie<'a>(categorie:&'a String, veccategorie:&'a Vec<Category>)->Option<&Category>{
+        for i in veccategorie{
+            if categorie.to_string()==i.name{
+                return Some(i);
+            }
+          
+        }
+        return None;
+        
 }
 
-    fn category_exist(value_final:String,attribute_word:String)-> Attribute{
+fn category_exist(value_final:&String,attribute_word:&String)-> Attribute{
 
-        let mut attribute_found=Attribute{ key:attribute_word, values:value_final};
-        return attribute_found;
-    }
-    fn category_dont_exist(value_final:String,categorie_word:String,attribute_word:String)-> Category{
+    let mut attribute_found=Attribute{ key:(attribute_word).to_string(), values:(value_final).to_string()};
+    return attribute_found;
+}
+fn category_dont_exist(value_final:String,categorie_word:&String,attribute_word:&String)-> Category{
     
-        let attribut_of_cat:Vec<Attribute>=Vec::new();
-        let mut attribute_found=Attribute{ key:attribute_word, values:value_final};
-        attribut_of_cat.push(attribute_found);
-        let new_cat= Category{ name: categorie_word , attributes: attribut_of_cat };
-        return new_cat;
-    }
+    let mut attribut_of_cat:Vec<Attribute>=Vec::new();
+    let mut attribute_found=Attribute{ key:(attribute_word).to_string(), values:value_final};
+    attribut_of_cat.push(attribute_found);
+    let new_cat= Category{ name: (categorie_word).to_string() , attributes: attribut_of_cat };
+    return new_cat;
+}
 
-    fn main() {
-        let file = read_file("star_reader_tests.mmcif");
+fn main() {
+    let file = read_file("star_reader_tests.mmcif");
         // println!("{}",file);
-        parse_star(file)
-    }
+    parse_star(file)
+}
