@@ -45,6 +45,17 @@ impl<T: PixelType, C: ColorSpace> ImageProcessor<T, C> {
             metadata: MetaData::new(w, h),
         }
     }
+    // Constructor
+    pub fn new_volume(w: u32, h: u32, d: u32, pixels: Vec<T>, cs: C) -> Self {
+        ImageProcessor {
+            width: w,
+            height: h,
+            depth: d,
+            data: pixels,
+            cs: cs,
+            metadata: MetaData::new(w, h),
+        }
+    }
     pub fn with_pixels(w: u32, h: u32, pixels: Vec<T>) -> Self {
         ImageProcessor {
             width: w,
@@ -67,6 +78,10 @@ impl<T: PixelType, C: ColorSpace> ImageProcessor<T, C> {
     }
     pub fn get_size(&self) -> usize {
         (self.width * self.height) as usize
+    }
+    pub fn get_bit_depth(&self) -> usize {
+      const BITS_PER_BYTE: usize = 8;
+      BITS_PER_BYTE * std::mem::size_of::<T>()
     }
 }
 

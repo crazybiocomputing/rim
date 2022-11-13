@@ -23,12 +23,33 @@
 use crate::grayscale::Gray;
 use crate::image_processor::ImageProcessor;
 use crate::image_traits::Access;
+use crate::meta_data::MetaData;
 use crate::operator::Operator;
 use crate::pixel::PixelType;
 
 ///
 /// Gray-Level Image Processor
 ///
+
+///
+/// Macro to create a GrayProcessor
+///
+macro_rules! ip_gray {
+    // This macro takes expressions of type `expr`
+    ($pixel:ty, $w:expr, $h:expr, $dat: tt) => {
+        // Call `find_min!` on the tail `$y`
+        ImageProcessor {
+            width: $w,
+            height: $h,
+            depth: 1,
+            metadata: MetaData::new($w, $h),
+            data: $dat,
+            cs: Gray::<$pixel>::new(),
+        }
+    };
+}
+
+pub(crate) use ip_gray;
 
 //
 // Accessors get/set pixel.s
@@ -271,7 +292,6 @@ impl<T: PixelType> Operator<T> for ImageProcessor<T, Gray<T>> {
     }
 }
 
-
 /*
 TODO
 impl RawStats<T> for GrayProcessor<T> {
@@ -293,7 +313,7 @@ impl RawStats<T> for GrayProcessor<T> {
         let mut value: f64 = 0.0;
         let mut sum : f64 = 0.0;
         let mut sum2 : f64 = 0.0;
-        
+
         for i in min_threshold..max_threshold {
             count = self.metadata.get_histogram()[i];
             long_pixel_count += count;
@@ -314,7 +334,7 @@ impl RawStats<T> for GrayProcessor<T> {
         hist_min = 0.0;
         hist_max = 255.0;
     }
-    
+
     fn calculate_std_dev(&self,n: f64, sum: f64, sum2: f64) {
         if (n>0.0) {
             stdDev = (n*sum2-sum*sum)/n;

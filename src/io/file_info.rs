@@ -16,9 +16,7 @@
 //
 //  You should have received a copy of the GNU General Public License
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
- 
- 
- 
+
 /** This class consists of public fields that describe an image file. */
 pub struct FileInfo {
     /* File format (TIFF, GIF_OR_JPG, BMP, etc.). Used by the File/Revert command */
@@ -87,14 +85,14 @@ impl FileInfo {
     are converted to unsigned by adding 32768. */
     pub const GRAY16_SIGNED: u32 = 1;
 
-    /** 16-bit unsigned eger (0-65535). */
+    /** 16-bit unsigned integer (0-65535). */
     pub const GRAY16_UNSIGNED: u32 = 2;
 
     /** 32-bit signed integer. Imported 32-bit integer images are
-    converted to floating-po. */
+    converted to floating-point. */
     pub const GRAY32_INT: u32 = 3;
 
-    /** 32-bit floating-po. */
+    /** 32-bit floating-point. */
     pub const GRAY32_FLOAT: u32 = 4;
 
     /** 8-bit unsigned eger with color lookup table. */

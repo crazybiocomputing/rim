@@ -38,8 +38,8 @@ impl Statistics<u8> for ByteProcessor {
 
     fn update_stats(&mut self) {
         if self.metadata.stats.is_dirty() {
-            let mut sum : f64 = 0.0;
-            let mut sum2 : f64 = 0.0;
+            let mut sum: f64 = 0.0;
+            let mut sum2: f64 = 0.0;
             let mut hist = vec![0u32; 255];
             let start = (self.metadata.roi.y() * self.width + self.metadata.roi.x()) as usize;
             let mut mi: f64 = self.data[start] as f64;
@@ -49,7 +49,7 @@ impl Statistics<u8> for ByteProcessor {
                 let mut i = y * self.width + self.metadata.roi.x();
                 for x in self.metadata.roi.x()..(self.metadata.roi.x() + self.metadata.roi.width())
                 {
-                    let v : f64 = self.getf(i as usize) as f64;
+                    let v: f64 = self.getf(i as usize) as f64;
                     let index: usize = self.get(i as usize) as usize;
                     sum += v as f64;
                     sum2 += (v * v) as f64;
@@ -61,8 +61,13 @@ impl Statistics<u8> for ByteProcessor {
                 }
             }
             let mut std_dev = (count as f64 * sum2 - sum * sum) / count as f64;
-            std_dev = if std_dev > 0.0 { (std_dev/(count as f64 - 1.0_f64)).sqrt()} else {0.0};
-            self.metadata.set_stats(&hist,mi,mx,sum/(count as f64), std_dev);
+            std_dev = if std_dev > 0.0 {
+                (std_dev / (count as f64 - 1.0_f64)).sqrt()
+            } else {
+                0.0
+            };
+            self.metadata
+                .set_stats(&hist, mi, mx, sum / (count as f64), std_dev);
         }
     }
 
@@ -85,8 +90,6 @@ impl Statistics<u8> for ByteProcessor {
         self.metadata.get_std_dev()
     }
 }
-
-
 
 #[cfg(test)]
 mod tests {

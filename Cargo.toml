@@ -4,6 +4,12 @@ version = "0.1.0"
 edition = "2021"
 authors = ["me <me@gmail.com>"]
 
+[[bin]]
+name = "rim-tool"
+test = false
+bench = false
+
+
 [dependencies]
 rand = "0.4"
 histogram = "*"
