@@ -90,22 +90,22 @@ mod tests {
         assert_eq!(rt.size(), 5);
         assert_eq!(rt.get_last_column(), 3);
     }
-  
+
     #[test]
     fn open_csv_file_and_read_value() {
         let rt = TextReader::open_csv("./samples/test.csv", None).unwrap();
         let col = rt.get_column(String::from("A")).unwrap();
         // Read a given value
         let v = col.get_value(1).to_f64(); // expected 4.0
-        assert_eq!(v,4.0);
+        assert_eq!(v, 4.0);
     }
-  
+
     #[test]
     fn open_csv_file_with_default_sep() {
         let col_nums = vec![
             vec![1.0, 4.0, 7.0, 10.0, 13.0],
             vec![2.0, 5.0, 8.0, 11.0, 14.0],
-            vec![3.0, 6.0, 9.0, 12.0, 15.0]
+            vec![3.0, 6.0, 9.0, 12.0, 15.0],
         ];
         let col_txt = vec![
             "Chicken".to_string(),
@@ -124,20 +124,18 @@ mod tests {
         */
         let rt = TextReader::open_csv("./samples/test.csv", None).unwrap();
 
-        for (i,col) in ["A","B","C"].iter().enumerate() {
+        for (i, col) in ["A", "B", "C"].iter().enumerate() {
             assert!(rt
                 .get_column(col.to_string()) // Get Result<Column>
                 .unwrap() // Get Column
                 .to_vec() // Get Vec<Cell>
-                .iter()   // Get Iterator
+                .iter() // Get Iterator
                 .zip(&col_nums[i]) // Merge with answer
                 .all(|(a, b)| // Check if all elements are equal
                     match *a {
                     Cell::Number(x) => x == *b,
                     _ => false
-                    }
-                )
-            );
+                    }));
         }
     }
 }
