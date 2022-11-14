@@ -654,7 +654,7 @@ impl Column {
     pub fn to_vec(&self) -> Vec<Cell> {
         self.cells.clone()
     }
-    pub fn get_value(&self,index: usize) -> Cell {
+    pub fn get_value(&self, index: usize) -> Cell {
         self.cells[index].clone()
     }
 }
@@ -670,19 +670,19 @@ pub enum Cell {
 }
 
 impl Cell {
-  pub fn to_f64(&self) -> f64 {
-    match self {
-      Cell::Number(x) => *x,
-      _ => f64::NAN
+    pub fn to_f64(&self) -> f64 {
+        match self {
+            Cell::Number(x) => *x,
+            _ => f64::NAN,
+        }
     }
-  }
-  pub fn to_string(&self) -> String {
-    match self {
-      Cell::Number(x) => x.to_string(),
-      Cell::Text(w) => w.clone(),
-      Cell::None => String::from("None")
+    pub fn to_string(&self) -> String {
+        match self {
+            Cell::Number(x) => x.to_string(),
+            Cell::Text(w) => w.clone(),
+            Cell::None => String::from("None"),
+        }
     }
-  }
 }
 #[cfg(test)]
 mod tests {

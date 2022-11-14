@@ -80,8 +80,8 @@ impl<T: PixelType, C: ColorSpace> ImageProcessor<T, C> {
         (self.width * self.height) as usize
     }
     pub fn get_bit_depth(&self) -> usize {
-      const BITS_PER_BYTE: usize = 8;
-      BITS_PER_BYTE * std::mem::size_of::<T>()
+        const BITS_PER_BYTE: usize = 8;
+        BITS_PER_BYTE * std::mem::size_of::<T>()
     }
 }
 

@@ -23,3 +23,6 @@ pub mod statistics;
 
 // Cryoem
 pub mod cryoem;
+
+// Vecmath
+pub mod vecmath;
