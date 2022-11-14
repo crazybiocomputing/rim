@@ -1,7 +1,6 @@
 //
 //  RIM - Rust Image
-//  Copyright (C) 2022  Jean-Christophe Taveau, Léonard Brindel, Océane Dorémus, Léo Gillet.
-//
+//  Copyright (C) 2022  Jean-Christophe Taveau
 //  This file is part of RIM
 //
 // This program is free software: you can redistribute it and/or modify it
@@ -16,10 +15,15 @@
 //
 //  You should have received a copy of the GNU General Public License
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
+//
+// Group : SPR in real space / frequency space (fftw3)
+// Authors : Léonard Brindel, Océane Dorémus, Léo Gillet
+//
+
 
 fn pub image_projection(ImageStack ist) -> Vec{
    let img_projection_stack = Vec::new();
-   for img in 10 {
+   for _ in 10 {
         img_projection_stack.push(ist);
    }
    return img_projection_stack;
