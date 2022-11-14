@@ -20,19 +20,65 @@
 // Authors : Léonard Brindel, Océane Dorémus, Léo Gillet
 //
 
+#![warn(unused_imports)]
+#![warn(unused)]
+#![warn(dead_code)]
 
-fn pub image_projection(ImageStack ist) -> Vec{
-   let img_projection_stack = Vec::new();
-   for _ in 10 {
-        img_projection_stack.push(ist);
-   }
-   return img_projection_stack;
-}
+use std::process::exit;
+use rim::grayscale::Gray16;
+use rim::image_processor::ImageProcessor;
+use rim::image_stack::ImageStack;
+use rim::io::image_reader::{FileOpener, OutputProcessor};
+use rim::io::text_reader::TextReader;
+use rim::results_table::ResultsTable;
 
-fn pub image_stack_projection(ImageStacks ist_stack) -> Vec{
-    let all_img_projection = Vec::new();
-    for img_stack in ist_stack{
-        all_img_projection.push(image_projection(img_stack);
+// fn image_projection(ImageStack ist) -> Vec<ImageStack> {
+//    let img_projection_stack: Vec<ImageStack> = Vec::new();
+//    for _ in 10 {
+//         img_projection_stack.push(ist);
+//    }
+//    return img_projection_stack;
+// }
+//
+// fn image_stack_projection(ImageStacks ist_stack) -> Vec<ImageStacks> {
+//     let all_img_projection: Vec<ImageStacks> = Vec::new();
+//     for img_stack in ist_stack{
+//         all_img_projection.push(image_projection(img_stack);
+//     }
+//     return all_img_projection;
+// }
+
+pub struct SPR {}
+
+impl SPR {
+    fn read_angles() -> ResultsTable {
+        return TextReader::open_csv("samples/psi-theta-phi-50.csv", Option::Some(',')).unwrap();
     }
-    return all_img_projection;
+
+    fn read_image() -> Option<&'static ImageProcessor<u16, Gray16>> {
+        let processor =  FileOpener::open_stack("samples/T1_head_128x128x128.tif", 128, 128, 128);
+        if let OutputProcessor::ShortProcessor(ip) = &processor {
+            return Some(ip)
+        }
+        return None
+    }
+
+    pub fn start() -> () {
+        let angles: ResultsTable = Self::read_angles();
+        let processor: Option<&ImageProcessor<u16, Gray16>> = Self::read_image();
+        let ip: &Vec<u16>;
+
+        match processor {
+            Some(x) => {
+                ip = x.data();
+            }
+            None => {
+                exit(1);
+            }
+        }
+
+        for val in ip {
+            print!("{}", val);
+        }
+    }
 }
