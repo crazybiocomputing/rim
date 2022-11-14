@@ -89,7 +89,7 @@ fn sort_file(txt:Vec<String>){
 
                     }
                     None => {
-                        let mut new_cat=category_dont_exist(valeur, &categorie_word, &attribute_word);
+                        let mut new_cat=category_dont_exist(&valeur, &categorie_word, &attribute_word);
                         categories.push(new_cat);
                     }
                 }
@@ -103,7 +103,7 @@ fn sort_file(txt:Vec<String>){
 
 
 fn not_multiline(categories:&mut Vec<Category>,espace:Vec<&str>,categorie_word:&String,attribute_word:&String){
-    let mut valeur:String;
+    let mut valeur=String::from("");
     for i in espace{
         valeur= i.to_string();
         
@@ -111,23 +111,24 @@ fn not_multiline(categories:&mut Vec<Category>,espace:Vec<&str>,categorie_word:&
     let results =rechercher_categorie(&categorie_word,categories);
     match results{
         Some(result) => {
+            
             let mut attribute_found=category_exist(&valeur, &attribute_word);
             let mut resultat:Category=result.clone();
             resultat.attributes.push(attribute_found);
 
         }
         None => {
-            let mut new_cat=category_dont_exist(valeur, &categorie_word, &attribute_word);
+            let mut new_cat=category_dont_exist(&valeur, &categorie_word, &attribute_word);
             categories.push(new_cat);
         }
     }
     }
 
 
-    fn rechercher_categorie<'a>(categorie:&'a String, veccategorie:&'a Vec<Category>)->Option<&Category>{
-        for i in veccategorie{
-            if categorie.to_string()==i.name{
-                return Some(i);
+fn rechercher_categorie<'a>(categorie:&'a String, veccategorie:&'a Vec<Category>)->Option<&Category>{
+    for i in veccategorie{
+        if categorie.to_string()==i.name{
+            return Some(i);
             }
           
         }
@@ -140,10 +141,10 @@ fn category_exist(value_final:&String,attribute_word:&String)-> Attribute{
     let mut attribute_found=Attribute{ key:(attribute_word).to_string(), values:(value_final).to_string()};
     return attribute_found;
 }
-fn category_dont_exist(value_final:String,categorie_word:&String,attribute_word:&String)-> Category{
+fn category_dont_exist(value_final:&String,categorie_word:&String,attribute_word:&String)-> Category{
     
     let mut attribut_of_cat:Vec<Attribute>=Vec::new();
-    let mut attribute_found=Attribute{ key:(attribute_word).to_string(), values:value_final};
+    let mut attribute_found=Attribute{ key:(attribute_word).to_string(), values:value_final.to_string()};
     attribut_of_cat.push(attribute_found);
     let new_cat= Category{ name: (categorie_word).to_string() , attributes: attribut_of_cat };
     return new_cat;
