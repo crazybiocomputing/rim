@@ -27,7 +27,7 @@ use crate::pixel::PixelType;
 pub trait Statistics<T: PixelType> {
     type Output;
     type Output_f32;
-    
+
     fn update_stats(&mut self);
     /// Returns the minimum value in the image or stack.
     ///
@@ -49,7 +49,7 @@ pub trait Statistics<T: PixelType> {
     ///
     /// For rgb, separate standard deviations for red, blue and green
     fn standard_deviation(&self) -> f64;
-    
+
     /*
 
     */

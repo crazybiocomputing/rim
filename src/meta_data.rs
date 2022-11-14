@@ -110,13 +110,13 @@ impl MetaData {
         self.stats.min
     }
     pub fn get_max(&self) -> f64 {
-      self.stats.max
+        self.stats.max
     }
     pub fn get_mean(&self) -> f64 {
-      self.stats.mean
+        self.stats.mean
     }
     pub fn get_std_dev(&self) -> f64 {
-      self.stats.std_dev
+        self.stats.std_dev
     }
     pub fn get_histogram(&self) -> &Vec<u32> {
         self.stats.histogram()
@@ -143,8 +143,8 @@ impl MetaData {
         self.stats.n_buckets = hist.len();
         self.stats.is_dirty = false;
     }
-    
-    pub fn set_stats(&mut self, hist: &Vec<u32>, mi: f64, mx: f64, mean: f64, stddev: f64 ) {
+
+    pub fn set_stats(&mut self, hist: &Vec<u32>, mi: f64, mx: f64, mean: f64, stddev: f64) {
         self.stats.histogram = hist.to_vec();
         self.stats.n_buckets = hist.len();
         self.stats.is_dirty = false;

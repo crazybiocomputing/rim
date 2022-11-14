@@ -23,7 +23,6 @@
 //w, h, cs, T avoir les infos sur le type d'image dans le stack
 
 #![allow(non_camel_case_types)]
-#![allow(unused)]#![allow(non_camel_case_types)]
 #![allow(unused)]
 
 use crate::color_space::ColorSpace;

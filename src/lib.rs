@@ -14,6 +14,9 @@ pub mod image_stack;
 pub mod image_traits;
 pub mod short_processor;
 
+// Tabular data
+pub mod results_table;
+
 // traits
 pub mod operator;
 pub mod statistics;
