@@ -20,6 +20,9 @@
 use crate::vecmath::vector3::Vector3;
 use std::fmt::{self, Display, Formatter};
 
+///
+/// f64 4 by 4 Matrix like those used in openGL and variants.
+///
 /// Adapted from JS package
 /// https://github.com/mattdesl/vecmath
 
@@ -32,7 +35,15 @@ pub struct Matrix4 {
 
 impl Matrix4 {
     ///
+    /// Create a zero-filled 4 by 4 Matrix
     ///
+    pub fn new() -> Self {
+        Matrix4 { val: [0.0f64; 16] }
+    }
+
+
+    ///
+    /// Create a 4 by 4 matrix from a 16-element Vec
     ///
     pub fn from_vec(v: Vec<f64>) -> Self {
         let a = v.try_into().unwrap_or_else(|v: Vec<f64>| {
@@ -87,14 +98,127 @@ impl Matrix4 {
     }
 
     ///
+    /// The first element of the first row.
     ///
+    pub fn m00(&self) -> f64 {
+      self.val[0]
+    }
+
+    ///
+    /// The second element of the first row.
+    ///
+    pub fn m01(&self) -> f64 {
+      self.val[1]
+    }
+
+    ///
+    /// The third element of the first row.
+    ///
+    pub fn m02(&self) -> f64 {
+      self.val[2]
+    }
+
+    ///
+    /// The fourth element of the first row.
+    ///
+    pub fn m03(&self) -> f64 {
+      self.val[3]
+    }
+
+    ///
+    /// The first element of the second row.
+    ///
+    pub fn m10(&self) -> f64 {
+      self.val[4]
+    }
+
+    ///
+    /// The second element of the second row.
+    ///
+    pub fn m11(&self) -> f64 {
+      self.val[5]
+    }
+
+    ///
+    /// The third element of the second row.
+    ///
+    pub fn m12(&self) -> f64 {
+      self.val[6]
+    }
+
+    ///
+    /// The fourth element of the second row.
+    ///
+    pub fn m13(&self) -> f64 {
+      self.val[7]
+    }
+
+    ///
+    /// The first element of the third row.
+    ///
+    pub fn m20(&self) -> f64 {
+      self.val[8]
+    }
+
+    ///
+    /// The second element of the third row.
+    ///
+    pub fn m21(&self) -> f64 {
+      self.val[9]
+    }
+
+    ///
+    /// The third element of the third row.
+    ///
+    pub fn m22(&self) -> f64 {
+      self.val[10]
+    }
+
+    ///
+    /// The fourth element of the third row.
+    ///
+    pub fn m23(&self) -> f64 {
+      self.val[11]
+    }
+
+    ///
+    /// The first element of the fourth row.
+    ///
+    pub fn m30(&self) -> f64 {
+      self.val[12]
+    }
+
+    ///
+    /// The second element of the fourth row.
+    ///
+    pub fn m31(&self) -> f64 {
+      self.val[13]
+    }
+
+    ///
+    /// The third element of the fourth row.
+    ///
+    pub fn m32(&self) -> f64 {
+      self.val[14]
+    }
+
+    ///
+    /// The fourth element of the fourth row.
+    ///
+    pub fn m33(&self) -> f64 {
+      self.val[15]
+    }
+
+    ///
+    /// Get the matrix values as a 1D array.
     ///
     pub fn values(&self) -> &[f64; 16] {
         &self.val
     }
 
+
     ///
-    ///
+    /// Transpose
     ///
     pub fn transpose(&mut self) -> &mut Self {
         // Temporary values
@@ -121,7 +245,7 @@ impl Matrix4 {
     }
 
     ///
-    ///
+    /// Invert
     ///
     pub fn invert(&mut self) -> &mut Self {
         let a00 = self.val[0];
@@ -183,7 +307,7 @@ impl Matrix4 {
     }
 
     ///
-    ///
+    /// Calculate Determinant
     ///
     pub fn determinant(&mut self) -> f64 {
         let a00 = self.val[0];
@@ -220,7 +344,134 @@ impl Matrix4 {
         b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06
     }
 
-    pub fn multiply(&mut self, other_mat: Matrix4) -> &mut Self {
+   ///
+   /// Sets the value of this matrix to the matrix sum of matrices m1 and m2. 
+   /// 
+   /// # Arguments
+   /// * `m1` the first matrix 
+   /// * `m2` the second matrix 
+   ///
+    pub fn add(&mut self, m1: Matrix4, m2: Matrix4) {
+        // note this is alias safe.
+        self.set(
+            m1.m00() + m2.m00(),
+            m1.m01() + m2.m01(),
+            m1.m02() + m2.m02(),
+            m1.m03() + m2.m03(),
+            m1.m10() + m2.m10(),
+            m1.m11() + m2.m11(),
+            m1.m12() + m2.m12(),
+            m1.m13() + m2.m13(),
+            m1.m20() + m2.m20(),
+            m1.m21() + m2.m21(),
+            m1.m22() + m2.m22(),
+            m1.m23() + m2.m23(),
+            m1.m30() + m2.m30(),
+            m1.m31() + m2.m31(),
+            m1.m32() + m2.m32(),
+            m1.m33() + m2.m33()
+            );
+    }
+
+    ///
+    /// Sets the value of this matrix to sum of itself and matrix m1. 
+    /// 
+    /// # Arguments
+    /// * `m1` the other matrix 
+    ///
+    pub fn add_mut(&mut self, m1: Matrix4) -> &mut Self {
+        self.val[0] += m1.m00(); self.val[0] += m1.m01(); self.val[0] += m1.m02(); self.val[0] += m1.m03();
+        self.val[0] += m1.m10(); self.val[0] += m1.m11(); self.val[0] += m1.m12(); self.val[0] += m1.m13();
+        self.val[0] += m1.m20(); self.val[0] += m1.m21(); self.val[0] += m1.m22(); self.val[0] += m1.m23();
+        self.val[0] += m1.m30(); self.val[0] += m1.m31(); self.val[0] += m1.m32(); self.val[0] += m1.m33();
+        self
+    }
+
+    ///
+    /// Sets the value of this matrix to the matrix difference
+    /// of matrices m1 and m2. 
+    ///
+    /// # Arguments
+    /// * `m1` the first matrix 
+    /// * `m2` the second matrix 
+    ///
+    pub fn subtract(&mut self, m1: Matrix4, m2: Matrix4) {
+      // note this is alias safe.
+      self.set(
+          m1.m00() - m2.m00(),
+          m1.m01() - m2.m01(),
+          m1.m02() - m2.m02(),
+          m1.m03() - m2.m03(),
+          m1.m10() - m2.m10(),
+          m1.m11() - m2.m11(),
+          m1.m12() - m2.m12(),
+          m1.m13() - m2.m13(),
+          m1.m20() - m2.m20(),
+          m1.m21() - m2.m21(),
+          m1.m22() - m2.m22(),
+          m1.m23() - m2.m23(),
+          m1.m30() - m2.m30(),
+          m1.m31() - m2.m31(),
+          m1.m32() - m2.m32(),
+          m1.m33() - m2.m33()
+      );
+    }
+
+    ///
+    /// Sets the value of this matrix to the matrix difference of itself
+    /// and matrix m1 (this = this - m1). 
+    ///
+    /// # Arguments
+    /// * `m1` the other matrix 
+    ///
+    pub fn subtract_mut(&mut self,  m1: Matrix4) -> &mut Self {
+        self.val[0] -= m1.m00(); self.val[0] -= m1.m01(); self.val[0] -= m1.m02(); self.val[0] -= m1.m03();
+        self.val[0] -= m1.m10(); self.val[0] -= m1.m11(); self.val[0] -= m1.m12(); self.val[0] -= m1.m13();
+        self.val[0] -= m1.m20(); self.val[0] -= m1.m21(); self.val[0] -= m1.m22(); self.val[0] -= m1.m23();
+        self.val[0] -= m1.m30(); self.val[0] -= m1.m31(); self.val[0] -= m1.m32(); self.val[0] -= m1.m33();
+        self
+    }
+    
+    ///
+    /// Sets the value of this matrix to the result of multiplying
+    /// the two argument matrices together. 
+    /// * `m1` the first matrix 
+    /// * `m2` the second matrix 
+    ///
+    pub fn multiply(&mut self, m1: Matrix4, m2: Matrix4) -> &mut Self {
+        // alias-safe way
+        self.val[0]  = m1.m00() *m2.m00() + m1.m01() *m2.m10() + m1.m02() *m2.m20() + m1.m03() *m2.m30();
+        self.val[1]  = m1.m00() *m2.m01() + m1.m01() *m2.m11() + m1.m02() *m2.m21() + m1.m03() *m2.m31();
+        self.val[2]  = m1.m00() *m2.m02() + m1.m01() *m2.m12() + m1.m02() *m2.m22() + m1.m03() *m2.m32();
+        self.val[3]  = m1.m00() *m2.m03() + m1.m01() *m2.m13() + m1.m02() *m2.m23() + m1.m03() *m2.m33();
+
+        self.val[4]  = m1.m10() *m2.m00() + m1.m11() *m2.m10() + m1.m12() *m2.m20() + m1.m13() *m2.m30();
+        self.val[5]  = m1.m10() *m2.m01() + m1.m11() *m2.m11() + m1.m12() *m2.m21() + m1.m13() *m2.m31();
+        self.val[6]  = m1.m10() *m2.m02() + m1.m11() *m2.m12() + m1.m12() *m2.m22() + m1.m13() *m2.m32();
+        self.val[7]  = m1.m10() *m2.m03() + m1.m11() *m2.m13() + m1.m12() *m2.m23() + m1.m13() *m2.m33();
+
+        self.val[8]  = m1.m20() *m2.m00() + m1.m21() *m2.m10() + m1.m22() *m2.m20() + m1.m23() *m2.m30();
+        self.val[9]  = m1.m20() *m2.m01() + m1.m21() *m2.m11() + m1.m22() *m2.m21() + m1.m23() *m2.m31();
+        self.val[10]  = m1.m20() *m2.m02() + m1.m21() *m2.m12() + m1.m22() *m2.m22() + m1.m23() *m2.m32();
+        self.val[11]  = m1.m20() *m2.m03() + m1.m21() *m2.m13() + m1.m22() *m2.m23() + m1.m23() *m2.m33();
+
+        self.val[12]  = m1.m30() *m2.m00() + m1.m31() *m2.m10() + m1.m32() *m2.m20() + m1.m33() *m2.m30();
+        self.val[13]  = m1.m30() *m2.m01() + m1.m31() *m2.m11() + m1.m32() *m2.m21() + m1.m33() *m2.m31();
+        self.val[14]  = m1.m30() *m2.m02() + m1.m31() *m2.m12() + m1.m32() *m2.m22() + m1.m33() *m2.m32();
+        self.val[15]  = m1.m30() *m2.m03() + m1.m31() *m2.m13() + m1.m32() *m2.m23() + m1.m33() *m2.m33();
+        self
+    }
+    
+    
+    ///
+    /// Matrix Multiplication `this` = `other` * `this`
+    ///
+    /// # Arguments
+    /// * `other_mat` Another Matrix4
+    ///
+    /// # Example
+    ///
+    pub fn multiply_post(&mut self, other_mat: Matrix4) -> &mut Self {
         let b = other_mat.val;
         let a00 = self.val[0];
         let a01 = self.val[1];
@@ -278,6 +529,18 @@ impl Matrix4 {
         self
     }
 
+    ///
+    /// Matrix translation 
+    ///
+    /// ```math
+    /// \begin{bmatrix}
+    /// 1 & 0 & 0 & X \\
+    /// 0 & 1 & 0 & Y \\
+    /// 0 & 0 & 1 & Z \\
+    /// 0 & 0 & 0 & 1 \\
+    /// \end{bmatrix}
+    /// ```
+    /// 
     pub fn translate(&mut self, v: Vector3) -> &mut Self {
         let x = v.x;
         let y = v.y;
@@ -445,10 +708,38 @@ impl Matrix4 {
         self.val[7] = a13 * c - a03 * s;
         self
     }
+    
+    ///
+    /// Multiplies each element of this matrix by a scalar.
+    /// 
+    /// # Arguments
+    /// * `scalar` The scalar multiplier.
+    ///
+    pub fn mul_by_scalar(&mut self, scalar: f64) -> &mut Self {
+        self.val[0] *= scalar; self.val[1] *= scalar;  self.val[2]  *= scalar; self.val[3]  *= scalar;
+        self.val[4] *= scalar; self.val[5] *= scalar;  self.val[6]  *= scalar; self.val[7]  *= scalar;
+        self.val[8] *= scalar; self.val[9] *= scalar;  self.val[10]  *= scalar; self.val[11]  *= scalar;
+        self.val[12] *= scalar; self.val[13] *= scalar;  self.val[14]  *= scalar; self.val[15]  *= scalar;
+        self
+     }
+     
+     
+     
+    //
+    // Private function to set 16 values
+    //
+    pub fn set(&mut self, 
+      m00: f64,  m01: f64,  m02: f64,  m03: f64, 
+      m10: f64,  m11: f64,  m12: f64,  m13: f64,
+      m20: f64,  m21: f64,  m22: f64,  m23: f64,
+      m30: f64,  m31: f64,  m32: f64,  m33: f64) {
+        self.val[0] = m00; self.val[1] = m01; self.val[2] = m02; self.val[3] = m03;
+        self.val[4] = m10; self.val[5] = m11; self.val[6] = m12; self.val[7] = m13;
+        self.val[8] = m20; self.val[9] = m21; self.val[10] = m22; self.val[11] = m23;
+        self.val[12] = m30; self.val[13] = m31; self.val[14] = m32; self.val[15] = m33;
+    }
     /*
-        pub fn set(otherMat) {
-            return self.copy(otherMat);
-        }
+
 
         pub fn copy(&self,other_mat: Matrix4) -> Matrix4 {
             let mut out = [0.0f64;16];
@@ -474,54 +765,6 @@ impl Matrix4 {
         }
 
 
-
-        pub fn invert(&mut self) -> &mut Self{
-            let a = self.val,
-                a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3],
-                a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7],
-                a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11],
-                a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15],
-
-                b00 = a00 * a11 - a01 * a10,
-                b01 = a00 * a12 - a02 * a10,
-                b02 = a00 * a13 - a03 * a10,
-                b03 = a01 * a12 - a02 * a11,
-                b04 = a01 * a13 - a03 * a11,
-                b05 = a02 * a13 - a03 * a12,
-                b06 = a20 * a31 - a21 * a30,
-                b07 = a20 * a32 - a22 * a30,
-                b08 = a20 * a33 - a23 * a30,
-                b09 = a21 * a32 - a22 * a31,
-                b10 = a21 * a33 - a23 * a31,
-                b11 = a22 * a33 - a23 * a32,
-
-                // Calculate the determinant
-                let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
-
-            if (!det) {
-                return null;
-            }
-            det = 1.0 / det;
-
-            a[0] = (a11 * b11 - a12 * b10 + a13 * b09) * det;
-            a[1] = (a02 * b10 - a01 * b11 - a03 * b09) * det;
-            a[2] = (a31 * b05 - a32 * b04 + a33 * b03) * det;
-            a[3] = (a22 * b04 - a21 * b05 - a23 * b03) * det;
-            a[4] = (a12 * b08 - a10 * b11 - a13 * b07) * det;
-            a[5] = (a00 * b11 - a02 * b08 + a03 * b07) * det;
-            a[6] = (a32 * b02 - a30 * b05 - a33 * b01) * det;
-            a[7] = (a20 * b05 - a22 * b02 + a23 * b01) * det;
-            a[8] = (a10 * b10 - a11 * b08 + a13 * b06) * det;
-            a[9] = (a01 * b08 - a00 * b10 - a03 * b06) * det;
-            a[10] = (a30 * b04 - a31 * b02 + a33 * b00) * det;
-            a[11] = (a21 * b02 - a20 * b04 - a23 * b00) * det;
-            a[12] = (a11 * b07 - a10 * b09 - a12 * b06) * det;
-            a[13] = (a00 * b09 - a01 * b07 + a02 * b06) * det;
-            a[14] = (a31 * b01 - a30 * b03 - a32 * b00) * det;
-            a[15] = (a20 * b03 - a21 * b01 + a22 * b00) * det;
-
-            self
-        }
 
         pub fn adjoint(&mut self) -> &mut Self {
             let a = self.val;
@@ -552,7 +795,7 @@ impl Matrix4 {
 
 
 
-        pub fn fromRotationTranslation = function (q, v) {
+        pub fn fromRotationTranslation (q, v) {
             // Quaternion math
             var out = self.val,
                 x = q.x, y = q.y, z = q.z, w = q.w,
@@ -838,24 +1081,16 @@ impl Matrix4 {
     */
 }
 
-/*
-impl ToString for Matrix4 {
-    pub fn to_string(&self) -> Self{
-        let a = self.val;
-        format!("Matrix4(
-    {}, {}, {}, {},
-    {}, {}, {}, {},
-    {}, {}, {}, {},
-    {}, {}, {}, {}
-)",
-            a[0],a[1],a[2],a[3],
-            a[4],a[5],a[6],a[7],
-            a[8],a[9],a[10],a[11],
-            a[12],a[13],a[14],a[15]
-        )
+use std::ops::Mul;
+
+impl Mul for Matrix4 {
+    type Output = Self;
+
+    fn mul(self, rhs: Self) -> Self {
+        let mut result = Matrix4::new();
+        *result.multiply(self,rhs)
     }
 }
-*/
 
 impl Display for Matrix4 {
     // `f` is a buffer, and this method must write the formatted string into it
@@ -895,7 +1130,8 @@ impl Display for Matrix4 {
 mod tests {
 
     use super::*;
-
+    use std::f64::consts::PI;
+    
     #[test]
     fn identity_4x4() {
         let id = Matrix4::identity();
@@ -927,25 +1163,133 @@ mod tests {
     }
 
     #[test]
-    fn transpose_with_chaining() {
-        let arr: Vec<f64> = (1..=16).map(|x| x as f64).collect();
-        let mat = Matrix4::from_vec(arr).transpose().build();
+    fn chaining_rotate_methods() {
+        let mut mat = Matrix4::identity();
+        let mut result = mat.rotate_z(PI / 2.0).rotate_y(PI / 4.0).rotate_z(-PI / 2.0);
         // Assert
         let answer: [f64; 16] = [
-            1.0, 5.0, 9.0, 13.0, 2.0, 6.0, 10.0, 14.0, 3.0, 7.0, 11.0, 15.0, 4.0, 8.0, 12.0, 16.0,
+            1.0, 0.0, 0.0, 0.0, 
+            0.0, 0.707, -0.707, 0.0, 
+            0.0, 0.707, 0.707, 0.0, 
+            0.0, 0.0, 0.0, 1.0,
         ];
-        assert!(mat.val.iter().zip(answer).all(|(a, b)| *a == b));
+
+        assert!(result.val.iter().zip(answer).all(|(a, b)| (*a - b).abs() < 0.0005 ));
     }
 
     #[test]
-    fn transpose_no_chaining() {
+    fn transpose() {
         let arr: Vec<f64> = (1..=16).map(|x| x as f64).collect();
         let mut mat = Matrix4::from_vec(arr);
         let tmat = mat.transpose();
         // Assert
         let answer: [f64; 16] = [
-            1.0, 5.0, 9.0, 13.0, 2.0, 6.0, 10.0, 14.0, 3.0, 7.0, 11.0, 15.0, 4.0, 8.0, 12.0, 16.0,
+            1.0, 5.0, 9.0, 13.0, 
+            2.0, 6.0, 10.0, 14.0, 
+            3.0, 7.0, 11.0, 15.0, 
+            4.0, 8.0, 12.0, 16.0,
         ];
         assert!(tmat.val.iter().zip(answer).all(|(a, b)| *a == b));
+    }
+    
+    #[test]
+    fn ops_trait_mul() {
+        let vec1: Vec<f64> = vec![
+          5.0,7.0,9.0,10.0,
+          2.0,3.0,3.0,8.0,
+          8.0,10.0,2.0,3.0,
+          3.0,3.0,4.0,8.0
+        ];
+        let mut mat1 = Matrix4::from_vec(vec1);
+        let vec2: Vec<f64> = vec![
+          3.0,10.0,12.0,18.0,
+          12.0,1.0,4.0,9.0,
+          9.0,10.0,12.0,2.0,
+          3.0,12.0,4.0,10.0
+        ];
+        let mut mat2 = Matrix4::from_vec(vec2);
+        let mul_mat = mat1 * mat2;
+        // Assert
+        let answer: [f64; 16] = [
+            210.0,267.0,236.0,271.0,
+            93.0,149.0,104.0,149.0,
+            171.0,146.0,172.0,268.0,
+            105.0,169.0,128.0,169.0,
+        ];
+        let t_answer: [f64; 16] = [
+            210.0,93.0,171.0,105.0,
+            267.0,149.0,146.0,169.0,
+            236.0,104.0,172.0,128.0,
+            271.0,149.0,268.0,169.0,
+        ];
+        assert!(mul_mat.values().iter().zip(answer).all(|(a, b)| *a == b));
+    }
+    
+      #[test]
+    fn ops_multiply_a_la_opengl() {
+        let vec1: Vec<f64> = vec![
+          5.0,7.0,9.0,10.0,
+          2.0,3.0,3.0,8.0,
+          8.0,10.0,2.0,3.0,
+          3.0,3.0,4.0,8.0
+        ];
+        let mut mat1 = Matrix4::from_vec(vec1);
+        let vec2: Vec<f64> = vec![
+          3.0,10.0,12.0,18.0,
+          12.0,1.0,4.0,9.0,
+          9.0,10.0,12.0,2.0,
+          3.0,12.0,4.0,10.0
+        ];
+        let mut mat2 = Matrix4::from_vec(vec2);
+        let result = mat2.multiply_post(mat1); // self = mat1 * self (post-multiplication)
+        // Assert
+        let answer: [f64; 16] = [
+            210.0,267.0,236.0,271.0,
+            93.0,149.0,104.0,149.0,
+            171.0,146.0,172.0,268.0,
+            105.0,169.0,128.0,169.0,
+        ];
+        let t_answer: [f64; 16] = [
+            210.0,93.0,171.0,105.0,
+            267.0,149.0,146.0,169.0,
+            236.0,104.0,172.0,128.0,
+            271.0,149.0,268.0,169.0,
+        ];
+        assert!(result.values().iter().zip(answer).all(|(a, b)| *a == b));
+    }
+    
+    #[test]
+    fn ops_mul() {
+        let v1: Vec<f64> = vec![
+          5.0,7.0,9.0,10.0,
+          2.0,3.0,3.0,8.0,
+          8.0,10.0,2.0,3.0,
+          3.0,3.0,4.0,8.0
+        ];
+        let v2: Vec<f64> = vec![
+          3.0,10.0,12.0,18.0,
+          12.0,1.0,4.0,9.0,
+          9.0,10.0,12.0,2.0,
+          3.0,12.0,4.0,10.0
+        ];
+        let m1 = Matrix4::from_vec(v1);
+        let m2 = Matrix4::from_vec(v2);
+        let mut result = Matrix4::new();
+        result = *result.multiply(m1,m2); // self = m1 * m2
+        // Assert
+        let answer: [f64; 16] = [
+            210.0,267.0,236.0,271.0,
+            93.0,149.0,104.0,149.0,
+            171.0,146.0,172.0,268.0,
+            105.0,169.0,128.0,169.0,
+        ];
+        let t_answer: [f64; 16] = [
+            210.0,93.0,171.0,105.0,
+            267.0,149.0,146.0,169.0,
+            236.0,104.0,172.0,128.0,
+            271.0,149.0,268.0,169.0,
+        ];
+        assert_eq!(result.val[0],210.0);
+        assert!(result.values().iter().zip(answer).all(|(a, b)| *a == b));
     }
 }

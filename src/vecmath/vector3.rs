@@ -138,6 +138,9 @@ impl Vector3 {
         return x * x + y * y + z * z;
     }
 
+    ///
+    /// Normalize this Vector3
+    ///
     pub fn normalize(&mut self) -> &mut Self {
         let x = self.x;
         let y = self.y;
@@ -152,10 +155,16 @@ impl Vector3 {
         self
     }
 
+    ///
+    /// Dot Product
+    ///
     pub fn dot(&self, v: Vector3) -> f64 {
         return self.x * v.x + self.y * v.y + self.z * v.z;
     }
 
+    ///
+    /// Cross Product
+    ///
     pub fn cross(&mut self, v: Vector3) -> &mut Self {
         let ax = self.x;
         let ay = self.y;
@@ -170,6 +179,9 @@ impl Vector3 {
         self
     }
 
+    ///
+    /// Linear interpolation between this Vector3 and `v`
+    ///
     pub fn lerp(&mut self, v: &Vector3, t: f64) -> &mut Self {
         let ax = self.x;
         let ay = self.y;
@@ -180,6 +192,9 @@ impl Vector3 {
         self
     }
 
+    ///
+    /// Apply a Matrix4x4 transform to this `Vector3`
+    ///
     pub fn transform_mat4(&mut self, mat: Matrix4) -> &mut Self {
         let x = self.x;
         let y = self.y;
@@ -222,15 +237,16 @@ impl Vector3 {
         }
     */
 
-    /**
-     * Multiplies this Vector3 by the specified matrix; let
-     * applying a W divide. self is useful for projection,
-     * e.g. unprojecting a 2D point into 3D space.
-     *
-     * @method  prj
-     * @param {Matrix4} the 4x4 matrix to multiply with
-     * @return {Vector3} self object for chaining
-     */
+    ///
+    /// Multiplies this Vector3 by the specified matrix; let
+    /// applying a W divide. self is useful for projection,
+    /// e.g. unprojecting a 2D point into 3D space.
+    ///
+    /// # Arguments
+    ///
+    /// * `mat` - A the 4x4 matrix to multiply with this vector
+    /// return {Vector3} for chaining
+    ///
     pub fn project(&mut self, mat: Matrix4) -> &mut Self {
         let x = self.x;
         let y = self.y;
