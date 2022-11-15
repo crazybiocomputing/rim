@@ -20,14 +20,26 @@
 use crate::vecmath::vector3::Vector3;
 use std::fmt::{self, Display, Formatter};
 
-///
-/// f64 4 by 4 Matrix like those used in openGL and variants.
-///
-/// Adapted from JS package
-/// https://github.com/mattdesl/vecmath
+
 
 const EPSILON: f64 = 0.000001;
 
+///
+/// f64 4 by 4 Matrix like those used in openGL and variants.
+///
+/// <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+/// <mrow><mo>[</mo><mtable rowspacing="4pt" columnspacing="1em"><mtr><mtd><mi>m</mi><mn>00</mn></mtd>
+/// <mtd><mi>m</mi><mn>01</mn></mtd><mtd><mi>m</mi><mn>02</mn></mtd><mtd><mi>m</mi><mn>03</mn></mtd>
+/// </mtr><mtr><mtd><mi>m</mi><mn>10</mn></mtd><mtd><mi>m</mi><mn>11</mn></mtd><mtd><mi>m</mi><mn>12</mn></mtd>
+/// <mtd><mi>m</mi><mn>13</mn></mtd></mtr><mtr><mtd><mi>m</mi><mn>20</mn></mtd><mtd><mi>m</mi><mn>21</mn></mtd>
+/// <mtd><mi>m</mi><mn>22</mn></mtd><mtd><mi>m</mi><mn>23</mn></mtd></mtr><mtr><mtd><mi>m</mi><mn>30</mn></mtd>
+/// <mtd><mi>m</mi><mn>31</mn></mtd><mtd><mi>m</mi><mn>32</mn></mtd><mtd><mi>m</mi><mn>33</mn></mtd></mtr>
+/// </mtable><mo>]</mo></mrow></math>
+///
+/// # From...
+///
+/// - Adapted from JS package <https://github.com/mattdesl/vecmath>
+/// - Adapted from Java package <https://github.com/egonw/vecmath/blob/master/javax/vecmath/>
 #[derive(Clone, Copy)]
 pub struct Matrix4 {
     val: [f64; 16],
@@ -530,7 +542,18 @@ impl Matrix4 {
     }
 
     ///
-    /// Matrix translation 
+    /// Matrix translation by a Vector3.
+    ///
+    /// <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+    /// <mrow><mo>[</mo><mtable rowspacing="4pt" columnspacing="1em">
+    /// <mtr><mtd><mn>1</mn></mtd><mtd><mn>0</mn></mtd><mtd><mn>0</mn></mtd><mtd><mi>X</mi></mtd></mtr><mtr><mtd><mn>0</mn>
+    /// </mtd><mtd><mn>1</mn></mtd><mtd><mn>0</mn></mtd><mtd><mi>Y</mi></mtd></mtr><mtr><mtd><mn>0</mn></mtd><mtd><mn>0</mn>
+    /// </mtd><mtd><mn>1</mn></mtd><mtd><mi>Z</mi></mtd></mtr><mtr><mtd><mn>0</mn></mtd><mtd><mn>0</mn></mtd><mtd><mn>0</mn>
+    /// </mtd><mtd><mn>1</mn></mtd></mtr>
+    /// </mtable><mo>]</mo></mrow>
+    /// </math>
+    ///
+    /// $$ \begin{bmatrix} 1 & 0 & 0 & X \\ 0 & 1 & 0 & Y \\ 0 & 0 & 1 & Z \\ 0 & 0 & 0 & 1 \\ \end{bmatrix} $$
     ///
     /// ```math
     /// \begin{bmatrix}
@@ -540,7 +563,6 @@ impl Matrix4 {
     /// 0 & 0 & 0 & 1 \\
     /// \end{bmatrix}
     /// ```
-    /// 
     pub fn translate(&mut self, v: Vector3) -> &mut Self {
         let x = v.x;
         let y = v.y;
@@ -728,7 +750,7 @@ impl Matrix4 {
     //
     // Private function to set 16 values
     //
-    pub fn set(&mut self, 
+    fn set(&mut self, 
       m00: f64,  m01: f64,  m02: f64,  m03: f64, 
       m10: f64,  m11: f64,  m12: f64,  m13: f64,
       m20: f64,  m21: f64,  m22: f64,  m23: f64,
