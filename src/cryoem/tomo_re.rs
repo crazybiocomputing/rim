@@ -24,6 +24,14 @@ pub fn sino_to_section() -> FloatProcessor{
         0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,
         0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000];
 
+    let chessboard = vec![
+        255f32, 0f32, 255f32, 0f32, 255f32, 0f32, 255f32, 0f32, 0f32, 255f32, 0f32, 255f32, 0f32, 255f32,
+        0f32, 255f32, 255f32, 0f32, 255f32, 0f32, 255f32, 0f32, 255f32, 0f32, 0f32, 255f32, 0f32, 255f32,
+        0f32, 255f32, 0f32, 255f32, 255f32, 0f32, 255f32, 0f32, 255f32, 0f32, 255f32, 0f32, 0f32, 255f32,
+        0f32, 255f32, 0f32, 255f32, 0f32, 255f32, 255f32, 0f32, 255f32, 0f32, 255f32, 0f32, 255f32, 0f32,
+        0f32, 255f32, 0f32, 255f32, 0f32, 255f32, 0f32, 255f32,
+    ];
+
     let sinogram = vec![
         0.000,0.000,0.245,1.000,0.498,0.245,0.000,0.000,
         0.087,0.000,0.253,0.956,0.640,0.174,0.024,0.024,
@@ -38,7 +46,7 @@ pub fn sino_to_section() -> FloatProcessor{
         ];
     
 
-        let sino_ip = ImageProcessor::new(8,10, sinogram, Gray32::new());
+        let sino_ip = ImageProcessor::new(8,8, chessboard, Gray32::new());
         let nb_proj = sino_ip.get_height();
         
         // Precompute angles
@@ -47,8 +55,8 @@ pub fn sino_to_section() -> FloatProcessor{
         for i in 0..nb_proj {
             angles.push(-1.0 * i as f32 * step);
         }
-        //new(&sino_ip, &angles)
-        test(&sino_ip, -54.0)
+        new(&sino_ip, &angles);
+        test(&sino_ip, -60.0)
         
         
 }
@@ -86,7 +94,7 @@ pub fn test(ip: &FloatProcessor, angle : f32) -> FloatProcessor {
     }
 
 // Back projection for an angle
-pub fn back_projection(ip : &FloatProcessor, angle : f32, y: u32) -> Vec<f32> {
+pub fn back_projection(ip : &FloatProcessor, angle : f32, y : u32) -> Vec<f32> {
     let mut result : Vec<f32> = vec![0.0 ; ip.get_width() as usize];
 
     let center : f32 = (ip.get_width()as f32/2.0).round();
@@ -96,9 +104,12 @@ pub fn back_projection(ip : &FloatProcessor, angle : f32, y: u32) -> Vec<f32> {
             let angle_rad : f32 = (angle as f32) * PI as f32 / 180.0;
 
             // Compute x'
+            //(xp,yp) = rotate()
             let x_prime : f32 = ((((x as f32) - center )*angle_rad.cos() - ((y as f32) - center)*angle_rad.sin()) as f32) + center ;
-
+            let y_prime : f32 = ((((x as f32) - center )*angle_rad.sin() + ((y as f32) - center)*angle_rad.cos()) as f32);
             // integration
+            //(x)= interploate_nearest(xp,yp,row)
+            //(x)= interploate_linear(xp,yp,row)
             if x_prime <= 8.0 && x_prime >= -1.0{
                 let x_floor = x_prime.floor();
                 let x_ceil = x_prime.ceil();
@@ -111,7 +122,7 @@ pub fn back_projection(ip : &FloatProcessor, angle : f32, y: u32) -> Vec<f32> {
                 if x_ceil <= 7.0 {
                     result[x_ceil as usize] += ip.get_pixel_at(x as u32, y as u32).unwrap() as f32 * x_ceil_prop; 
                 }
-                println!("X : {x}, y : {y}, X PRIME : {x_prime}, CEIL PROP : {x_ceil}, FLOOR PROP {x_floor}, CENTER {center}, ANGLE {angle}, VALUE : {}, ADDFLOOR: {}, ADDCEIL: {}", ip.get_pixel_at(x as u32, y as u32).unwrap(), ip.get_pixel_at(x as u32, y as u32).unwrap() as f32 * x_floor_prop, ip.get_pixel_at(x as u32, y as u32).unwrap() as f32 * x_ceil_prop);
+                println!("X : {x}, y : {y}, X PRIME : {x_prime}, Y PRIME : {y_prime} CEIL PROP : {x_ceil}, FLOOR PROP {x_floor}, CENTER {center}, ANGLE {angle}, VALUE : {}, ADDFLOOR: {}, ADDCEIL: {}", ip.get_pixel_at(x as u32, y as u32).unwrap(), ip.get_pixel_at(x as u32, y as u32).unwrap() as f32 * x_floor_prop, ip.get_pixel_at(x as u32, y as u32).unwrap() as f32 * x_ceil_prop);
             }   
         }
     //Return
