@@ -1,11 +1,14 @@
-use crate::{image_processor::ImageProcessor, grayscale::Gray32, color_space::ColorSpace, float_processor::FloatProcessor, image_stack::ImageStack};
+use crate::{image_processor::ImageProcessor, grayscale::Gray32, color_space::ColorSpace, float_processor::FloatProcessor, image_stack::ImageStack, io::{image_reader::OutputProcessor, image_writer::FileSaver}};
 use std::{f64::consts::PI};
 use crate::image_traits::Access;
+use crate::io::file_info::*;
 
 
 
 pub fn tomography() {
-    sino_to_section();
+    let test = sino_to_section();
+    let op = OutputProcessor::FloatProcessor(test);
+    FileSaver::save_processor("./test_backprojection", FileInfo::GRAY32_FLOAT, op)
 }
 
 
@@ -44,7 +47,10 @@ pub fn sino_to_section() -> FloatProcessor{
         for i in 0..nb_proj {
             angles.push(-1.0 * i as f32 * step);
         }
-        new(&sino_ip, &angles)
+        //new(&sino_ip, &angles)
+        test(&sino_ip, -54.0)
+        
+        
 }
 
 // Use back_projection with all angles compute
