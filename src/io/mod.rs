@@ -1,6 +1,7 @@
 pub mod file_info;
 
 pub mod image_reader;
+pub mod image_writer;
 pub mod raw_reader;
 ///
 /// Example of tabular data in STAR format
