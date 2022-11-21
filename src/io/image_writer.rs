@@ -269,8 +269,7 @@ impl FileSaver {
             FileSaver::save_raw_file(filename, raw_data);
         }
     }
-
-
+    
     /// Write the raw data in a raw file
     ///
     /// # arguments
@@ -279,7 +278,13 @@ impl FileSaver {
     /// * `buffer` - Vector of data for writting in the file
     ///
     pub fn save_raw_file(name: &str, buffer: Vec<u8>){
-        let filename = format!("{}.bin", name);
+        let mut filename;
+        if name.contains(".bin") {
+            filename = format!("{}", name);
+        }
+        else {
+            filename = format!("{}.bin", name);
+        }
         let file = File::create(filename);
         file.expect("REASON").write_all(&buffer);
     }
