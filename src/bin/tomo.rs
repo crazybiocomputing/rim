@@ -1,6 +1,5 @@
-use std::env;
+use rim::cryoem::tomo_re::*;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    dbg!(args);
+    tomography();
 }
