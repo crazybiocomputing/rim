@@ -8,6 +8,9 @@ use rim::io::file_info::*;
 use rim::io::image_reader::*;
 use rim::io::text_reader::*;
 
+// Comamnde : cargo run --bin sinogram -- -i "path_image" -d 256x256 -b 32 -p "path_ficher_angle" -o "path_sortie_image"
+
+// Exemle:  cargo run --bin sinogram -- -i ./src/sino.bin -d 256x256 -b 32 -p ./src/angles.csv -o ./test
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -40,22 +43,16 @@ fn main() {
                 _ => panic!("Unknown argument")
                 }
             }
-            let ip =run(&input,meta.0,meta.1,meta.2,params,&output);
+            let ip =import_image(&input,meta.0,meta.1,meta.2,params,&output);
             let ip2 = Sinogram::new_in_range(&ip,0.0,180.0,45.0);
             let op =OutputProcessor::FloatProcessor(ip2);
             FileSaver::save_processor(&output, FileInfo::GRAY32_FLOAT, op);
-
-
-
-
 
         }
         _ => {
             println!("Missing arguments. {}",args.len());
           
         }
-    
-      // println!("{} {} {}",i,args[i], args[i+1]);
     }
 }
 

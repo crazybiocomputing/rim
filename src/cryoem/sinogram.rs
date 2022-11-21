@@ -18,6 +18,9 @@
 //  along with RIM.  If not, see <http://www.gnu.org/licenses/>.
 //
 // Authors: Romane Cathelin, Paul Sastourne
+
+
+// TO use go bin/sinogram 
  
 use std::f64::consts::PI;
 use crate::float_processor::FloatProcessor;
@@ -31,7 +34,7 @@ use crate::io::text_reader::*;
 // use rim::image_processor::*;
 // use rim::image_processor::*;
 
-pub fn run(ifile: &String,w: u32,h: u32,bpp: usize,csv: String,ofile: &String) -> FloatProcessor{
+pub fn import_image(ifile: &String,w: u32,h: u32,bpp: usize,csv: String,ofile: &String) -> FloatProcessor{
  
      let typ : u32 = match bpp {
        8 => FileInfo::GRAY8,
@@ -43,7 +46,6 @@ pub fn run(ifile: &String,w: u32,h: u32,bpp: usize,csv: String,ofile: &String) -
      let proc = FileOpener::open_processor(&ifile[..], w, h, typ);
      match proc {
          OutputProcessor::FloatProcessor(ip) => {
-             // TODO
              println!("IP Information: {} {} {}",ip.get_width(),ip.get_height(),ip.get_bit_depth());
            ip
          }
@@ -53,7 +55,6 @@ pub fn run(ifile: &String,w: u32,h: u32,bpp: usize,csv: String,ofile: &String) -
  }
  
 pub struct Sinogram {}
-
 impl Sinogram {
     ///
     ///
