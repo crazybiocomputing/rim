@@ -11,7 +11,7 @@ fn help() {
 rim-tool -i <input-file.bin> -s <width>x<height> -b <bpp> -p <angle-file.csv> -o <output-file.bin");
 }
 
-fn run(ifile: String,w: u32,h: u32,bpp: usize,csv: String,ofile: String) {
+fn run(ifile: String,w: u32,h: u32,bpp: usize,csv: String,ofile: String) -> FloatProcessor{
 
     let typ : u32 = match bpp {
       8 => FileInfo::GRAY8,
@@ -30,48 +30,8 @@ fn run(ifile: String,w: u32,h: u32,bpp: usize,csv: String,ofile: String) {
             }
         }
         _ => panic!("Wrong type"),
-    }
+
+    }ip
 
 }
 
-fn main() {
-    let args: Vec<String> = env::args().collect();
-    let mut input = String::new();
-    let mut output = String::new();
-    let mut params = String::new();
-    let mut meta : (u32,u32,usize) = (0,0,0);
-    
-    // Loop over the arguments
-    match args.len() {
-        1 => {
-            println!("Arguments required.");
-            help();
-        },
-        11 => {
-            for i in (1..args.len()).step_by(2) {
-                let arg = &args[i];
-                let val = &args[i+1];
-                // Parse 
-                match &arg[..] {
-                "-i" => input = val.to_string(),
-                "-d" | "--dim" => {
-                    let words : Vec<&str> = val.split('x').collect();
-                    meta.0 = words[0].parse::<u32>().unwrap() as u32;
-                    meta.1 = words[1].parse::<u32>().unwrap() as u32;
-                },
-                "-b" | "--bpp" => meta.2 = val.parse::<u32>().unwrap() as usize,
-                "-p" => params = val.to_string(),
-                "-o" => output = val.to_string(),
-                _ => panic!("Unknown argument")
-                }
-            }
-            run(input,meta.0,meta.1,meta.2,params,output);
-        }
-        _ => {
-            println!("Missing arguments. {}",args.len());
-            help();
-        }
-    
-      // println!("{} {} {}",i,args[i], args[i+1]);
-    }
-}

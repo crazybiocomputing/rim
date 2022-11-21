@@ -25,6 +25,33 @@ use crate::color_space::ColorSpace;
 use crate::grayscale::Gray;
 use crate::image_traits::Access;
 
+use crate::io::file_info::*;
+use crate::io::image_reader::*;
+use crate::io::text_reader::*;
+// use rim::image_processor::*;
+// use rim::image_processor::*;
+
+pub fn run(ifile: &String,w: u32,h: u32,bpp: usize,csv: String,ofile: &String) -> FloatProcessor{
+ 
+     let typ : u32 = match bpp {
+       8 => FileInfo::GRAY8,
+       16 => FileInfo::GRAY16_UNSIGNED,
+       32 => FileInfo::GRAY32_FLOAT,
+       _ => FileInfo::UNKNOWN
+     };
+ 
+     let proc = FileOpener::open_processor(&ifile[..], w, h, typ);
+     match proc {
+         OutputProcessor::FloatProcessor(ip) => {
+             // TODO
+             println!("IP Information: {} {} {}",ip.get_width(),ip.get_height(),ip.get_bit_depth());
+           ip
+         }
+         _ => panic!("Wrong type"),
+ 
+     }
+ }
+ 
 pub struct Sinogram {}
 
 impl Sinogram {
