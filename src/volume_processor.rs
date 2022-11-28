@@ -59,12 +59,10 @@ impl<T: PixelType, C: ColorSpace> VolumeProcessor<T, C> {
 pub fn get_height(&self) -> u32 {
     self.height
 }
-pub fn n_slices(&self) -> u32 {
+pub fn depth(&self) -> u32 {
     self.depth
 }
-pub fn labels(&self) -> &Vec<String> {
-    &self.labels
-}
+
 pub fn data(&self) -> &Vec<Vec<T>> {
     &self.data
 }
