@@ -52,62 +52,106 @@ fn parse_star(txt: String) -> Vec<Category> {
 fn sort_file(txt: Vec<String>) -> Vec<Category> {
     let mut categorie_word = String::from("");
     let mut attribute_word = String::from("");
+    let mut attribute_vec:Vec<String>=Vec::new();
+    let mut valeur_vec:Vec<String>=Vec::new();
+    let mut valeur_vec_tot:Vec<Vec<String>>=Vec::new();
     let mut valeur = String::from("");
-
+    let mut boucle=false;
     let mut multiline = false;
     let mut categories: Vec<Category> = Vec::new();
     for i in txt {
         if multiline == false {
-            if i.chars().nth(0).unwrap().to_string() == "_" {
-                
-                let espace: Vec<&str> = i.split_whitespace().collect();
-                let second_decoupe: Vec<&str> = espace[0].split(".").collect();
-                categorie_word = second_decoupe[0].to_string();
-                attribute_word = second_decoupe[1].to_string();
-                if espace.len() >= 2 {
-                    not_multiline(&mut categories, espace, &categorie_word, &attribute_word);
-                    
-                } else {
-                    multiline = true;
-                }
+            if i== "loop_" {
+                boucle=true;
             }
-        } else {
-            if i.chars().last().unwrap().to_string() != ";" {
-                valeur += &i;
-                
-            } 
-            
-
-            else {
-                let cat_word = categorie_word.clone();
-                let results = rechercher_categorie(&cat_word, &categories);
-                let nouvelle_valeur=valeur.clone();
-                match results {
-                    Some(result) => {
-                        let attribute_found = category_exist(nouvelle_valeur, &attribute_word);
-                        let indexes:usize=result.clone() as usize;
-                        categories[indexes].attributes.push(attribute_found);
+            else{
+                if boucle==true {
+                    let mut compteur =0;
+                    while i.chars().nth(0).unwrap().to_string() == "_" {
+                        let espace: Vec<&str> = i.split_whitespace().collect();
+                        let second_decoupe: Vec<&str> = espace[0].split(".").collect();
+                        categorie_word = second_decoupe[0].to_string();
+                        attribute_vec.push(second_decoupe[1].to_string());
+                        compteur+=1;
+                    }
+                    for _ in 0..compteur{
+                        let espace: Vec<&str> = i.split_whitespace().collect();
+                        for k in espace{
+                            valeur_vec.push(k.to_string());
+                        }
+                        let val=valeur_vec.clone();
+                        valeur_vec_tot.push(val);
+                        valeur_vec.clear();
                         
-                        multiline=false;
                     }
-                    None => {
-                        let new_cat = category_dont_exist(nouvelle_valeur, &categorie_word, &attribute_word);
-                        categories.push(new_cat);
-                        multiline=false;
+                    let results = rechercher_categorie(&categorie_word, &categories);
+                    let nouvelle_valeur=valeur.clone();
+                    match results {
+                        Some(result) => {
+                            
+                            let attribute_found = category_exist(nouvelle_valeur, &attribute_word);
+                            let indexes:usize=result.clone() as usize;
+                            categories[indexes].attributes.push(attribute_found);
+                        }
+                        None => {
+                            let new_cat = category_dont_exist(nouvelle_valeur, &categorie_word, &attribute_word);
+                            categories.push(new_cat);
+                        }
+                    }
+
+                }
+                else{
+                    if i.chars().nth(0).unwrap().to_string() == "_" {
+                        
+                        let espace: Vec<&str> = i.split_whitespace().collect();
+                        let second_decoupe: Vec<&str> = espace[0].split(".").collect();
+                        categorie_word = second_decoupe[0].to_string();
+                        attribute_word = second_decoupe[1].to_string();
+                        if espace.len() >= 2 {
+                            not_multiline(&mut categories, espace, &categorie_word, &attribute_word);
+                            
+                        } else {
+                            multiline = true;
+                        }
+                    }
+                
+                    else {
+                        println!("{i}");
+                        if i.chars().last().unwrap().to_string() != ";" {
+                            valeur += &i;
+                            
+                        } 
+                    
+
+                        else {
+                            let cat_word = categorie_word.clone();
+                            let results = rechercher_categorie(&cat_word, &categories);
+                            let nouvelle_valeur=valeur.clone();
+                            match results {
+                                Some(result) => {
+                                    let attribute_found = category_exist(nouvelle_valeur, &attribute_word);
+                                    
+                                    let indexes:usize=result.clone() as usize;
+                                    categories[indexes].attributes.push(attribute_found);  
+
+                                    multiline=false;
+                                }
+                                None => {
+                                    let new_cat = category_dont_exist(nouvelle_valeur, &categorie_word, &attribute_word);
+                                    categories.push(new_cat);
+                                    multiline=false;
+                                }
+                            }
+                        }
                     }
                 }
             }
-        }
+        } 
     }
     return categories;
 }
 
-fn not_multiline(
-    categories: &mut Vec<Category>,
-    espace: Vec<&str>,
-    categorie_word: &String,
-    attribute_word: &String,
-) {
+fn not_multiline( categories: &mut Vec<Category>, espace: Vec<&str>, categorie_word: &String, attribute_word: &String) {
     let mut valeur = String::from("");
     for i in espace {
         valeur = i.to_string();
@@ -128,7 +172,7 @@ fn not_multiline(
 }
 
 fn rechercher_categorie<'a>( categorie: &'a String, veccategorie: &'a Vec<Category> ) -> Option< i32> {
-    for mut i in veccategorie {
+    for i in veccategorie {
         let mut compteur=0;
         if categorie.to_string() == i.name {
             return Some(compteur);
@@ -138,6 +182,8 @@ fn rechercher_categorie<'a>( categorie: &'a String, veccategorie: &'a Vec<Catego
     return None;
 }
 
+
+
 fn category_exist(value_final: String, attribute_word: &String) -> Attribute {
     let attribute_found = Attribute {
         key: (attribute_word).to_string(),
@@ -145,11 +191,7 @@ fn category_exist(value_final: String, attribute_word: &String) -> Attribute {
     };
     return attribute_found;
 }
-fn category_dont_exist(
-    value_final: String,
-    categorie_word: &String,
-    attribute_word: &String,
-) -> Category {
+fn category_dont_exist(value_final: String, categorie_word: &String, attribute_word: &String) -> Category {
     let mut attribut_of_cat: Vec<Attribute> = Vec::new();
     let attribute_found = Attribute {
         key: (attribute_word).to_string(),
@@ -166,5 +208,6 @@ fn category_dont_exist(
 fn main() {
     let file = read_file("test_unit.mmcif");
     // println!("{}",file);
-    println!("{:?}", parse_star(file))
+     
+    parse_star(file);
 }
