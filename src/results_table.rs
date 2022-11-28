@@ -25,6 +25,9 @@
 /// A Table is the child of the root `DataSet`
 ///
 ///
+
+use core::slice::Iter;
+
 #[derive(Debug)]
 pub struct ResultsTable {
     name: String,
@@ -68,7 +71,7 @@ impl ResultsTable {
     /// Returns a comma delimited string containing the column headings.
     ///
     pub fn get_column_headings(&self) -> String {
-        "TODO".to_string()
+        self.headings.join(",")
     }
 
     ///
@@ -79,7 +82,7 @@ impl ResultsTable {
     }
 
     ///
-    /// Returns the heading of the specified column or null if the column is empty.
+    /// Returns the heading of the specified column or None if the column is empty.
     ///
     pub fn get_column_heading(&self, column: usize) -> Option<&String> {
         self.headings.get(column)
@@ -97,9 +100,9 @@ impl ResultsTable {
 
     ///
     /// Returns the value of the given column and row, where column must
-    /// be less than or equal the value returned by getLastColumn() and row
+    /// be less than or equal the value returned by [get_last_column()](ResultsTable::get_last_column) and row
     /// must be greater than or equal zero and less than the value
-    /// returned by size().
+    /// returned by [size()](ResultsTable::size).
     pub fn get_value_as_float(&self, column: usize, row: usize) -> f64 {
         // TODO
         // self.columns.get(column)
@@ -109,7 +112,7 @@ impl ResultsTable {
     ///
     /// Returns the value of the specified column and row, where column
     /// is the column heading and row is a number greater than or equal zero
-    /// and less than value returned by size().
+    /// and less than value returned by [size()](ResultsTable::size).
     ///
     /// Throws an IllegalArgumentException
     /// if this ResultsTable does not have a column with the specified heading.
@@ -153,8 +156,8 @@ impl ResultsTable {
     ///
     /// Returns the string value of the given column and row,
     /// where column must be less than or equal the value returned
-    /// by getLastColumn() and row must be greater than or equal zero
-    /// and less than the value returned by size().
+    /// by [get_last_column()](ResultsTable::get_last_column)() and row must be greater than or equal zero
+    /// and less than the value returned by [size()](ResultsTable::size).
     ///
     pub fn get_string_value_at(&self, column: usize, row: usize) -> Result<&String, &str> {
         Err("TODO")
@@ -222,6 +225,10 @@ impl ResultsTable {
         }
     }
 
+    ///
+    /// Get row content at given index and returns 
+    /// the row as a vector.
+    ///
     pub fn get_row_at(&self, index: usize) -> Vec<&Cell> {
         let mut row = Vec::<&Cell>::new();
         for col in &self.columns {
@@ -246,14 +253,22 @@ impl ResultsTable {
 
     /// Returns a copy of the given column as a String array,
     /// or null if the column is not found.
-    pub fn get_column_as_strings(&self, column: String) -> Vec<String> {
-        vec!["TO".to_string(), "DO".to_string()]
+    pub fn get_column_as_strings(&self, column: String) -> Result<Vec<String>, &str> {
+        let index = self.get_column_index(&column);
+        match index {
+            Ok(icol) => Ok(self.columns[icol].cells().iter().map(|cell| cell.to_string()).collect()),
+            Err(e) => Err(e),
+        }
     }
 
     /// Returns a copy of the given column as a f64 array,
     /// or null if the column is empty.
-    pub fn get_column_as_floats(&self, column: usize) -> Vec<f64> {
-        vec![1.0, 2.0, 3.0]
+    pub fn get_column_as_floats(&self, column: String) -> Result<Vec<f64>,&str> {
+        let index = self.get_column_index(&column);
+        match index {
+            Ok(icol) => Ok(self.columns[icol].cells().iter().map(|cell| cell.to_f64()).collect()),
+            Err(e) => Err(e),
+        }
     }
 
     /// Sets the values of the given column to the values in the array.
@@ -637,6 +652,7 @@ pub struct Column {
     index: usize,
     title: String,
     cells: Vec<Cell>,
+    icount: usize
 }
 
 impl Column {
@@ -645,6 +661,7 @@ impl Column {
             index,
             title,
             cells: Vec::<Cell>::new(),
+            icount: 0
         }
     }
     pub fn push(&mut self, item: Cell) {
@@ -654,13 +671,35 @@ impl Column {
     pub fn to_vec(&self) -> Vec<Cell> {
         self.cells.clone()
     }
-    pub fn get_value(&self,index: usize) -> Cell {
+    pub fn get_value(&self, index: usize) -> Cell {
         self.cells[index].clone()
+    }
+    pub fn cells(&self) -> &Vec<Cell> {
+      &self.cells
     }
 }
 
+
+impl Iterator for Column {
+    // we will be counting with usize
+    type Item = Cell;
+
+    // next() is the only required method
+    fn next(&mut self) -> Option<Self::Item> {
+        // Increment our count. This is why we started at zero.
+        self.icount += 1;
+
+        // Check to see if we've finished counting or not.
+        if self.icount < self.cells.len() {
+            Some(self.cells[self.icount].clone())
+        } else {
+            None
+        }
+    }
+}
 ///
-/// The value stored in a column may be a Number (f64) or a Text (String depending of the context)
+/// The value stored in a column may be a Number (f64) or a Text 
+/// (String depending of the context)
 ///
 #[derive(Debug, Clone)]
 pub enum Cell {
@@ -670,19 +709,19 @@ pub enum Cell {
 }
 
 impl Cell {
-  pub fn to_f64(&self) -> f64 {
-    match self {
-      Cell::Number(x) => *x,
-      _ => f64::NAN
+    pub fn to_f64(&self) -> f64 {
+        match self {
+            Cell::Number(x) => *x,
+            _ => f64::NAN,
+        }
     }
-  }
-  pub fn to_string(&self) -> String {
-    match self {
-      Cell::Number(x) => x.to_string(),
-      Cell::Text(w) => w.clone(),
-      Cell::None => String::from("None")
+    pub fn to_string(&self) -> String {
+        match self {
+            Cell::Number(x) => x.to_string(),
+            Cell::Text(w) => w.clone(),
+            Cell::None => String::from("None"),
+        }
     }
-  }
 }
 #[cfg(test)]
 mod tests {
@@ -694,6 +733,16 @@ mod tests {
         let mut rt = ResultsTable::new("Test".to_string());
         rt.add_row();
         rt.add_row();
+
+        assert_eq!(rt.name, String::from("Test"));
+        assert_eq!(rt.count, 2);
+    }
+
+    #[test]
+    fn get_headings() {
+        let mut rt = ResultsTable::new("Test".to_string());
+        rt.add_row();
+        rt.add_value(&"num".to_string(), Cell::Number(3.14));
 
         assert_eq!(rt.name, String::from("Test"));
         assert_eq!(rt.count, 2);
@@ -745,5 +794,56 @@ mod tests {
                 String::from("Cos(n)")
             ]
         );
+    }
+    #[test]
+    fn get_first_column_entitled_a_as_floats() {
+        /*
+            A,B,Species
+            1,2.0,Chicken
+            Wrong,5.0,Pig
+            7,8.0,Human
+        */
+        let mut rt = ResultsTable::new("Table".to_string());
+        rt.add_row();
+        rt.add_value(&"A".to_string(), Cell::Number(1 as f64));
+        rt.add_value(&"B".to_string(), Cell::Number(2.0));
+        rt.add_value(&"Species".to_string(), Cell::Text("Chicken".to_string()));
+        rt.add_row();
+        rt.add_value(&"A".to_string(), Cell::Text("Wrong".to_string()));
+        rt.add_value(&"B".to_string(), Cell::Number(5.0));
+        rt.add_value(&"Species".to_string(), Cell::Text("Pig".to_string()));
+        rt.add_row();
+        rt.add_value(&"A".to_string(), Cell::Number(7 as f64));
+        rt.add_value(&"B".to_string(), Cell::Number(8.0));
+        rt.add_value(&"Species".to_string(), Cell::Text("Human".to_string()));
+
+        let answer = vec![1.0,f64::NAN,7.0];
+        assert_eq!(answer,rt.get_column_as_floats("A".to_string()).unwrap());
+    }
+    
+    #[test]
+    fn get_third_column_entitled_species_as_strings() {
+        /*
+            A,B,Species
+            1,2.0,Chicken
+            4,5.0,Pig
+            7,8.0,Human
+        */
+        let mut rt = ResultsTable::new("Table".to_string());
+        rt.add_row();
+        rt.add_value(&"A".to_string(), Cell::Number(1 as f64));
+        rt.add_value(&"B".to_string(), Cell::Number(2.0));
+        rt.add_value(&"Species".to_string(), Cell::Text("Chicken".to_string()));
+        rt.add_row();
+        rt.add_value(&"A".to_string(), Cell::Number(4 as f64));
+        rt.add_value(&"B".to_string(), Cell::Number(5.0));
+        rt.add_value(&"Species".to_string(), Cell::Text("Pig".to_string()));
+        rt.add_row();
+        rt.add_value(&"A".to_string(), Cell::Number(7 as f64));
+        rt.add_value(&"B".to_string(), Cell::Number(8.0));
+        rt.add_value(&"Species".to_string(), Cell::Text("Human".to_string()));
+
+        let answer = vec!["Chicken".to_string(),"Pig".to_string(),"Human".to_string()];
+        assert_eq!(answer,rt.get_column_as_strings("Species".to_string()).unwrap());
     }
 }

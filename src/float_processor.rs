@@ -28,7 +28,7 @@ use crate::image_traits::Access;
 use crate::statistics::Statistics;
 
 // Alias
-type FloatProcessor = ImageProcessor<f32, Gray<f32>>;
+pub type FloatProcessor = ImageProcessor<f32, Gray<f32>>;
 
 impl Statistics<f32> for FloatProcessor {
     type Output = u16;

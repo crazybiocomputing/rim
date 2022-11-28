@@ -80,7 +80,7 @@ impl FileOpener {
     /// * `ty` The image Type among the `FileInfo` constants.
     ///
     pub fn open_volume(filename: &str, w: u32, h: u32, d: u32, ty: u32) -> OutputProcessor {
-        let length = (w * h *d ) as usize;
+        let length = (w * h * d) as usize;
         // Read data
         let buffer = FileOpener::get_file_as_byte_vec(&filename.to_string());
 
@@ -102,19 +102,25 @@ impl FileOpener {
             }
             FileInfo::GRAY32_FLOAT => {
                 let mut dataf32 = Vec::<f32>::new();
-                let file = File::open(&filename.to_string()).expect("no file found");;
+                let file = File::open(&filename.to_string()).expect("no file found");
                 let mut reader = BufReader::new(file);
                 let mut buffer = [0u8; 4];
                 for i in 0..length {
                     if let Err(e) = reader.read_exact(&mut buffer) {
                         // if you know how many bytes are expected, then it's better not to rely on `UnexpectedEof`!
-                        panic!("{}",e);
+                        panic!("{}", e);
                     }
                     // or use `from_le_bytes()` depending on the byte-order
                     let float = f32::from_be_bytes(buffer);
                     dataf32.push(float);
                 }
-                let ip = ImageProcessor::<f32, Gray<f32>>::new_volume(w, h, d, dataf32, Gray::<f32>::new());
+                let ip = ImageProcessor::<f32, Gray<f32>>::new_volume(
+                    w,
+                    h,
+                    d,
+                    dataf32,
+                    Gray::<f32>::new(),
+                );
                 OutputProcessor::FloatProcessor(ip)
             }
             _ => OutputProcessor::Unknown(String::from("Unknown File Format")),
