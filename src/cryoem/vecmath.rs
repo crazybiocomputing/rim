@@ -57,9 +57,9 @@ pub fn bilinear_interpol(x: f64, y:f64, n_projections: &Image_Stack<X,T>)-> f64 
     let x_bis: i64 = math::round::floor(x);
     let y_bis: i64 = math::round::floor(y);
 
-    let X: f64 = (y_bis+1-y)*n_projection.data()[y_bis][x_bis] + (y -y_bis)*n_projection.data()[y_bis+1][x_bis];
-    let Y: f64 = (y_bis+1-y)*n_projection.data()[y_bis][x_bis+1] + (y -y_bis)*n_projection.data()[y_bis+1][x_bis+1];
-    let pixel_value: f64 = (x_bis+1-x)*X + (x-x_bis)*Y;
+    let X: f64 = (x_bis+1-x)*n_projection.data()[y_bis][x_bis] + (x -x_bis)*n_projection.data()[y_bis][x_bis+1];
+    let Y: f64 = (x_bis+1-x)*n_projection.data()[y_bis+1][x_bis] + (x - x_bis)*n_projection.data()[y_bis+1][x_bis+1];
+    let pixel_value: f64 = (y_bis+1-y)*X + (y-y_bis)*Y;
     return pixel_value;
 }
 
