@@ -80,6 +80,10 @@ fn main() {
 }
 */
 
+use crate::spr::SPR;
+
+mod spr;
+
 fn main() {
 
     /*
@@ -99,4 +103,5 @@ fn main() {
 
         // Histogramme théoriquement implémenté pour Float, pas eu le temps de tester
     */
+    SPR::start();
 }
