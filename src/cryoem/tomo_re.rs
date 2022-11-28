@@ -19,42 +19,51 @@
 //
 // Authors: Mathieu Arru, Léa Chabot
 
+use crate::image_stack::{ImageStack, self};
 use crate::{grayscale::Gray32, color_space::ColorSpace, float_processor::FloatProcessor};
 use std::{f64::consts::PI, vec};
 use crate::image_traits::Access;
 
-pub struct Section {}
+pub struct Section {
+    ip: FloatProcessor
+}
 
 impl Section {
 
-    pub fn new(ip: &FloatProcessor) -> FloatProcessor {
-        let mut result : Vec<f32> = vec![0.0 ; (ip.get_width()*ip.get_width()) as usize];
-        let angles = Self::compute_angles(ip);
-
-        for row in 0..angles.len(){ 
-            let bp = Self::back_projection_nearest(&ip, angles[row], row as u32);
-            for y in 0..ip.get_width(){
-                for x in 0..ip.get_width(){
-                    let index = x + ip.get_width()*y;
-                    result[index as usize] += bp[x as usize];
-                }
-            }
-            println!("{:?}", result);
+    pub fn new(ip: &FloatProcessor) -> Self {
+        Section {
+            ip: FloatProcessor::new(ip.get_width(),ip.get_width(), vec![0.0;(ip.get_width()*ip.get_width()) as usize], Gray32::new())
         }
-        FloatProcessor::new(ip.get_width(),ip.get_width(), result as Vec<f32>, Gray32::new())
+        
     }
 
-    // Back projection for an angle (linear)
-    pub fn back_projection_linear(ip : &FloatProcessor, angle : f32, y : u32) -> Vec<f32> {
-        let index = Self::rotate(ip, angle, y);
-        Self::interploate_linear(ip, index, y)
+    pub fn new_on_stack(stack: ImageStack<f32, Gray32> ){
+
     }
+
+
+    // TEST
+    pub fn back_projection(&mut self, sino : &FloatProcessor, angle : f32) {
+        //Compute center
+        let center: f32 = (sino.get_width()as f32/2.0).round();
+        for y in 0..self.ip.get_height(){
+            for x in 0..self.ip.get_width(){
+                let (xp,yp) = self.rotate(angle, x, y, center, center);
+                let px = sino.get_pixel_at(xp.floor() as u32,0).unwrap();
+                self.ip.set_pixel_at(x, y, px);
+            }
+        }
+    }
+
+
 
     // Back projection for an angle (nearest)
+    /* 
     pub fn back_projection_nearest(ip : &FloatProcessor, angle : f32, y : u32) -> Vec<f32> {
         let index = Self::rotate(ip, angle, y);
         Self::nearest(ip, index, y)
     }
+    */
 
 
     pub fn compute_angles(ip : &FloatProcessor) -> Vec<f32> {
@@ -66,23 +75,18 @@ impl Section {
         angles
     }
 
-    pub fn rotate(ip: &FloatProcessor, angle: f32, y: u32) -> Vec<(f32,f32)> {
-        let mut index = Vec::new();
+    pub fn rotate(&self , angle: f32, x: u32, y: u32, tx : f32, ty: f32) -> (f32,f32) {
 
-        //Compute center
-        let center: f32 = (ip.get_width()as f32/2.0).round();
+        
 
         // Convert the angle to radians
         let angle_rad: f32 = (angle as f32) * PI as f32 / 180.0;
 
         // Compute x' and y'
-        for x in 0..ip.get_width(){
-            let x_prime: f32 = (((x as f32) - center )*angle_rad.cos() - ((y as f32) - center)*angle_rad.sin()) as f32;
-            let y_prime: f32 = (((x as f32) - center )*angle_rad.sin() + ((y as f32) - center)*angle_rad.cos()) as f32;
-            index.push((x_prime, y_prime));
-            println!("XPRIME AVANT CENTER {x_prime}, YPRIME {y_prime}, ANGLE {angle}");
-        }
-        index
+        let x_prime: f32 = (((x as f32) - tx )*angle_rad.cos() - ((y as f32) - ty)*angle_rad.sin()) as f32;
+        let y_prime: f32 = (((x as f32) - tx )*angle_rad.sin() + ((y as f32) - ty)*angle_rad.cos()) as f32;
+        println!("XPRIME AVANT CENTER {x_prime}, YPRIME {y_prime}, ANGLE {angle}");
+        (x_prime, y_prime)
     }
 
     pub fn interploate_linear(ip: &FloatProcessor, index: Vec<(f32,f32)>, y: u32) -> Vec<f32>{
@@ -127,8 +131,8 @@ impl Section {
     result
     }
         
-
 }
+
     
 
 //#[cfg(test)]
@@ -177,8 +181,11 @@ impl Section {
             ];
 
 
-        let sino_ip = ImageProcessor::new(8,10, sinogram, Gray32::new());
-        let test = Section::new(&sino_ip);
+        let sino_ip = ImageProcessor::new(8,8, chessboard, Gray32::new());
+        //let test = Section::new(&sino_ip);
+        let mut result = Section::new(&sino_ip);
+        result.back_projection(&sino_ip, -45.0);
+        let test = result.ip;
         let op = OutputProcessor::FloatProcessor(test);
         FileSaver::save_processor("./src/cryoem/test_backprojection", FileInfo::GRAY32_FLOAT, op)
     }
