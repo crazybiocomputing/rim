@@ -2,6 +2,8 @@ use std::env;
 use std::fs::read;
 use num_traits::{Float, Pow, pow};
 use rim::{float_processor::FloatProcessor, grayscale::Gray32, image_processor::ImageProcessor, color_space::ColorSpace};
+use rim::cryoem::sinogram::Sinogram;
+use rim::grayscale::Gray;
 use rim::image_traits::Access;
 use rim::io::file_info::FileInfo;
 use rim::io::image_reader::{FileOpener, OutputProcessor};
@@ -81,7 +83,7 @@ fn cross_correlation(x : &Vec<f32>, y : &Vec<f32>) -> Vec<f32> {
     result
 }
 
-fn corr_1_line(colonne : &Vec<f32>, ip: &OutputProcessor) -> Vec<f32> {
+fn corr_1_line(colonne : &Vec<f32>, ip: &FloatProcessor) -> Vec<f32> {
     ///Generate a Vec<f32> containing the cross-correlation between a vector and all vector of a FloatProcessor.
     ///
     ///# Parameters
@@ -94,17 +96,15 @@ fn corr_1_line(colonne : &Vec<f32>, ip: &OutputProcessor) -> Vec<f32> {
     /// A Vec<f32> containing the cross-correlation between the vector and each column of the FloatProcessor.
     ///
     let mut corr = Vec::<f32>::new();
-    if let OutputProcessor::FloatProcessor(ip) = ip {
-
         for x in 0..ip.get_width() {
             let curr_col = get_col(ip, x);
             corr.push(euc_dist(colonne, &curr_col));
         }
-    }
+
     corr
 }
 
-fn get_col(ip: &ImageProcessor<f32, Gray32>, index: u32) -> Vec<f32> {
+fn get_col(ip: &FloatProcessor, index: u32) -> Vec<f32> {
     ///Get a specific column of pixels of a FloatProcessor
     ///
     /// # Parameters
@@ -141,27 +141,16 @@ fn euc_dist(vect1: &Vec<f32>, vect2: &Vec<f32>) -> f32 {
     sum.sqrt()
 }
 
-fn corr_sinogram(ip1 : &OutputProcessor, ip2 : &OutputProcessor) -> Vec<f32> {
+fn corr_sinogram(ip1 : &FloatProcessor, ip2 : &FloatProcessor) -> Vec<f32> {
     let mut scf = Vec::<f32>::new();
-    if let OutputProcessor::FloatProcessor(ip1) = &ip1{
         for x in 0..ip1.get_width() {
             let col = get_col(&ip1, x);
             let mut dist = corr_1_line(&col, &ip2);
             scf.append(&mut dist);
         }
-    }
     scf
 }
 
-fn get_col_test(oui: &Vec<f32>, col: u32) -> Vec<f32> {
-    let mut row: Vec<f32> = Vec::<f32>::new();
-    for y in 0..4 {
-        let index = (col + 4 * y) as usize;
-        let pixel = oui[index];
-        row.push(pixel);
-    }
-    row
-}
 
 fn percent_diff(num1 : f32, num2 : f32) -> f32 {
     if num1 > num2 {
@@ -172,21 +161,35 @@ fn percent_diff(num1 : f32, num2 : f32) -> f32 {
     }
 }
 
-fn read_image(filename : &str) -> OutputProcessor {
+
+fn get_sinogram(filename : &str) -> FloatProcessor{
+    let mut vect = Vec::<f32>::new();
+    let mut height = 0 as u32;
+    let mut width = 0 as u32;
     let proc = FileOpener::open_processor(filename, 128, 128, FileInfo::GRAY32_FLOAT);
-    proc
+    if let OutputProcessor::FloatProcessor(proc) = proc {
+        vect = proc.data().clone();
+        height = proc.get_height();
+        width = proc.get_width();
+    }
+    let start = 0 as f32;
+    let end = 180 as f32;
+    let step = 1 as f32;
+    let fp = ImageProcessor::new(width, height, vect, Gray32::new());
+    let op = Sinogram::new_in_range(&fp, start , end, step);
+    println!(vect.len());
+    op
+
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     dbg!(args);
-    
 
-    let img1 = read_image("./samples/7.raw");
-    let img2 = read_image("./samples/50.raw");
+    let sin1 = get_sinogram("./samples/7.raw");
+    let sin2 = get_sinogram("./samples/50.raw");
 
-
-    let corr_test = corr_sinogram(&img1, &img2);
+    let corr_test = corr_sinogram(&sin1, &sin2);
     for i in 0..128 {
         println!("index {}, valeur {}",i, corr_test[i])
     }
