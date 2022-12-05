@@ -160,12 +160,14 @@ fn euc_dist(vect1: &Vec<f32>, vect2: &Vec<f32>) -> f32 {
     sum.sqrt()
 }
 
-fn corr_sinogram(ip1 : &FloatProcessor, ip2 : &FloatProcessor) -> Vec<f32> {
-    let mut scf = Vec::<f32>::new();
+fn corr_sinogram(ip1 : &FloatProcessor, ip2 : &FloatProcessor) -> Vec< Vec<f32>> {
+    let mut scf = Vec::<Vec<f32>>::new();
         for x in 0..ip1.get_width() {
             let col = get_line(&ip1, x);
             let mut dist = corr_1_line(&col, &ip2);
-            scf.append(&mut dist);
+            let mut vec = Vec::new();
+            vec.push(dist);
+            scf.append(&mut vec);
         }
     scf
 }
