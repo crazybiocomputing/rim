@@ -43,14 +43,19 @@ impl Section {
 
 
     // TEST
-    pub fn back_projection(&mut self, sino : &FloatProcessor, angle : f32) {
+    pub fn back_projection(&mut self, sino : &FloatProcessor, angle : f32, method : bool) {
         //Compute center
-        let center: f32 = (sino.get_width()as f32/2.0).round();
+        let center: f32 = (sino.get_width()as f32/2.0).floor();
         for y in 0..self.ip.get_height(){
             for x in 0..self.ip.get_width(){
-                let (xp,yp) = self.rotate(angle, x, y, center, center);
-                let px = sino.get_pixel_at(xp.floor() as u32,0).unwrap();
-                self.ip.set_pixel_at(x, y, px);
+                let (xp, yp) = self.rotate(angle, x, y, center, center);
+                if method {
+                    let px = sino.get_pixel_at(xp.round() as u32,0).unwrap();
+                    self.ip.set_pixel_at(x, y, px);
+                }
+                else {
+                    self.interploate_linear(sino, xp, x, y)
+                }
             }
         }
     }
@@ -77,42 +82,35 @@ impl Section {
 
     pub fn rotate(&self , angle: f32, x: u32, y: u32, tx : f32, ty: f32) -> (f32,f32) {
 
-        
-
         // Convert the angle to radians
         let angle_rad: f32 = (angle as f32) * PI as f32 / 180.0;
 
         // Compute x' and y'
         let x_prime: f32 = (((x as f32) - tx )*angle_rad.cos() - ((y as f32) - ty)*angle_rad.sin()) as f32;
         let y_prime: f32 = (((x as f32) - tx )*angle_rad.sin() + ((y as f32) - ty)*angle_rad.cos()) as f32;
-        println!("XPRIME AVANT CENTER {x_prime}, YPRIME {y_prime}, ANGLE {angle}");
-        (x_prime, y_prime)
+        println!("XPRIME AVANT CENTER {x_prime}, XPRIME {}", x_prime+tx);
+        (x_prime + tx, y_prime + ty)
     }
 
-    pub fn interploate_linear(ip: &FloatProcessor, index: Vec<(f32,f32)>, y: u32) -> Vec<f32>{
-        let mut result : Vec<f32> = vec![0.0 ; ip.get_width() as usize];
-
-        //Compute center
-        let center: f32 = (ip.get_width()as f32/2.0).round();
-
-        for x in 0..ip.get_width(){
-            let x_prime = index[x as usize].0 + center;
-            if x_prime < 8.0 && x_prime > -1.0{
-                let x_floor = x_prime.floor();
-                let x_ceil = x_prime.ceil();
-                let x_floor_prop = x_ceil - x_prime;
+    pub fn interploate_linear(&mut self, sino : &FloatProcessor, xp: f32, x: u32, y: u32) {
+            if xp <= 7.0 && xp >= -0.0{
+                let x_floor = xp.floor();
+                let x_ceil = xp.ceil();
+                let x_floor_prop = x_ceil - xp;
                 let x_ceil_prop = 1.0 - x_floor_prop;
                 
                 if x_floor >= 0.0 {
-                    result[x_floor as usize] += ip.get_pixel_at(x as u32, y as u32).unwrap() as f32 * x_floor_prop; 
+                    let px = sino.get_pixel_at(xp as u32,0).unwrap() * x_floor_prop;
+                    let init_px = self.ip.get_pixel_at(x, y).unwrap();
+                    self.ip.set_pixel_at(x, y, init_px + px);
                 }
                 if x_ceil <= 7.0 {
-                    result[x_ceil as usize] += ip.get_pixel_at(x as u32, y as u32).unwrap() as f32 * x_ceil_prop; 
+                    let px = sino.get_pixel_at(xp as u32,0).unwrap() * x_ceil_prop;
+                    let init_px = self.ip.get_pixel_at(x, y).unwrap();
+                    self.ip.set_pixel_at(x, y, init_px + px);
                 }
             }
         }
-        result
-    }
 
     pub fn nearest(ip: &FloatProcessor, index: Vec<(f32,f32)>, y: u32) -> Vec<f32>{
         let mut result : Vec<f32> = vec![0.0 ; ip.get_width() as usize];
@@ -182,9 +180,8 @@ impl Section {
 
 
         let sino_ip = ImageProcessor::new(8,8, chessboard, Gray32::new());
-        //let test = Section::new(&sino_ip);
         let mut result = Section::new(&sino_ip);
-        result.back_projection(&sino_ip, -45.0);
+        result.back_projection(&sino_ip, -45.0, false);
         let test = result.ip;
         let op = OutputProcessor::FloatProcessor(test);
         FileSaver::save_processor("./src/cryoem/test_backprojection", FileInfo::GRAY32_FLOAT, op)
