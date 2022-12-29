@@ -50,11 +50,10 @@ impl Section {
             for x in 0..self.ip.get_width(){
                 let (xp, yp) = self.rotate(angle, x, y, center, center);
                 if method {
-                    let px = sino.get_pixel_at(xp.round() as u32,0).unwrap();
-                    self.ip.set_pixel_at(x, y, px);
+                    self.nearest(sino, xp, x, y);
                 }
                 else {
-                    self.interploate_linear(sino, xp, x, y)
+                    self.interploate_linear(sino, xp, x, y);
                 }
             }
         }
@@ -93,7 +92,7 @@ impl Section {
     }
 
     pub fn interploate_linear(&mut self, sino : &FloatProcessor, xp: f32, x: u32, y: u32) {
-            if xp <= 7.0 && xp >= -0.0{
+            if xp <= 7.0 && xp >= 0.0{
                 let x_floor = xp.floor();
                 let x_ceil = xp.ceil();
                 let x_floor_prop = x_ceil - xp;
@@ -112,23 +111,13 @@ impl Section {
             }
         }
 
-    pub fn nearest(ip: &FloatProcessor, index: Vec<(f32,f32)>, y: u32) -> Vec<f32>{
-        let mut result : Vec<f32> = vec![0.0 ; ip.get_width() as usize];
-
-        //Compute center
-        let center: f32 = (ip.get_width()as f32/2.0).round();
-
-        for x in 0..ip.get_width(){
-            let x_prime = index[x as usize].0.round() + center;
-            if x_prime >= 0.0 && x_prime < ip.get_width() as f32{
-                result[x_prime as usize] += ip.get_pixel_at(x as u32, y as u32).unwrap() as f32;
-                println!("XPRIME {x_prime} | VALUE ADD{}", ip.get_pixel_at(x as u32, y as u32).unwrap());
-            }
+    pub fn nearest(&mut self,  sino : &FloatProcessor, xp: f32, x: u32, y: u32) {
+        if xp >= 0.0 && xp <= 7.0 as f32{
+            let px = sino.get_pixel_at(xp.round() as u32,0).unwrap();
+            self.ip.set_pixel_at(x, y, px);
+            println!("XPRIME {xp} | VALUE ADD X{x} | VALUE ADD y{y}");
         }
-    println!("ROW ADD{:?}", result);
-    result
-    }
-        
+    }   
 }
 
     
